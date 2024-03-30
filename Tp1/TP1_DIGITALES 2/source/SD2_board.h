@@ -48,8 +48,10 @@ extern "C" {
 
 typedef enum
 {
-    BOARD_LED_ID_ROJO = 0,
-    BOARD_LED_ID_VERDE,
+    BOARD_LED_ID_LRR = 0,
+    BOARD_LED_ID_LVR,
+    BOARD_LED_ID_LRS,
+    BOARD_LED_ID_LVS,
     BOARD_LED_ID_TOTAL
 }board_ledId_enum;
 

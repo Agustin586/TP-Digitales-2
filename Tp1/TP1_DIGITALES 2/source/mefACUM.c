@@ -1,9 +1,9 @@
 
 /*==================[inclusions]=============================================*/
+#include <stdint.h>
 #include "mefACUM.h"
 #include "SD2_board.h"
 #include "key.h"
-
 /*==================[macros and typedef]=====================================*/
 
 typedef enum {
