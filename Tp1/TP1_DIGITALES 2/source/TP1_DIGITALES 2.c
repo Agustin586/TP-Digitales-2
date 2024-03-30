@@ -47,7 +47,6 @@
  * @brief   Application entry point.
  */
 int main(void) {
-
 	board_init();
 	BOARD_InitDebugConsole();
 	key_init();
@@ -57,11 +56,10 @@ int main(void) {
 	mefModo_init();
 
     while(1) {
-
+    	mefMODO ();
     }
     return 0 ;
 }
-
 
 void SysTick_Handler(void){
 	key_periodicTask1ms();
