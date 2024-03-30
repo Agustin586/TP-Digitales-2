@@ -36,6 +36,11 @@ static int32_t tim1mCRUCE;
 
 extern void mefCRUCE_init(void)
 {
+    mefCRUCE_reset();
+}
+
+extern void mefCRUCE_reset(void)
+{
     estMefCRUCE = EST_CRUCE_RESET;
     
     tim200msCRUCE = 200;
@@ -43,6 +48,7 @@ extern void mefCRUCE_init(void)
     tim1mCRUCE = 60000;
 
 }
+
 
 extern bool mefCRUCE(void)
 {
