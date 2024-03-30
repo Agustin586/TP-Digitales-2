@@ -67,7 +67,11 @@ extern bool mefCRUCE(void)
                 board_setLed(LVS, BOARD_LED_MSG_OFF);
             }
 
-            if( tim10sCRUCE == 0 ) estMefCRUCE = EST_CRUCE_HCP;
+            if( tim10sCRUCE == 0 )
+            {
+                estMefCRUCE = EST_CRUCE_HCP;
+                tim1mCRUCE = 60000; 
+            }
 
         break;
 
@@ -78,7 +82,13 @@ extern bool mefCRUCE(void)
             board_setLed(LRR, BOARD_LED_MSG_ON);
             board_setLed(LVS, BOARD_LED_MSG_ON);
 
-            if( tim1mCRUCE == 0 ) estMefCRUCE = EST_CRUCE_CP;
+            if( tim1mCRUCE == 0 )
+            {
+                estMefCRUCE = EST_CRUCE_CP;
+
+                tim10sCRUCE = 10000;
+                tim200msCRUCE = 200;
+            }
 
         break;
 

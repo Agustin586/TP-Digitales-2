@@ -57,8 +57,8 @@ typedef enum
 
 typedef enum
 {
-    BOARD_SW_ID_1 = 0,
-    BOARD_SW_ID_3,
+    BOARD_SW_ID_PULS = 0,
+    BOARD_SW_ID_SENSOR,
     BOARD_SW_ID_TOTAL
 }board_swId_enum;
 

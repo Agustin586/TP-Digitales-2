@@ -19,7 +19,7 @@ typedef enum {
 static estMefACUM_enum estMefACUM;
 static int32_t tim5sACUM;
 static int32_t tim200msACUM;
-static int8_t contAutosACUM = 2;
+static int8_t contAutosACUM;
 
 /*==================[external data definition]===============================*/
 
@@ -62,6 +62,7 @@ extern bool mefACUM(void)
             {
                 tim5sACUM = 300000;
                 estMefACUM = EST_ACUM_HPS;
+                contAutosACUM = 2;
             }
 
         break;
@@ -86,6 +87,8 @@ extern bool mefACUM(void)
                 board_setLed(LVS, BOARD_LED_MSG_OFF);
 
                 estMefACUM = EST_ACUM_CS;
+
+                tim5sACUM = 300000;  tim200msACUM = 200;
             }
 
         break;
