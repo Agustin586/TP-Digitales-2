@@ -1,0 +1,4 @@
+../source/SD2_board.c:68:6:board_init	24	static
+../source/SD2_board.c:127:6:board_setLed	0	static
+../source/SD2_board.c:148:6:board_getSw	0	static
+../source/SD2_board.c:157:6:board_getLed	0	static

@@ -1,5 +1,5 @@
 /*
- * mefCRUCE.c
+ * mefCruce.c
  *
  *  Created on: 29 mar. 2024
  *      Author: aguat
@@ -7,119 +7,143 @@
 
 
 /*==================[inclusions]=============================================*/
-#include "mefCRUCE.h"
+#include "mefCruce.h"
 #include "SD2_board.h"
 #include "key.h"
 
 /*==================[macros and typedef]=====================================*/
-
 typedef enum {
     EST_CRUCE_RESET = 0,
     EST_CRUCE_HCP,
-    EST_CRUCE_CP
-}estMefCRUCE_enum;
+    EST_CRUCE_CP,
+}estMefCruce_enum;
+
+#define DELAY_200ms	200
+#define DELAY_10Seg	10000
+#define DELAY_1Min	60000
+
+#define LVR_id	BOARD_LED_ID_LVR
+#define LRR_id	BOARD_LED_ID_LRR
+#define LVS_id	BOARD_LED_ID_LVS
+#define LRS_id BOARD_LED_ID_LRS
+
+#define ON		BOARD_LED_MSG_ON
+#define OFF		BOARD_LED_MSG_OFF
+#define TOGGLE 	BOARD_LED_MSG_TOGGLE
+
+#define LVR(X) 	board_setLed(LVR_id, X)
+#define LRR(X)	board_setLed(LRR_id, X)
+#define LVS(X)	board_setLed(LVS_id, X)
+#define LRS(X)	board_setLed(LRS_id, X)
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-
-static estMefCRUCE_enum estMefCRUCE;
-static int32_t tim200msCRUCE;
-static int32_t tim10sCRUCE;
-static int32_t tim1mCRUCE;
+static estMefCruce_enum estMefCruce;
+static int32_t DELAY_200ms_CRUCE;
+static int32_t DELAY_10Seg_CRUCE;
+static int32_t DELAY_1Min_CRUCE;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern void mefCruce_init(void){
+    mefCruce_reset();
 
-extern void mefCRUCE_init(void)
-{
-    mefCRUCE_reset();
+    return;
 }
 
-extern void mefCRUCE_reset(void)
-{
-    estMefCRUCE = EST_CRUCE_RESET;
+extern void mefCruce_reset(void){
+    estMefCruce = EST_CRUCE_RESET;
     
-    tim200msCRUCE = 200;
-    tim10sCRUCE = 10000;
-    tim1mCRUCE = 60000;
+    DELAY_200ms_CRUCE = DELAY_200ms;
+    DELAY_10Seg_CRUCE = DELAY_10Seg;
+    DELAY_1Min_CRUCE = DELAY_1Min;
 
+    return;
 }
 
 
-extern bool mefCRUCE(void)
-{
-    bool ret = 0;
-
-    switch (estMefSW1)
-    {
+extern bool mefCruce(void){
+    switch (estMefCruce){
         case EST_CRUCE_RESET:
-            
-            if (tim200msCRUCE == 0)
-            {
-                tim200msCRUCE = 200;
-                board_setLed(LVR, BOARD_LED_MSG_TOGGLE);
-                board_setLed(LRS, BOARD_LED_MSG_ON);
-                board_setLed(LRR, BOARD_LED_MSG_OFF);
-                board_setLed(LVS, BOARD_LED_MSG_OFF);
+            if (!DELAY_200ms_CRUCE){
+                DELAY_200ms_CRUCE = DELAY_200ms;
+
+                LVR(TOGGLE);
             }
 
-            if( tim10sCRUCE == 0 )
-            {
-                estMefCRUCE = EST_CRUCE_HCP;
-                tim1mCRUCE = 60000; 
+            LRS(ON);
+            LRR(OFF);
+            LVS(OFF);
+
+            if (!DELAY_10Seg_CRUCE){
+                estMefCruce = EST_CRUCE_HCP;
+                DELAY_1Min_CRUCE = DELAY_10Seg;
             }
 
         break;
 
         case EST_CRUCE_HCP:
-            
-            board_setLed(LVR, BOARD_LED_MSG_OFF);
-            board_setLed(LRS, BOARD_LED_MSG_OFF);
-            board_setLed(LRR, BOARD_LED_MSG_ON);
-            board_setLed(LVS, BOARD_LED_MSG_ON);
+        	LVR(OFF);
+        	LRS(OFF);
+        	LRR(ON);
+        	LVS(ON);
 
-            if( tim1mCRUCE == 0 )
-            {
-                estMefCRUCE = EST_CRUCE_CP;
+            if (!DELAY_1Min_CRUCE){
+                estMefCruce = EST_CRUCE_CP;
 
-                tim10sCRUCE = 10000;
-                tim200msCRUCE = 200;
+                DELAY_10Seg_CRUCE = DELAY_10Seg;
+                DELAY_200ms_CRUCE = DELAY_200ms;
             }
 
         break;
 
         case EST_CRUCE_CP:
-            
-            if (tim200msCRUCE == 0)
-            {
-                tim200msCRUCE = 200;
-                board_setLed(LRR, BOARD_LED_MSG_TOGGLE);
-                board_setLed(LRS, BOARD_LED_MSG_OFF);
-                board_setLed(LVR, BOARD_LED_MSG_OFF);
-                board_setLed(LVS, BOARD_LED_MSG_ON);
+            if (!DELAY_200ms_CRUCE){
+                DELAY_200ms_CRUCE = DELAY_200ms;
+                LRR(TOGGLE);
             }
 
-            if (tim10sCRUCE == 0)
-            {
-                estMefCRUCE = EST_CRUCE_RESET;
-                ret = 1;
+            LRS(OFF);
+            LVR(OFF);
+            LVS(ON);
+
+            if (!DELAY_10Seg_CRUCE){
+                estMefCruce = EST_CRUCE_RESET;
+                return 1;
             }
 
         break;
 
     }
 
-    return ret;
+    return 0;
 }
 
-extern void mefCRUCE_task1ms(void)
-{
-    if (tim1msCRUCE)
-        tim1msCRUCE--;
+extern void mefCruce_task1ms(void){
+	if (estMefCruce == EST_CRUCE_RESET){
+		if (DELAY_200ms_CRUCE)
+			DELAY_200ms_CRUCE--;
+		if (DELAY_10Seg_CRUCE)
+			DELAY_10Seg_CRUCE--;
+	}
+
+	if (estMefCruce == EST_CRUCE_HCP){
+		if (DELAY_1Min_CRUCE)
+			DELAY_1Min_CRUCE--;
+	}
+
+	if (estMefCruce == EST_CRUCE_CP){
+		if (DELAY_200ms_CRUCE)
+			DELAY_200ms_CRUCE--;
+		if (DELAY_10Seg_CRUCE)
+			DELAY_10Seg_CRUCE--;
+	}
+
+	return;
 }
 
 

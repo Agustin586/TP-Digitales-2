@@ -5,26 +5,42 @@
  *      Author: aguat
  */
 
+/*==================[inclusions]=============================================*/
 #include "mefMODO.h"
+#include "mefRUTA.h"
+#include "mefACUM.h"
+#include "mefCRUCE.h"
+#include "mefSEC.h"
 
+/*==================[macros and typedef]=====================================*/
 typedef enum{
 	EST_MODO_RUTA = 0,
 	EST_MODO_CRUCE,
 	EST_MODO_SEC,
 	EST_MODO_ACUM,
-	SAL_RUTA_IDLE,
 }estMefModo_enum;
 
 typedef enum{
 	SAL_RUTA_CRUCE = 0,
 	SAL_RUTA_SEC,
 	SAL_RUTA_ACUM,
+	SAL_RUTA_IDLE,
 }salMefRuta_enum;
 
-static estMefModo_enum estMefModo;
+/*==================[internal functions declaration]=========================*/
 
+/*==================[internal data definition]===============================*/
+static estMefModo_enum estMefModo;
+static salMefRuta_enum SalidaMefRuta;
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
 extern void mefModo_init(void){
 	estMefModo = EST_MODO_RUTA;
+	SalidaMefRuta = SAL_RUTA_IDLE;
 
 	mefRuta_init();
 	mefSec_init();
@@ -35,20 +51,22 @@ extern void mefModo_init(void){
 }
 
 extern void mefModo(void){
+	uint8_t TipoSalidaMefRuta;
+
 	switch (estMefModo){
 		case EST_MODO_RUTA:
-			static salMefRuta_enum SalidaMefRuta;
+			TipoSalidaMefRuta = mefRuta();
 
-			if (mefRuta() == SAL_RUTA_CRUCE)
+			if (TipoSalidaMefRuta == SAL_RUTA_CRUCE)
 				estMefModo = EST_MODO_CRUCE, mefCruce_init ();
-			if (mefRuta() == SAL_RUTA_SEC)
+			if (TipoSalidaMefRuta == SAL_RUTA_SEC)
 				estMefModo = EST_MODO_SEC, mefSec_init ();
-			if (mefRuta() == SAL_RUTA_ACUM)
+			if (TipoSalidaMefRuta == SAL_RUTA_ACUM)
 				estMefModo = EST_MODO_ACUM, mefAcum_init ();
 
 			/* Redundante!!! */
-			if (mefRuta() == SAL_RUTA_IDLE)
-				estMefModo = EST_MODO_RUTA;
+//			if (mefRuta() == SAL_RUTA_IDLE)
+//				estMefModo = EST_MODO_RUTA;
 
 			break;
 		case EST_MODO_SEC:

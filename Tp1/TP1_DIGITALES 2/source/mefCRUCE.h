@@ -14,10 +14,10 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-extern void mefCRUCE_reset(void);
-extern void mefCRUCE_init(void);
-extern bool mefCRUCE(void);
-extern void mefCRUCE_task1ms(void);
+extern void mefCruce_reset(void);
+extern void mefCruce_init(void);
+extern bool mefCruce(void);
+extern void mefCruce_task1ms(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

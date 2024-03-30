@@ -1,0 +1,8 @@
+../drivers/fsl_gpio.c:81:17:GPIO_GetInstance	8	static
+../drivers/fsl_gpio.c:166:17:FGPIO_GetInstance	8	static
+../drivers/fsl_gpio.c:99:6:GPIO_PinInit	8	static
+../drivers/fsl_gpio.c:115:10:GPIO_PortGetInterruptFlags	8	static
+../drivers/fsl_gpio.c:124:6:GPIO_PortClearInterruptFlags	8	static
+../drivers/fsl_gpio.c:194:6:FGPIO_PinInit	8	static
+../drivers/fsl_gpio.c:209:10:FGPIO_PortGetInterruptFlags	8	static
+../drivers/fsl_gpio.c:218:6:FGPIO_PortClearInterruptFlags	8	static

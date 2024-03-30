@@ -1,0 +1,4 @@
+../source/mefRUTA.c:63:13:mefRuta_reset	0	static
+../source/mefRUTA.c:57:13:mefRuta_init	8	static
+../source/mefRUTA.c:72:16:mefRuta	8	static
+../source/mefRUTA.c:112:13:mefRuta_task1ms	0	static

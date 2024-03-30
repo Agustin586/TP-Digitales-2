@@ -1,0 +1,4 @@
+../source/mefCRUCE.c:58:13:mefCruce_reset	0	static
+../source/mefCRUCE.c:52:13:mefCruce_init	8	static
+../source/mefCRUCE.c:69:13:mefCruce	8	static
+../source/mefCRUCE.c:126:13:mefCruce_task1ms	0	static

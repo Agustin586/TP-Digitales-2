@@ -4,8 +4,8 @@
 #include "mefACUM.h"
 #include "SD2_board.h"
 #include "key.h"
-/*==================[macros and typedef]=====================================*/
 
+/*==================[macros and typedef]=====================================*/
 typedef enum {
     EST_ACUM_RESET = 0,
     EST_ACUM_HPS,
@@ -15,63 +15,62 @@ typedef enum {
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-
 static estMefACUM_enum estMefACUM;
-static int32_t tim5sACUM;
-static int32_t tim200msACUM;
+static int32_t DELAY_5Seg_ACUM;
+static int32_t DELAY_200ms_ACUM;
 static int8_t contAutosACUM;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+#define DELAY_5Seg	5000
+#define DELAY_200ms	200
+#define LVR	BOARD_LED_ID_LVR
+#define LRR	BOARD_LED_ID_LRR
+#define LVS	BOARD_LED_ID_LVS
+#define LRS BOARD_LED_ID_LRS
 
 /*==================[external functions definition]==========================*/
+extern void mefAcum_init(void){
+    mefAcum_reset();
 
-extern void mefACUM_init(void)
-{
-    mefACUM_reset();
+    return;
 }
 
-extern void mefACUM_reset(void)
-{
+extern void mefAcum_reset(void){
     estMefACUM = EST_ACUM_RESET;
     
-    tim5sACUM = 300000;
-    tim200msACUM = 200;
+    DELAY_5Seg_ACUM = DELAY_5Seg;
+    DELAY_200ms_ACUM = DELAY_200ms;
+
+    return;
 }
 
 
-extern bool mefACUM(void)
-{
-    bool ret = 0;
+extern bool mefAcum(void){
 
-    switch (estMefSW1)
-    {
+    switch (estMefACUM){
         case EST_ACUM_RESET:
-            
-            if (tim200msACUM == 0)
-            {
-                tim200msACUM = 200;
+            if (DELAY_200ms_ACUM == 0){
+                DELAY_200ms_ACUM = 200;
                 board_setLed(LVR, BOARD_LED_MSG_TOGGLE);
                 board_setLed(LRS, BOARD_LED_MSG_ON);
                 board_setLed(LRR, BOARD_LED_MSG_OFF);
                 board_setLed(LVS, BOARD_LED_MSG_OFF);
             }
 
-            if( tim5sACUM == 0 )
-            {
-                tim5sACUM = 300000;
+            if( DELAY_5Seg_ACUM == 0 ){
+                DELAY_5Seg_ACUM = 300000;
                 estMefACUM = EST_ACUM_HPS;
                 contAutosACUM = 2;
             }
 
-        break;
+            break;
 
         case EST_ACUM_HPS:
-            
-            if( contAutosACUM != 0 )
-            {
-                if( key_getPressEv(SENSOR) ) contAutosACUM--;
+            if( contAutosACUM != 0 ){
+                if(key_getPressEv(BOARD_SW_ID_SENSOR))
+                	contAutosACUM--;
                 
                 board_setLed(LRR, BOARD_LED_MSG_ON);
                 board_setLed(LRS, BOARD_LED_MSG_OFF);
@@ -79,8 +78,7 @@ extern bool mefACUM(void)
                 board_setLed(LVS, BOARD_LED_MSG_ON);
             }
 
-            else
-            {
+            else{
                 board_setLed(LRR, BOARD_LED_MSG_OFF);
                 board_setLed(LRS, BOARD_LED_MSG_OFF);
                 board_setLed(LVR, BOARD_LED_MSG_OFF);
@@ -88,39 +86,46 @@ extern bool mefACUM(void)
 
                 estMefACUM = EST_ACUM_CS;
 
-                tim5sACUM = 300000;  tim200msACUM = 200;
+                DELAY_5Seg_ACUM = DELAY_5Seg;  DELAY_200ms_ACUM = DELAY_200ms;
             }
+            break;
 
-        break;
-
-        case EST_ACUM_CP:
-            
-            if (tim200msACUM == 0)
-            {
-                tim200msACUM = 200;
+        case EST_ACUM_CS:
+            if (!DELAY_200ms_ACUM){
+                DELAY_200ms_ACUM = 200;
                 board_setLed(LVS, BOARD_LED_MSG_TOGGLE);
                 board_setLed(LRS, BOARD_LED_MSG_OFF);
                 board_setLed(LVR, BOARD_LED_MSG_OFF);
                 board_setLed(LRR, BOARD_LED_MSG_ON);
             }
 
-            if (tim5sACUM == 0)
-            {
+            if (!DELAY_5Seg_ACUM){
                 estMefACUM = EST_ACUM_RESET;
-                ret = 1;
+                return 1;
             }
-
-        break;
+            break;
 
     }
 
-    return ret;
+    return 0;
 }
 
-extern void mefACUM_task1ms(void)
-{
-    if (tim1msACUM)
-        tim1msACUM--;
+extern void mefAcum_task1ms(void){
+    if (estMefACUM == EST_ACUM_RESET){
+    	if (DELAY_200ms_ACUM)
+    		DELAY_200ms_ACUM--;
+    	if (DELAY_5Seg_ACUM)
+    		DELAY_5Seg_ACUM--;
+    }
+
+    if (estMefACUM == EST_ACUM_CS){
+    	if (DELAY_200ms_ACUM)
+			DELAY_200ms_ACUM--;
+		if (DELAY_5Seg_ACUM)
+			DELAY_5Seg_ACUM--;
+    }
+
+    return;
 }
 
 

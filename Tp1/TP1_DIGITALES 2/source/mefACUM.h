@@ -2,7 +2,7 @@
 #define MEF_ACUM_H
 
 /*==================[inclusions]=============================================*/
-#include "stdbool.h"
+#include <stdbool.h>
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -14,10 +14,10 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-extern void mefACUM_reset(void);
-extern void mefACUM_init(void);
-extern bool mefACUM(void);
-extern void mefACUM_task1ms(void);
+extern void mefAcum_reset(void);
+extern void mefAcum_init(void);
+extern bool mefAcum(void);
+extern void mefAcum_task1ms(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

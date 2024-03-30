@@ -39,6 +39,10 @@
 #include "clock_config.h"
 #include "MKL46Z4.h"
 #include "fsl_debug_console.h"
+#include "mefMODO.h"
+#include "SD2_board.h"
+#include "key.h"
+
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -46,7 +50,7 @@
 /*
  * @brief   Application entry point.
  */
-int main(void) {
+int main(void){
 	board_init();
 	BOARD_InitDebugConsole();
 	key_init();
@@ -56,8 +60,9 @@ int main(void) {
 	mefModo_init();
 
     while(1) {
-    	mefMODO ();
+    	mefModo ();
     }
+
     return 0 ;
 }
 
