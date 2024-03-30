@@ -19,7 +19,7 @@ typedef enum{
 
 #define DELAY_200ms	200
 #define DELAY_5Seg	5000
-#define DELAY_30Seg	30000
+#define DELAY_30Seg	5000
 
 #define LVR_id	BOARD_LED_ID_LVR
 #define LRR_id	BOARD_LED_ID_LRR

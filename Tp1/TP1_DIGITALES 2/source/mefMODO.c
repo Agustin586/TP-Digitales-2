@@ -58,20 +58,16 @@ extern void mefModo(void){
 			TipoSalidaMefRuta = mefRuta();
 
 			if (TipoSalidaMefRuta == SAL_RUTA_CRUCE)
-				estMefModo = EST_MODO_CRUCE, mefCruce_init ();
+				estMefModo = EST_MODO_CRUCE, mefCruce_reset ();
 			if (TipoSalidaMefRuta == SAL_RUTA_SEC)
-				estMefModo = EST_MODO_SEC, mefSec_init ();
+				estMefModo = EST_MODO_SEC, mefSec_reset ();
 			if (TipoSalidaMefRuta == SAL_RUTA_ACUM)
-				estMefModo = EST_MODO_ACUM, mefAcum_init ();
-
-			/* Redundante!!! */
-//			if (mefRuta() == SAL_RUTA_IDLE)
-//				estMefModo = EST_MODO_RUTA;
+				estMefModo = EST_MODO_ACUM, mefAcum_reset ();
 
 			break;
 		case EST_MODO_SEC:
 			if (mefSec ())
-				estMefModo = EST_MODO_RUTA, mefRuta_init ();
+				estMefModo = EST_MODO_RUTA, mefRuta_reset ();
 			break;
 		case EST_MODO_CRUCE:
 			if (mefCruce ())
@@ -79,7 +75,7 @@ extern void mefModo(void){
 			break;
 		case EST_MODO_ACUM:
 			if (mefAcum ())
-				estMefModo = EST_MODO_RUTA, mefRuta_init ();
+				estMefModo = EST_MODO_RUTA, mefRuta_reset ();
 			break;
 	}
 	return;

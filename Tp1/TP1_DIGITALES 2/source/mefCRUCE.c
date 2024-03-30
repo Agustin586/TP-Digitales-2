@@ -20,7 +20,7 @@ typedef enum {
 
 #define DELAY_200ms	200
 #define DELAY_10Seg	10000
-#define DELAY_1Min	60000
+#define DELAY_1Min	5000
 
 #define LVR_id	BOARD_LED_ID_LVR
 #define LRR_id	BOARD_LED_ID_LRR
@@ -81,7 +81,7 @@ extern bool mefCruce(void){
 
             if (!DELAY_10Seg_CRUCE){
                 estMefCruce = EST_CRUCE_HCP;
-                DELAY_1Min_CRUCE = DELAY_10Seg;
+                DELAY_1Min_CRUCE = DELAY_1Min;
             }
 
         break;
