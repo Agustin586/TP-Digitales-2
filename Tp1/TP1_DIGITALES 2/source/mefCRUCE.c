@@ -10,6 +10,8 @@
 #include "mefCruce.h"
 #include "SD2_board.h"
 #include "key.h"
+#include "DELAYS.h"
+#include "LXX.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum {
@@ -17,24 +19,6 @@ typedef enum {
     EST_CRUCE_HCP,
     EST_CRUCE_CP,
 }estMefCruce_enum;
-
-#define DELAY_200ms	200
-#define DELAY_10Seg	10000
-#define DELAY_1Min	5000
-
-#define LVR_id	BOARD_LED_ID_LVR
-#define LRR_id	BOARD_LED_ID_LRR
-#define LVS_id	BOARD_LED_ID_LVS
-#define LRS_id BOARD_LED_ID_LRS
-
-#define ON		BOARD_LED_MSG_ON
-#define OFF		BOARD_LED_MSG_OFF
-#define TOGGLE 	BOARD_LED_MSG_TOGGLE
-
-#define LVR(X) 	board_setLed(LVR_id, X)
-#define LRR(X)	board_setLed(LRR_id, X)
-#define LVS(X)	board_setLed(LVS_id, X)
-#define LRS(X)	board_setLed(LRS_id, X)
 
 /*==================[internal functions declaration]=========================*/
 

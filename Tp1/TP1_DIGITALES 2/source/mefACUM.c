@@ -4,6 +4,9 @@
 #include "mefACUM.h"
 #include "SD2_board.h"
 #include "key.h"
+#include "DELAYS.h"
+#include "LXX.h"
+#include "DETAUTOS.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum {
@@ -18,17 +21,10 @@ typedef enum {
 static estMefACUM_enum estMefACUM;
 static int32_t DELAY_5Seg_ACUM;
 static int32_t DELAY_200ms_ACUM;
-static int8_t contAutosACUM;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-#define DELAY_5Seg	5000
-#define DELAY_200ms	200
-#define LVR	BOARD_LED_ID_LVR
-#define LRR	BOARD_LED_ID_LRR
-#define LVS	BOARD_LED_ID_LVS
-#define LRS BOARD_LED_ID_LRS
 
 /*==================[external functions definition]==========================*/
 extern void mefAcum_init(void){
@@ -48,41 +44,39 @@ extern void mefAcum_reset(void){
 
 
 extern bool mefAcum(void){
-
     switch (estMefACUM){
         case EST_ACUM_RESET:
-            if (DELAY_200ms_ACUM == 0){
-                DELAY_200ms_ACUM = 200;
-                board_setLed(LVR, BOARD_LED_MSG_TOGGLE);
-                board_setLed(LRS, BOARD_LED_MSG_ON);
-                board_setLed(LRR, BOARD_LED_MSG_OFF);
-                board_setLed(LVS, BOARD_LED_MSG_OFF);
+            if (!DELAY_200ms_ACUM){
+                DELAY_200ms_ACUM = DELAY_200ms;
+                LVR(TOGGLE);
             }
 
-            if( DELAY_5Seg_ACUM == 0 ){
-                DELAY_5Seg_ACUM = 300000;
+            LRS(ON);
+            LRR(OFF);
+            LVS(OFF);
+
+            if(!DELAY_5Seg_ACUM){
+                DELAY_5Seg_ACUM = DELAY_5Seg;
                 estMefACUM = EST_ACUM_HPS;
-                contAutosACUM = 2;
             }
 
             break;
 
         case EST_ACUM_HPS:
-            if( contAutosACUM != 0 ){
-                if(key_getPressEv(BOARD_SW_ID_SENSOR))
-                	contAutosACUM--;
+            if(detautos_getTotal()){
+				detautos_dec();
                 
-                board_setLed(LRR, BOARD_LED_MSG_ON);
-                board_setLed(LRS, BOARD_LED_MSG_OFF);
-                board_setLed(LVR, BOARD_LED_MSG_OFF);
-                board_setLed(LVS, BOARD_LED_MSG_ON);
+				LRR(ON);
+				LVS(ON);
+				LRS(OFF);
+				LVR(OFF);
             }
 
             else{
-                board_setLed(LRR, BOARD_LED_MSG_OFF);
-                board_setLed(LRS, BOARD_LED_MSG_OFF);
-                board_setLed(LVR, BOARD_LED_MSG_OFF);
-                board_setLed(LVS, BOARD_LED_MSG_OFF);
+            	LRR(OFF);
+            	LRS(OFF);
+            	LVR(OFF);
+            	LVS(OFF);
 
                 estMefACUM = EST_ACUM_CS;
 
@@ -92,11 +86,11 @@ extern bool mefAcum(void){
 
         case EST_ACUM_CS:
             if (!DELAY_200ms_ACUM){
-                DELAY_200ms_ACUM = 200;
-                board_setLed(LVS, BOARD_LED_MSG_TOGGLE);
-                board_setLed(LRS, BOARD_LED_MSG_OFF);
-                board_setLed(LVR, BOARD_LED_MSG_OFF);
-                board_setLed(LRR, BOARD_LED_MSG_ON);
+                DELAY_200ms_ACUM = DELAY_200ms,LVS(TOGGLE);
+
+                LRS(OFF);
+                LVR(OFF);
+                LRR(ON);
             }
 
             if (!DELAY_5Seg_ACUM){

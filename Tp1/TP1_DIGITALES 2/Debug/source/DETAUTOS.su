@@ -1,0 +1,3 @@
+../source/DETAUTOS.c:12:13:detautos_inc	8	static
+../source/DETAUTOS.c:19:16:detautos_getTotal	0	static
+../source/DETAUTOS.c:23:13:detautos_dec	8	static

@@ -1,4 +1,4 @@
-../source/mefSEC.c:56:13:mefSec_reset	0	static
-../source/mefSEC.c:50:13:mefSec_init	8	static
-../source/mefSEC.c:63:13:mefSec	8	static
-../source/mefSEC.c:95:13:mefSec_task1ms	0	static
+../source/mefSEC.c:40:13:mefSec_reset	0	static
+../source/mefSEC.c:34:13:mefSec_init	8	static
+../source/mefSEC.c:47:13:mefSec	8	static
+../source/mefSEC.c:79:13:mefSec_task1ms	0	static

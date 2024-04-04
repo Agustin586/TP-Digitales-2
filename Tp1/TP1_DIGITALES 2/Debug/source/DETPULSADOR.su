@@ -1,0 +1,2 @@
+../source/DETPULSADOR.c:14:13:detpulsador_reset	8	static
+../source/DETPULSADOR.c:23:13:detpulsador_getPress	8	static

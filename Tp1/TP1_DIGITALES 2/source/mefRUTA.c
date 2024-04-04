@@ -9,6 +9,10 @@
 #include "mefRUTA.h"
 #include "SD2_board.h"
 #include "key.h"
+#include "DELAYS.h"
+#include "LXX.h"
+#include "DETAUTOS.h"
+#include "DETPULSADOR.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum{
@@ -23,31 +27,11 @@ typedef enum{
 	SAL_RUTA_IDLE,
 }salMefRuta_enum;
 
-#define DELAY_200ms	200
-#define DELAY_5Seg	5000
-#define DELAY_2Min	5000
-
-#define LVR_id	BOARD_LED_ID_LVR
-#define LRR_id	BOARD_LED_ID_LRR
-#define LVS_id	BOARD_LED_ID_LVS
-#define LRS_id 	BOARD_LED_ID_LRS
-
-#define ON		BOARD_LED_MSG_ON
-#define OFF		BOARD_LED_MSG_OFF
-#define TOGGLE 	BOARD_LED_MSG_TOGGLE
-
-#define LVR(X) 	board_setLed(LVR_id, X)
-#define LRR(X)	board_setLed(LRR_id, X)
-#define LVS(X)	board_setLed(LVS_id, X)
-#define LRS(X)	board_setLed(LRS_id, X)
-
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 static estMefRuta_enum estMefRuta;
 static uint32_t DELAY_2Min_RUTA,DELAY_5Seg_RUTA,DELAY_200ms_RUTA;
-static uint8_t ContAutos_Secundario;
-static bool PULS;
 
 /*==================[external data definition]===============================*/
 
@@ -63,11 +47,7 @@ extern void mefRuta_init(void){
 extern void mefRuta_reset(void){
 	estMefRuta = EST_RUTA_HPR;
 	DELAY_2Min_RUTA = DELAY_2Min;
-	ContAutos_Secundario = 0;
-	PULS = 0;
-
-	/* Reinicio el event switch */
-	key_getPressEv(BOARD_SW_ID_PULS);
+	detpulsador_reset();
 
 	return;
 }
@@ -75,16 +55,8 @@ extern void mefRuta_reset(void){
 extern uint8_t mefRuta(void){
 	static salMefRuta_enum SalMefRuta;
 
-	if (key_getPressEv(BOARD_SW_ID_PULS) && !PULS){
-		PULS=1;
-		return SalMefRuta = SAL_RUTA_CRUCE;
-	}
-
-	if (key_getPressEv(BOARD_SW_ID_SENSOR))
-		ContAutos_Secundario++;
-
-	if (ContAutos_Secundario == 3)
-		return SalMefRuta = SAL_RUTA_ACUM;
+	/* Detecta si debe incrementar */
+	detautos_inc();
 
 	switch (estMefRuta){
 		case EST_RUTA_HPR:
@@ -98,6 +70,13 @@ extern uint8_t mefRuta(void){
 
 				estMefRuta = EST_RUTA_CR;
 			}
+
+			if (detpulsador_getPress())
+				return SalMefRuta = SAL_RUTA_CRUCE;
+
+			/* Permite la transición */
+			if (detautos_getTotal() >= 3)
+				return SalMefRuta = SAL_RUTA_ACUM;
 
 			break;
 		case EST_RUTA_CR:
