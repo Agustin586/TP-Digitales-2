@@ -19,7 +19,7 @@
 /*==================[external functions declaration]=========================*/
 extern void mefRuta_init(void);
 extern void mefRuta_reset(void);
-extern uint8_t mefRuta(void);
+extern void mefRuta(void);
 extern void mefRuta_task1ms(void);
 
 /*==================[end of file]============================================*/

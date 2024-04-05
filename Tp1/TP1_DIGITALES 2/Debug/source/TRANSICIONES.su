@@ -1,0 +1,3 @@
+../source/TRANSICIONES.c:12:13:trans_reset	0	static
+../source/TRANSICIONES.c:18:13:trans_setSalida	0	static
+../source/TRANSICIONES.c:24:16:trans_getSalida	0	static

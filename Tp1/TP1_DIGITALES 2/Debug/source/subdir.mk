@@ -8,6 +8,7 @@ C_SRCS += \
 ../source/DETPULSADOR.c \
 ../source/SD2_board.c \
 ../source/TP1_DIGITALES\ 2.c \
+../source/TRANSICIONES.c \
 ../source/key.c \
 ../source/mefACUM.c \
 ../source/mefCRUCE.c \
@@ -22,6 +23,7 @@ C_DEPS += \
 ./source/DETPULSADOR.d \
 ./source/SD2_board.d \
 ./source/TP1_DIGITALES\ 2.d \
+./source/TRANSICIONES.d \
 ./source/key.d \
 ./source/mefACUM.d \
 ./source/mefCRUCE.d \
@@ -36,6 +38,7 @@ OBJS += \
 ./source/DETPULSADOR.o \
 ./source/SD2_board.o \
 ./source/TP1_DIGITALES\ 2.o \
+./source/TRANSICIONES.o \
 ./source/key.o \
 ./source/mefACUM.o \
 ./source/mefCRUCE.o \
@@ -65,7 +68,7 @@ source/TP1_DIGITALES\ 2.o: ../source/TP1_DIGITALES\ 2.c source/subdir.mk
 clean: clean-source
 
 clean-source:
-	-$(RM) ./source/DETAUTOS.d ./source/DETAUTOS.o ./source/DETPULSADOR.d ./source/DETPULSADOR.o ./source/SD2_board.d ./source/SD2_board.o ./source/TP1_DIGITALES\ 2.d ./source/TP1_DIGITALES\ 2.o ./source/key.d ./source/key.o ./source/mefACUM.d ./source/mefACUM.o ./source/mefCRUCE.d ./source/mefCRUCE.o ./source/mefMODO.d ./source/mefMODO.o ./source/mefRUTA.d ./source/mefRUTA.o ./source/mefSEC.d ./source/mefSEC.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o
+	-$(RM) ./source/DETAUTOS.d ./source/DETAUTOS.o ./source/DETPULSADOR.d ./source/DETPULSADOR.o ./source/SD2_board.d ./source/SD2_board.o ./source/TP1_DIGITALES\ 2.d ./source/TP1_DIGITALES\ 2.o ./source/TRANSICIONES.d ./source/TRANSICIONES.o ./source/key.d ./source/key.o ./source/mefACUM.d ./source/mefACUM.o ./source/mefCRUCE.d ./source/mefCRUCE.o ./source/mefMODO.d ./source/mefMODO.o ./source/mefRUTA.d ./source/mefRUTA.o ./source/mefSEC.d ./source/mefSEC.o ./source/mtb.d ./source/mtb.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o
 
 .PHONY: clean-source
 

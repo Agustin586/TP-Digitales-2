@@ -13,19 +13,13 @@
 #include "LXX.h"
 #include "DETAUTOS.h"
 #include "DETPULSADOR.h"
+#include "TRANSICIONES.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum{
 	EST_RUTA_HPR = 0,
 	EST_RUTA_CR,
 }estMefRuta_enum;
-
-typedef enum{
-	SAL_RUTA_CRUCE = 0,
-	SAL_RUTA_SEC,
-	SAL_RUTA_ACUM,
-	SAL_RUTA_IDLE,
-}salMefRuta_enum;
 
 /*==================[internal functions declaration]=========================*/
 #define CANT_MAX_AUTOS_ACUM	3
@@ -53,7 +47,7 @@ extern void mefRuta_reset(void){
 	return;
 }
 
-extern uint8_t mefRuta(void){
+extern void mefRuta(void){
 	static salMefRuta_enum SalMefRuta;
 
 	/* Detecta si debe incrementar */
@@ -73,11 +67,11 @@ extern uint8_t mefRuta(void){
 			}
 
 			if (detpulsador_getPress())
-				return SalMefRuta = SAL_RUTA_CRUCE;
+				trans_setSalida(SalMefRuta = SAL_RUTA_CRUCE);
 
 			/* Permite la transición */
 			if (detautos_getTotal() >= CANT_MAX_AUTOS_ACUM)
-				return SalMefRuta = SAL_RUTA_ACUM;
+				trans_setSalida(SalMefRuta = SAL_RUTA_ACUM);
 
 			break;
 		case EST_RUTA_CR:
@@ -89,11 +83,11 @@ extern uint8_t mefRuta(void){
 			LVS(OFF);
 
 			if (!DELAY_5Seg_RUTA)
-				return SalMefRuta = SAL_RUTA_SEC;
+				trans_setSalida(SalMefRuta = SAL_RUTA_SEC);
 			break;
 	}
 
-	return SalMefRuta = SAL_RUTA_IDLE;
+	return;
 }
 
 extern void mefRuta_task1ms(void){

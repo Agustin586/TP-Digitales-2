@@ -11,6 +11,7 @@
 #include "mefACUM.h"
 #include "mefCRUCE.h"
 #include "mefSEC.h"
+#include "TRANSICIONES.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum{
@@ -20,18 +21,10 @@ typedef enum{
 	EST_MODO_ACUM,
 }estMefModo_enum;
 
-typedef enum{
-	SAL_RUTA_CRUCE = 0,
-	SAL_RUTA_SEC,
-	SAL_RUTA_ACUM,
-	SAL_RUTA_IDLE,
-}salMefRuta_enum;
-
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 static estMefModo_enum estMefModo;
-static salMefRuta_enum SalidaMefRuta;
 
 /*==================[external data definition]===============================*/
 
@@ -40,7 +33,7 @@ static salMefRuta_enum SalidaMefRuta;
 /*==================[external functions definition]==========================*/
 extern void mefModo_init(void){
 	estMefModo = EST_MODO_RUTA;
-	SalidaMefRuta = SAL_RUTA_IDLE;
+	trans_reset();
 
 	mefRuta_init();
 	mefSec_init();
@@ -51,18 +44,18 @@ extern void mefModo_init(void){
 }
 
 extern void mefModo(void){
-	uint8_t TipoSalidaMefRuta;
 
 	switch (estMefModo){
 		case EST_MODO_RUTA:
-			TipoSalidaMefRuta = mefRuta();
 
-			if (TipoSalidaMefRuta == SAL_RUTA_CRUCE)
-				estMefModo = EST_MODO_CRUCE, mefCruce_reset ();
-			if (TipoSalidaMefRuta == SAL_RUTA_SEC)
-				estMefModo = EST_MODO_SEC, mefSec_reset ();
-			if (TipoSalidaMefRuta == SAL_RUTA_ACUM)
-				estMefModo = EST_MODO_ACUM, mefAcum_reset ();
+			mefRuta();
+
+			if (trans_getSalida() == SAL_RUTA_CRUCE)
+				estMefModo = EST_MODO_CRUCE, mefCruce_reset (), trans_reset ();
+			if (trans_getSalida() == SAL_RUTA_SEC)
+				estMefModo = EST_MODO_SEC, mefSec_reset (), trans_reset ();
+			if (trans_getSalida() == SAL_RUTA_ACUM)
+				estMefModo = EST_MODO_ACUM, mefAcum_reset (), trans_reset ();
 
 			break;
 		case EST_MODO_SEC:
