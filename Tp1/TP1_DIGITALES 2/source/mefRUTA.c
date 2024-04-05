@@ -28,6 +28,7 @@ typedef enum{
 }salMefRuta_enum;
 
 /*==================[internal functions declaration]=========================*/
+#define CANT_MAX_AUTOS_ACUM	3
 
 /*==================[internal data definition]===============================*/
 static estMefRuta_enum estMefRuta;
@@ -75,7 +76,7 @@ extern uint8_t mefRuta(void){
 				return SalMefRuta = SAL_RUTA_CRUCE;
 
 			/* Permite la transición */
-			if (detautos_getTotal() >= 3)
+			if (detautos_getTotal() >= CANT_MAX_AUTOS_ACUM)
 				return SalMefRuta = SAL_RUTA_ACUM;
 
 			break;

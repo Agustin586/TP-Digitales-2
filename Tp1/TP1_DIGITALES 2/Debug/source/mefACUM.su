@@ -1,4 +1,4 @@
 ../source/mefACUM.c:36:13:mefAcum_reset	0	static
 ../source/mefACUM.c:30:13:mefAcum_init	8	static
-../source/mefACUM.c:46:13:mefAcum	8	static
-../source/mefACUM.c:107:13:mefAcum_task1ms	0	static
+../source/mefACUM.c:45:13:mefAcum	8	static
+../source/mefACUM.c:110:13:mefAcum_task1ms	0	static

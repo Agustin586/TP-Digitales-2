@@ -12,7 +12,7 @@
 typedef enum {
     EST_ACUM_RESET = 0,
     EST_ACUM_HPS,
-    EST_ACUM_CS
+    EST_ACUM_CS,
 }estMefACUM_enum;
 
 /*==================[internal functions declaration]=========================*/
@@ -42,7 +42,6 @@ extern void mefAcum_reset(void){
     return;
 }
 
-
 extern bool mefAcum(void){
     switch (estMefACUM){
         case EST_ACUM_RESET:
@@ -54,6 +53,8 @@ extern bool mefAcum(void){
             LRS(ON);
             LRR(OFF);
             LVS(OFF);
+
+            detautos_inc();
 
             if(!DELAY_5Seg_ACUM){
                 DELAY_5Seg_ACUM = DELAY_5Seg;
@@ -82,6 +83,7 @@ extern bool mefAcum(void){
 
                 DELAY_5Seg_ACUM = DELAY_5Seg;  DELAY_200ms_ACUM = DELAY_200ms;
             }
+
             break;
 
         case EST_ACUM_CS:
@@ -97,6 +99,7 @@ extern bool mefAcum(void){
                 estMefACUM = EST_ACUM_RESET;
                 return 1;
             }
+
             break;
 
     }
@@ -121,7 +124,6 @@ extern void mefAcum_task1ms(void){
 
     return;
 }
-
 
 /*==================[end of file]============================================*/
 
