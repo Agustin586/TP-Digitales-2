@@ -6,8 +6,17 @@
  */
 
 #include "DETAUTOS.h"
+#include "key.h"
 
 static uint8_t ContAutos = 0;
+
+extern void detautos_reset(void){
+	ContAutos = 0;
+
+	key_getPressEv(BOARD_SW_ID_SENSOR);
+
+	return;
+}
 
 extern void detautos_inc(){
 	if (key_getPressEv(BOARD_SW_ID_SENSOR))

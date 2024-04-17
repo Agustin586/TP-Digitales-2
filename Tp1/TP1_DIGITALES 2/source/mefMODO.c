@@ -12,6 +12,7 @@
 #include "mefCRUCE.h"
 #include "mefSEC.h"
 #include "TRANSICIONES.h"
+#include "DETAUTOS.h"
 
 /*==================[macros and typedef]=====================================*/
 typedef enum{
@@ -64,7 +65,7 @@ extern void mefModo(void){
 			break;
 		case EST_MODO_CRUCE:
 			if (mefCruce ())
-				estMefModo = EST_MODO_RUTA;
+				estMefModo = EST_MODO_RUTA, detautos_reset ();
 			break;
 		case EST_MODO_ACUM:
 			if (mefAcum ())

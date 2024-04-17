@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.pemicro.debug.gdbjtag.pne.launchConfigurationType">
     <stringAttribute key="com.crt.ctrlcenter.OFSemuDetails" value="PEMicro0F7A4E69"/>
-    <booleanAttribute key="com.crt.ctrlcenter.saveState" value="true"/>
     <stringAttribute key="com.crt.ctrlcenter.serialNumber" value="USB1 - OpenSDA (0F7A4E69)"/>
     <mapAttribute key="com.crt.ctrlcenter.symbolsGroupSettings"/>
     <intAttribute key="com.nxp.mcuxpresso.core.datamodels.ui.launchers.PELaunchConfigHandler.version" value="1"/>
@@ -84,8 +83,8 @@
     <booleanAttribute key="com.pemicro.debug.gdbjtag.pne.eraseOptionsenabled" value="false"/>
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.gdbClientOtherCommands" value="set mem inaccessible-by-default off&#10;set tcp auto-retry on&#10;set tcp connect-timeout 240&#10;set remotetimeout 60"/>
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.gdbClientOtherOptions" value=""/>
-    <intAttribute key="com.pemicro.debug.gdbjtag.pne.gdbServerTelnetPortNumber" value="51795"/>
-    <intAttribute key="com.pemicro.debug.gdbjtag.pne.gdbmiPortNumber" value="6225"/>
+    <intAttribute key="com.pemicro.debug.gdbjtag.pne.gdbServerTelnetPortNumber" value="51804"/>
+    <intAttribute key="com.pemicro.debug.gdbjtag.pne.gdbmiPortNumber" value="6284"/>
     <intAttribute key="com.pemicro.debug.gdbjtag.pne.jtagPreIrBits" value="0"/>
     <intAttribute key="com.pemicro.debug.gdbjtag.pne.jtagTapNumber" value="0"/>
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.macScript" value=""/>
@@ -138,7 +137,7 @@
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.sda.SWO_BAUDRATE_SWITCH_MULTILINK_VALUE" value="-1.000000"/>
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.sda.SWO_BAUDRATE_SWITCH_TARGET_VALUE" value="-1.000000"/>
     <intAttribute key="com.pemicro.debug.gdbjtag.pne.selectedCoreNumber" value="1"/>
-    <intAttribute key="com.pemicro.debug.gdbjtag.pne.serverPortNumber" value="7225"/>
+    <intAttribute key="com.pemicro.debug.gdbjtag.pne.serverPortNumber" value="7284"/>
     <booleanAttribute key="com.pemicro.debug.gdbjtag.pne.trc_eth.ALWAYS_ERASE" value="false"/>
     <stringAttribute key="com.pemicro.debug.gdbjtag.pne.trc_eth.CYCLONE_IP" value=""/>
     <booleanAttribute key="com.pemicro.debug.gdbjtag.pne.trc_eth.DO_RESET_DELAY" value="false"/>

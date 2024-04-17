@@ -42,7 +42,9 @@ extern void mefRuta_init(void){
 extern void mefRuta_reset(void){
 	estMefRuta = EST_RUTA_HPR;
 	DELAY_2Min_RUTA = DELAY_2Min;
+
 	detpulsador_reset();
+	detautos_reset();
 
 	return;
 }
