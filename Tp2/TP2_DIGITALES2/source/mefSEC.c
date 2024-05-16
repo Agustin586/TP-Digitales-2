@@ -1,6 +1,7 @@
 #include "mefSEC.h"
 #include "MACROS.h"
 #include "mma8451.h"
+#include "tareasRtos.h"
 
 static uint32_t ValNorma_Max=0;
 static estMefSec_enum estMefSec;
@@ -39,7 +40,7 @@ extern void mefSEC(void){
 		LED_ROJO(OFF);
 
 		/* CAMBIO DE ESTADO */
-		if (mefAcelerometro_getProcFreefall()) {
+		if (tareasRtos_getEst_IntFreefall()) {
 			estMefSecuencia = EST_SECUENCIA_CAIDALIBRE;		// Cambia de estado
 			Delay_ms = DELAY_500ms;	// Configura el delay para el proximo estado
 		}

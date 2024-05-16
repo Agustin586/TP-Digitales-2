@@ -5,6 +5,7 @@
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
+#include "semphr.h"
 
 #define STACK_SIZE	configMINIMAL_STACK_SIZE+10
 #define TASK_MEF_PRIORITY		3
@@ -35,5 +36,17 @@ extern void tareasRtos_TaskDisplay(void *pvparameters);
  * @brief Tarea que toma datos del acelerometro en el tiempo
  * */
 extern void tareasRtos_TaskRxMMA8451(void *pvparameters);
+
+/*
+ * @brief Interrupcion por freefall
+ * */
+extern static void tareasRtos_Freefall_Interrupt(void);
+
+/*
+ * @brief Devuelve el estado de la bandera de interrupcion
+ *
+ * @return bool
+ * */
+extern bool tareasRtos_getEst_IntFreefall(void);
 
 #endif /* TAREASRTOS_H_ */

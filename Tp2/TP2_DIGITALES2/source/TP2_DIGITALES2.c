@@ -80,12 +80,7 @@ static void Software_SysTick(void);
  * */
 static void Semaphore_init(void);
 
-/*
- * @brief Interrupcion por freefal
- * */
-static void Freefall_Interrupt(void);
-
-xSemaphoreHandle FreefallSemaphore;
+xSemaphoreHandle FreefallSemaphore,DrydSemaphore;
 
 /*
  * @brief   Application entry point.
@@ -106,6 +101,7 @@ int main(void) {
 	mma8451_init();
 
     Tareas_init();
+    Semaphore_init();
     Timers_init();
 
     vTaskStartScheduler();
@@ -131,8 +127,8 @@ void Tareas_init(void){
 		PRINTF("No se pudo crear Tarea display");
 
 	/* RECEPCION CONTINUA DE DATOS POR MMA8451 */
-	if (xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE, NULL, TASK_RX_MMA8451_PRIORITY, NULL) != pdPASS)
-		PRINTF("No se pudo crear Tarea de recepcion de datos mma8451");
+//	if (xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE, NULL, TASK_RX_MMA8451_PRIORITY, NULL) != pdPASS)
+//		PRINTF("No se pudo crear Tarea de recepcion de datos mma8451");
 
 	return;
 }
@@ -141,23 +137,14 @@ static void Semaphore_init(void){
 	FreefallSemaphore = xSemaphoreCreateBinary();
 
 	if (FreefallSemaphore != NULL) {
-		xTaskCreate(Freefall_Interrupt, "Interrupcion Freefall", STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
+		xTaskCreate(tareasRtos_Freefall_Interrupt, "Interrupcion Freefall", STACK_SIZE, NULL, configMAX_PRIORITIES, NULL);
 	}
 
-	return;
-}
+	DrydSemaphore = xSemaphoreCreateBinary();
 
-static void Freefall_Interrupt(void){
-
-	for(;;) {
-		PRINTF("Caida Libre\r\n");
-
-
-
-		xSemaphoreTake(FreefallSemaphore, portMAX_DELAY);
+	if (DrydSemaphore != NULL) {
+		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE, NULL, TASK_RX_MMA8451_PRIORITY, NULL);
 	}
-
-//	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptOrDMADisabled);	// Deshabilita la interrupcion 2
 
 	return;
 }
@@ -167,28 +154,10 @@ void PORTC_PORTD_IRQHandler(void)
 	BaseType_t xHigherPriorityTaskWoken;
 
 	/* INTERRUPCION POR DATOS LISTOS */
-//    if (PORT_GetPinsInterruptFlags(INT1_PORT)){
-//
-//
-//		ReadNorma = mma8451_norma_cuadrado();
-//
-//		/* MAXIMA NORMA */
-//		if (ReadNorma > ValNorma_Max && ReadNorma <= THS_REF_RANGO_2G_CUADRADO) {
-//			PRINTF("EjeX:%d\nEjeY:%d\nEjeZ:%d\n", mma8451_getAcX(),
-//					mma8451_getAcY(), mma8451_getAcZ());
-//			ValNorma_Max = ReadNorma;
-//			MaxX = mma8451_getAcX();
-//			MaxY = mma8451_getAcY();
-//			MaxZ = mma8451_getAcZ();
-//		}
-//
-////		if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
-////			if (ReadNorma < THS_MAX_FF_CUADRADO)
-////
-////		}
-//		PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);
-//    	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);							// Limpia la bandera de interrupcion 1
-//    }
+    if (PORT_GetPinsInterruptFlags(INT1_PORT)){
+    	xSemaphoreGiveFromISR(DrydSemaphore, xHigherPriorityTaskWoken);
+    	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+    }
 
     /* INTERRUPCION POR FREEFALL */
     if (PORT_GetPinsInterruptFlags(INT2_PORT)){

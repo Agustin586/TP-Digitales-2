@@ -271,8 +271,8 @@ static void config_port_int1(void)
 	   0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
 	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
-//	NVIC_EnableIRQ(PORTC_PORTD_IRQn);
-//	NVIC_SetPriority(PORTC_PORTD_IRQn, -1);
+	NVIC_EnableIRQ(PORTC_PORTD_IRQn);
+	NVIC_SetPriority(PORTC_PORTD_IRQn, 0);
 }
 
 static void config_port_int2(void)
@@ -428,56 +428,6 @@ uint32_t mma8451_norma_cuadrado(void)
 	Z = mma8451_getAcZ();
 
 	return (uint32_t) (X*X) + (Y*Y) + (Z*Z); // (es más rapido de computar y permite maximizar la aceleracion igualmente)
-}
-
-void PORTC_PORTD_IRQHandler(void)
-{
-	/* INTERRUPCION POR DATOS LISTOS */
-    if (PORT_GetPinsInterruptFlags(INT1_PORT)){
-    	mma8451_IntDRYD();
-
-		ReadNorma = mma8451_norma_cuadrado();
-
-		/* MAXIMA NORMA */
-		if (ReadNorma > ValNorma_Max && ReadNorma <= THS_REF_RANGO_2G_CUADRADO) {
-			PRINTF("EjeX:%d\nEjeY:%d\nEjeZ:%d\n", mma8451_getAcX(),
-					mma8451_getAcY(), mma8451_getAcZ());
-			ValNorma_Max = ReadNorma;
-			MaxX = mma8451_getAcX();
-			MaxY = mma8451_getAcY();
-			MaxZ = mma8451_getAcZ();
-		}
-
-		if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
-			if (ReadNorma < THS_MAX_FF_CUADRADO)
-				PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);
-		}
-
-    	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);							// Limpia la bandera de interrupcion 1
-    }
-
-    /* INTERRUPCION POR FREEFALL */
-    else if (PORT_GetPinsInterruptFlags(INT2_PORT) && !ff_flag){
-		ff_flag = 1;		// Bandera de interrupcion para leer en mefacelerometro
-
-    	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptOrDMADisabled);	// Deshabilita la interrupcion 2
-    	PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
-    }
-
-    /* ====================================================================================================================
-     * NOTA: Detectamos la interrupcion por algunos de los casos, pero a la vez deshabilitamos las interrupciones por ese
-     * pin hasta que sea procesada la interrupcion en la mefAcelerometro.
-     * ====================================================================================================================
-     *  */
-
-    /* ====================================================================================================================
-	 * NOTA 2: Debido a problemas que se presentaron y que tuvieron solución desde las 7 de la mañana se tuvo que corregir
-	 * la lógica de la obtención de datos y ahora se toman directamente sobre este interrupción. Resultados: anda mucho
-	 * que la otra lógica. Posdata: le pegué tremenda pata a la pared. Posposdata: Quiero mis cariñosas. Saludos.
-	 * ====================================================================================================================
-	 *  */
-
-    return;
 }
 
 extern uint32_t mma8451_getNormMax_cuad(void){
@@ -733,8 +683,6 @@ void mma8451_enableDRDYInt(void){
 	////////////////////////////////////////////////////////////////////////////////////
 
 	mma8451_activar();
-
-	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
 	return;
 }
