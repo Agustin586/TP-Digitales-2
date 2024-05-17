@@ -64,6 +64,24 @@ typedef enum
 /** \brief puerto I2C utilizado en el acelerómetro  */
 #define MMA8451_I2C     I2C0
 
+#define INT1_PORT       PORTC
+#define INT1_GPIO       GPIOC
+#define INT1_PIN        5
+
+#define INT2_PORT       PORTD
+#define INT2_GPIO       GPIOD
+#define INT2_PIN        1
+
+#define G				9.8
+#define t_s(d)			sqrt(((2*d)/100.0)/G)
+#define THS_cm(d)		((d/100.0)*2)/(G*t_s(d)*t_s(d))
+#define THS_CM_TO_COUNT	0.063
+
+#define G_THS		0.7
+#define THS_MAX_FF 	G_THS*100
+#define THS_MAX_FF_CUADRADO	THS_MAX_FF*THS_MAX_FF
+#define THS_REF_RANGO_2G_CUADRADO	200*200
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
@@ -94,8 +112,6 @@ void mma8451_setDataRate(DR_enum rate);
 void mma8451_FFinit(void);
 void mma8451_DRDYinit(void);
 
-float mma8451_norma(void);
-
 uint32_t mma8451_norma_cuadrado(void);
 
 void mma8451_enableDRDYInt(void);
@@ -105,12 +121,6 @@ extern void mma8451_IntFF(void);
 extern void mma8451_IntDRYD(void);
 void mma8451_resetDRYDflag(void);
 uint8_t mma8451_getDRYDflag(void);
-
-extern void mma8451_HabilitarInt2(void);
-extern void mma8451_HabilitarInt1(void);
-
-extern uint32_t mma8451_getNormMax_cuad(void);
-extern void mma8451_clrNormMax(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

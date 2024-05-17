@@ -2,14 +2,15 @@
 #include "MACROS.h"
 #include "mma8451.h"
 #include "tareasRtos.h"
+#include "math.h"
+#include "queue.h"
 
+static uint16_t Delay_ms,Delay2_ms;
 static uint32_t ValNorma_Max=0;
 static estMefSec_enum estMefSec;
 
-#define G_THS		0.7
-#define THS_MAX_FF 	G_THS*100
-#define THS_MAX_FF_CUADRADO	THS_MAX_FF*THS_MAX_FF
-#define THS_REF_RANGO_2G_CUADRADO	200*200
+#define DELAY_SOFTTIMER_500ms	50
+#define DELAY_SOFTTIMER_10s		10*100
 
 extern estMefSec_enum mefSEC_getEstado(void){
 	return estMefSec;
@@ -41,8 +42,7 @@ extern void mefSEC(void){
 
 		/* CAMBIO DE ESTADO */
 		if (tareasRtos_getEst_IntFreefall()) {
-			estMefSecuencia = EST_SECUENCIA_CAIDALIBRE;		// Cambia de estado
-			Delay_ms = DELAY_500ms;	// Configura el delay para el proximo estado
+			estMefSec = EST_SECUENCIA_CAIDALIBRE;		// Cambia de estado
 		}
 
 		break;
@@ -57,24 +57,38 @@ extern void mefSEC(void){
 	case EST_SECUENCIA_CAIDALIBRE:
 		LED_AZUL(OFF);
 
-		/* CAMBIO DE ESTADO */
-		if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
-			Delay_ms = DELAY_10seg;
-			Delay2_ms = DELAY_500ms;
+		if (xQueueReceive(tareasRtos_getQueue_Norma(), &ValNorma_Max,
+				DELAY_100ms) != errQUEUE_EMPTY) {
 
-			LED_ROJO(OFF);
-			SW_Pulsado(SW1);
+			/* CAMBIO DE ESTADO */
+			if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
+				Delay_ms = DELAY_SOFTTIMER_10s;
+				Delay2_ms = DELAY_SOFTTIMER_500ms;
 
-			PRINTF("\nNorma Maxima:%.2f\n",
-					mefSEC_getNormaMaxima() / 100.0);
+				LED_ROJO(OFF);
 
-			estMefSecuencia = EST_SECUENCIA_RESULTADO;
+				PRINTF("\nNorma Maxima:%.2f\n",
+						mefSEC_getNormaMaxima() / 100.0);
+
+				estMefSec = EST_SECUENCIA_RESULTADO;
+			}
 		}
 
 		break;
 
 	case EST_SECUENCIA_RESULTADO:
+		if (!Delay2_ms){
+			LED_ROJO(TOGGLE);
+			Delay2_ms = DELAY_SOFTTIMER_500ms;
+		}
 
+		if (!Delay_ms || key_getPressEvRTOS(SW1)){
+			ValNorma_Max = 0;
+
+			tareasRtos_reset_IntFreefall();
+
+			estMefSec = EST_SECUENCIA_REPOSO;
+		}
 
 		break;
 	default:
@@ -85,6 +99,10 @@ extern void mefSEC(void){
 }
 
 extern void mefSEC_periodicTask1ms(void){
+	if (estMefSec != EST_SECUENCIA_REPOSO){
+		if (Delay_ms)	Delay_ms--;
+		if (Delay2_ms)	Delay2_ms--;
+	}
 
 	return;
 }

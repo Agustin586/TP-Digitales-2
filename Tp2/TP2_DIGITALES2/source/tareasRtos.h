@@ -6,6 +6,7 @@
 #include "queue.h"
 #include "timers.h"
 #include "semphr.h"
+#include <stdbool.h>
 
 #define STACK_SIZE	configMINIMAL_STACK_SIZE+10
 #define TASK_MEF_PRIORITY		3
@@ -40,7 +41,7 @@ extern void tareasRtos_TaskRxMMA8451(void *pvparameters);
 /*
  * @brief Interrupcion por freefall
  * */
-extern static void tareasRtos_Freefall_Interrupt(void);
+extern void tareasRtos_Freefall_Interrupt(void *pvparameters);
 
 /*
  * @brief Devuelve el estado de la bandera de interrupcion
@@ -48,5 +49,17 @@ extern static void tareasRtos_Freefall_Interrupt(void);
  * @return bool
  * */
 extern bool tareasRtos_getEst_IntFreefall(void);
+
+/*
+ * @brief Resetea la bandera
+ * */
+extern void tareasRtos_reset_IntFreefall(void);
+
+/*
+ * @brief Devuelve la cola utilizada para la Norma
+ *
+ * @return xQueueHandle
+ * */
+extern xQueueHandle tareasRtos_getQueue_Norma(void);
 
 #endif /* TAREASRTOS_H_ */
