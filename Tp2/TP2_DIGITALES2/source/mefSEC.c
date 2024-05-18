@@ -4,10 +4,13 @@
 #include "tareasRtos.h"
 #include "math.h"
 #include "queue.h"
+#include "display.h"
 
 static uint16_t Delay_ms,Delay2_ms;
 static uint32_t ValNorma_Max=0;
 static estMefSec_enum estMefSec;
+
+extern xQueueHandle queue_NormaMaxima;
 
 #define DELAY_SOFTTIMER_500ms	50
 #define DELAY_SOFTTIMER_10s		10*100
@@ -57,8 +60,7 @@ extern void mefSEC(void){
 	case EST_SECUENCIA_CAIDALIBRE:
 		LED_AZUL(OFF);
 
-		if (xQueueReceive(tareasRtos_getQueue_Norma(), &ValNorma_Max,
-				DELAY_100ms) != errQUEUE_EMPTY) {
+		if (xQueueReceive(queue_NormaMaxima, &ValNorma_Max, DELAY_100ms) != errQUEUE_EMPTY) {
 
 			/* CAMBIO DE ESTADO */
 			if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
@@ -67,7 +69,7 @@ extern void mefSEC(void){
 
 				LED_ROJO(OFF);
 
-				PRINTF("\nNorma Maxima:%.2f\n",
+				PRINTF("\nNorma Maxima:%.2f\r\n",
 						mefSEC_getNormaMaxima() / 100.0);
 
 				estMefSec = EST_SECUENCIA_RESULTADO;
@@ -81,6 +83,10 @@ extern void mefSEC(void){
 			LED_ROJO(TOGGLE);
 			Delay2_ms = DELAY_SOFTTIMER_500ms;
 		}
+
+//		display_mostrarResultado(mefSEC_getNormaMaxima()/100.0);
+		display_frame();
+		display_mostrarResultado(300/100.0);
 
 		if (!Delay_ms || key_getPressEvRTOS(SW1)){
 			ValNorma_Max = 0;

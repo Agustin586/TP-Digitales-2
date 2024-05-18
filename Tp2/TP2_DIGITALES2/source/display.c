@@ -37,7 +37,6 @@ static char* intToString(float numero) {
 }
 
 extern void display_mostrarResultado(float res){
-	oled_clearScreen(OLED_COLOR_BLACK);
 	oled_putString(15, 32, (uint8_t *)"ACELERACION MAXIMA", BLANCO, NEGRO);
 	oled_putString(50, 50, (uint8_t *)intToString(res), BLANCO, NEGRO);
 

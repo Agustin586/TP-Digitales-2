@@ -55,11 +55,4 @@ extern bool tareasRtos_getEst_IntFreefall(void);
  * */
 extern void tareasRtos_reset_IntFreefall(void);
 
-/*
- * @brief Devuelve la cola utilizada para la Norma
- *
- * @return xQueueHandle
- * */
-extern xQueueHandle tareasRtos_getQueue_Norma(void);
-
 #endif /* TAREASRTOS_H_ */

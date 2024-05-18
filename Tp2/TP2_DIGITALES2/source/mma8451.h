@@ -77,7 +77,7 @@ typedef enum
 #define THS_cm(d)		((d/100.0)*2)/(G*t_s(d)*t_s(d))
 #define THS_CM_TO_COUNT	0.063
 
-#define G_THS		0.7
+#define G_THS		0.8
 #define THS_MAX_FF 	G_THS*100
 #define THS_MAX_FF_CUADRADO	THS_MAX_FF*THS_MAX_FF
 #define THS_REF_RANGO_2G_CUADRADO	200*200
@@ -101,9 +101,6 @@ int16_t mma8451_getAcX(void);
 int16_t mma8451_getAcY(void);
 int16_t mma8451_getAcZ(void);
 
-uint8_t mma8451_getFFflag(void);
-void mma8451_resetFFflag(void);
-
 void mma8451_activar(void);
 void mma8451_desactivar(void);
 
@@ -119,8 +116,6 @@ void mma8451_disableDRDYInt(void);
 
 extern void mma8451_IntFF(void);
 extern void mma8451_IntDRYD(void);
-void mma8451_resetDRYDflag(void);
-uint8_t mma8451_getDRYDflag(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

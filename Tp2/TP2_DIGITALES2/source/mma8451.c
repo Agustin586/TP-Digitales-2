@@ -396,11 +396,6 @@ uint32_t mma8451_norma_cuadrado(void)
 
 /* FUNCIONES DE FREEFALL */
 ///////////////////////////
-
-/*!
- * @brief Configura el freefall y la interrupcion por freefall
- *
- * */
 void mma8451_FFinit(void) {
 	/* Configuración de interrupción */
 	/*================================================================================*/
@@ -411,84 +406,94 @@ void mma8451_FFinit(void) {
 	ctrl_reg1.ACTIVE = 0;
 	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
 
-	mma8451_write_reg(0x2A, 0X20);
-	mma8451_write_reg(0x15, 0XB8);
-	mma8451_write_reg(0x17, 0X03);
-	mma8451_write_reg(0x18, 0X06);
-	mma8451_write_reg(0x2D, 0X04);
-	mma8451_write_reg(0x2E, 0X00);
+//	mma8451_write_reg(0x2A, 0X20);
+//	mma8451_write_reg(0x15, 0XB8);
+//	mma8451_write_reg(0x17, 0X03);
+//	mma8451_write_reg(0x18, 0X06);
+//	mma8451_write_reg(0x2D, 0X04);
+//	mma8451_write_reg(0x2E, 0X00);
 
 //	mma8451_read_reg(CTRL_REG4_ADDRESS);
 //	mma8451_write_reg(0x2A, 0X00);
 
-
-//	/* REGISTRO 4 */
-//	////////////////////////////////////////////////////////////////////////////////////
-//	ctrl_reg4.INT_EN_DRDY   = 0;	// Interrupción por drdy
-//	ctrl_reg4.INT_EN_FF_MT  = 1; 	// Interrupción por freefall
-//	ctrl_reg4.INT_EN_PULSE  = 0;
-//	ctrl_reg4.INT_EN_LNDPRT = 0;
-//	ctrl_reg4.INT_EN_TRANS  = 0;
-//	ctrl_reg4.INT_EN_FIFO   = 0;
-//	ctrl_reg4.INT_EN_ASLP   = 0;
-//
-//	mma8451_write_reg(CTRL_REG4_ADDRESS, ctrl_reg4.data);
-//	ctrl_reg4.data = mma8451_read_reg(CTRL_REG4_ADDRESS);
-//	////////////////////////////////////////////////////////////////////////////////////
-//
-//	/* REGISTRO 5 */
-//	////////////////////////////////////////////////////////////////////////////////////
-//	ctrl_reg5.INT_CFG_DRDY   = 1;
-//	ctrl_reg5.INT_CFG_FF_MT  = 0; // se deja en 0 para conectarlo al INT2.
-//	ctrl_reg5.INT_CFG_PULSE  = 0;
-//	ctrl_reg5.INT_CFG_LNDPRT = 0;
-//	ctrl_reg5.INT_CFG_TRANS  = 0;
-//	ctrl_reg5.INT_CFG_FIFO   = 0;
-//	ctrl_reg5.INT_CFG_ASLP   = 0;
-//
-//	mma8451_write_reg(CTRL_REG5_ADDRESS, ctrl_reg5.data);
-//	ctrl_reg5.data = mma8451_read_reg(CTRL_REG5_ADDRESS);
-//	////////////////////////////////////////////////////////////////////////////////////
-//
-//	/*================================================================================*/
-//
-//	/* CONFIGURACIONES INICIALES PARA TRABAJAR EN FREEFALL */
-//	/*================================================================================*/
-//	FF_MT_THS_t ff_mt_ths;
-//	FF_MT_CFG_t ff_mt_cfg;
-//	FF_MT_COUNT_t ff_mt_count;
-//
-//	/* FF/MT CONFIG */
-//	////////////////////////////////////////////////////////////////////////////////////
-//    ff_mt_cfg.ELE = 1;		// Event flag latch enable
-//    ff_mt_cfg.OAE = 0; 		// Freefall flag
-//    ff_mt_cfg.ZEFE = 1;		// Eje z
-//    ff_mt_cfg.YEFE = 1;		// Eje y
-//    ff_mt_cfg.XEFE = 1;		// Eje x
-//
-//    mma8451_write_reg(FF_MT_CFG_ADDRESS, ff_mt_cfg.data);
-//	////////////////////////////////////////////////////////////////////////////////////
-//
-//    /* FF/MT THRESHOLD */
-//	////////////////////////////////////////////////////////////////////////////////////
-//    ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
-////	ff_mt_ths.THRESHOLD = 0B0000011;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
-////    ff_mt_ths.THRESHOLD = (uint8_t) (THS_cm(10)/THS_CM_TO_COUNT);	// 25 cm
-//    ff_mt_ths.THRESHOLD = 3;
-//
-//	mma8451_write_reg(FF_MT_THS_ADDRESS, ff_mt_ths.data);
-//	////////////////////////////////////////////////////////////////////////////////////
-//
-//	/* FF/MT DEBOUNCE COUNTER */
-//	////////////////////////////////////////////////////////////////////////////////////
-//	ff_mt_count.D = 0X0A;		// 10 cuentas antes de la interrupción
-//
-//	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
-//	////////////////////////////////////////////////////////////////////////////////////
-
 	/* REGISTRO 1 */
 	////////////////////////////////////////////////////////////////////////////////////
 	ctrl_reg1.ACTIVE = 0; // Aca se pasa al MMA a modo activo.
+	ctrl_reg1.F_READ = 0;
+	ctrl_reg1.LNOISE = 0;
+	ctrl_reg1.DR = 0B011; // configurado un data rate de 100Hz.
+	ctrl_reg1.ASLP_RATE = 0B00;
+
+	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
+	ctrl_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/* REGISTRO 4 */
+	////////////////////////////////////////////////////////////////////////////////////
+	ctrl_reg4.INT_EN_DRDY   = 0;	// Interrupción por drdy
+	ctrl_reg4.INT_EN_FF_MT  = 1; 	// Interrupción por freefall
+	ctrl_reg4.INT_EN_PULSE  = 0;
+	ctrl_reg4.INT_EN_LNDPRT = 0;
+	ctrl_reg4.INT_EN_TRANS  = 0;
+	ctrl_reg4.INT_EN_FIFO   = 0;
+	ctrl_reg4.INT_EN_ASLP   = 0;
+
+	mma8451_write_reg(CTRL_REG4_ADDRESS, ctrl_reg4.data);
+	ctrl_reg4.data = mma8451_read_reg(CTRL_REG4_ADDRESS);
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/* REGISTRO 5 */
+	////////////////////////////////////////////////////////////////////////////////////
+	ctrl_reg5.INT_CFG_DRDY   = 1;	// DRDY enrutado a INT 1
+	ctrl_reg5.INT_CFG_FF_MT  = 0; 	// FF enturaado a INT2
+	ctrl_reg5.INT_CFG_PULSE  = 0;
+	ctrl_reg5.INT_CFG_LNDPRT = 0;
+	ctrl_reg5.INT_CFG_TRANS  = 0;
+	ctrl_reg5.INT_CFG_FIFO   = 0;
+	ctrl_reg5.INT_CFG_ASLP   = 0;
+
+	mma8451_write_reg(CTRL_REG5_ADDRESS, ctrl_reg5.data);
+	ctrl_reg5.data = mma8451_read_reg(CTRL_REG5_ADDRESS);
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/*================================================================================*/
+	/* CONFIGURACIONES INICIALES PARA TRABAJAR EN FREEFALL */
+	/*================================================================================*/
+	FF_MT_THS_t ff_mt_ths;
+	FF_MT_CFG_t ff_mt_cfg;
+	FF_MT_COUNT_t ff_mt_count;
+
+	/* FF/MT CONFIG */
+	////////////////////////////////////////////////////////////////////////////////////
+    ff_mt_cfg.ELE = 1;		// Event flag latch enable
+    ff_mt_cfg.OAE = 0; 		// Freefall flag
+    ff_mt_cfg.ZEFE = 1;		// Eje z
+    ff_mt_cfg.YEFE = 1;		// Eje y
+    ff_mt_cfg.XEFE = 1;		// Eje x
+
+    mma8451_write_reg(FF_MT_CFG_ADDRESS, ff_mt_cfg.data);
+	////////////////////////////////////////////////////////////////////////////////////
+
+    /* FF/MT THRESHOLD */
+	////////////////////////////////////////////////////////////////////////////////////
+    ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
+//	ff_mt_ths.THRESHOLD = 0B0000011;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
+//    ff_mt_ths.THRESHOLD = (uint8_t) (THS_cm(10)/THS_CM_TO_COUNT);	// 25 cm
+    ff_mt_ths.THRESHOLD = 3;
+
+	mma8451_write_reg(FF_MT_THS_ADDRESS, ff_mt_ths.data);
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/* FF/MT DEBOUNCE COUNTER */
+	////////////////////////////////////////////////////////////////////////////////////
+	ff_mt_count.D = 0X06;		// 10 cuentas antes de la interrupción
+
+	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/* REGISTRO 1 */
+	////////////////////////////////////////////////////////////////////////////////////
+	ctrl_reg1.ACTIVE = 1; // Aca se pasa al MMA a modo activo.
 	ctrl_reg1.F_READ = 0;
 	ctrl_reg1.LNOISE = 0;
 	ctrl_reg1.DR = 0B011; // configurado un data rate de 100Hz.
@@ -503,31 +508,6 @@ void mma8451_FFinit(void) {
 	return;
 }
 
-/*!
- * @brief Resetea la bandera de flag del freefall
- *
- * @param void
- *
- * @return void
- * */
-void mma8451_resetFFflag(void){
-	ff_flag = 0;
-
-	return;
-}
-
-/*!
- * @brief Devuelve el valor de la flag
- *
- * @param void
- *
- * @return uint8_t
- * 		Valor de la flag.
- * */
-uint8_t mma8451_getFFflag(void){
-	return ff_flag;
-}
-
 extern void mma8451_IntFF(void){
 	INT_SOURCE_t intSource;
 
@@ -538,19 +518,10 @@ extern void mma8451_IntFF(void){
 
 	return;
 }
-
 ///////////////////////////
 
 /* FUNCIONES DE DATO LISTO */
 ///////////////////////////
-
-/*!
- * @brief Inicializa los datos listos para el acelerometro
- *
- * @param void
- *
- * @return void
- * */
 void mma8451_DRDYinit(void) {
 	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
@@ -562,7 +533,7 @@ void mma8451_DRDYinit(void) {
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
 	ctrl_reg4.INT_EN_DRDY   = 0;	//Espera interrupcion por data ready
-	ctrl_reg4.INT_EN_FF_MT  = 0;
+	ctrl_reg4.INT_EN_FF_MT  = 1;
 	ctrl_reg4.INT_EN_PULSE  = 0;
 	ctrl_reg4.INT_EN_LNDPRT = 0;
 	ctrl_reg4.INT_EN_TRANS  = 0;
@@ -590,38 +561,6 @@ void mma8451_DRDYinit(void) {
 	return;
 }
 
-/*!
- * @brief Obtiene el estado de la bandera de interrupcion por dato listo
- *
- * @param void
- *
- * @return uint8_t
- * 		drdy_flag --> Estado de interrupcion
- * */
-uint8_t mma8451_getDRYDflag(void){
-	return dryd_flag;
-}
-
-/*!
- * @brief Resetea la bandera del flag de dato listo
- *
- * @param void
- *
- * @return void
- * */
-void mma8451_resetDRYDflag(void){
-	dryd_flag = 0;
-
-	return;
-}
-
-/*!
- * @brief Habilita la interrupcion por dato listo desde el mma8451
- *
- * @param void
- *
- * @return void
- */
 void mma8451_enableDRDYInt(void){
 	CTRL_REG4_t ctrl_reg4;
 
@@ -646,13 +585,6 @@ void mma8451_enableDRDYInt(void){
 	return;
 }
 
-/*!
- * @brief Deshabilita la interrupcion por dato listo desde el mma8451.
- *
- * @param void
- *
- * @return void
- * */
 void mma8451_disableDRDYInt(void){
 	CTRL_REG4_t ctrl_reg4;
 
@@ -674,38 +606,33 @@ void mma8451_disableDRDYInt(void){
 
 	mma8451_activar();
 
-	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);	// Deshabilita la interrupcion
-
 	return;
 }
 
-/*!
- * @brief Se encarga de procesar los datos enviados de los ejes desde el acelerometro
- * mediante la comunicacion i2c.
- *
- * @param void
- *
- * @return void
- * */
 extern void mma8451_IntDRYD(void){
 	int16_t readG;
+	INT_SOURCE_t intSource;
 
-#define BUF_LENGTH 7
-
+	#define BUF_LENGTH 7
 	static uint8_t bufTemp[BUF_LENGTH];
 
-	mma8451_read_mult_reg(0, bufTemp, BUF_LENGTH);
+	intSource.data = mma8451_read_reg(INT_SOURCE_ADDRESS);
 
-	readG = (int16_t) bufTemp[1] << 8 | bufTemp[2];
-	readX = readG >> 2;
+	if (intSource.SRC_DRDY) {
+		mma8451_read_mult_reg(0, bufTemp, BUF_LENGTH);
 
-	readG = (int16_t) bufTemp[3] << 8 | bufTemp[4];
-	readY = readG >> 2;
+		readG = (int16_t) bufTemp[1] << 8 | bufTemp[2];
+		readX = readG >> 2;
 
-	readG = (int16_t) bufTemp[5] << 8 | bufTemp[6];
-	readZ = readG >> 2;
+		readG = (int16_t) bufTemp[3] << 8 | bufTemp[4];
+		readY = readG >> 2;
+
+		readG = (int16_t) bufTemp[5] << 8 | bufTemp[6];
+		readZ = readG >> 2;
+	}
 
 	return;
 }
+///////////////////////////
 
 /*==================[end of file]============================================*/

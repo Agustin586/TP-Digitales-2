@@ -61,6 +61,8 @@
 #define INT2_GPIO       GPIOD
 #define INT2_PIN        1
 
+#define QUEUE_LONGITUD	10
+
 /* TODO: insert other definitions and declarations here. */
 #define mainSYSTICK_SOFTWARE_TIMER_PERIOD	pdMS_TO_TICKS(10)
 
@@ -88,7 +90,13 @@ static void Software_SysTick(void);
  * */
 static void Semaphore_init(void);
 
+/*
+ * @brief Inicializa las colas de datos que va a utilizar
+ * */
+static void Queue_init(void);
+
 xSemaphoreHandle FreefallSemaphore,DrydSemaphore;
+xQueueHandle queue_NormaMaxima;
 
 /*
  * @brief   Application entry point.
@@ -103,14 +111,16 @@ int main(void) {
     BOARD_InitDebugConsole();
 #endif
 
+    /* INICIALIZACIÓN DE MÓDULOS */
     board_init();
 	key_init();
-
 	mma8451_init();
 
+	/* INICIALIZACIÓN DE FREERTOS */
     Tareas_init();
     Semaphore_init();
     Timers_init();
+    Queue_init();
 
     vTaskStartScheduler();
 
@@ -119,12 +129,6 @@ int main(void) {
     return 0 ;
 }
 
-/*!
- * @brief Crea las instancias para las tareas que utilizaremos.
- * 		Tarea 1 --> Manejo de la MEF
- * 		Tarea 2 --> Recepcion de datos (utilizado como interrupcion)
- * 		Tarea 3 --> Manejo del display oled
- * */
 static void Tareas_init(void){
 	/* TAREA DE MEF */
 	if (xTaskCreate(tareasRtos_TaskMEF, "Tarea MEF", STACK_SIZE+200, NULL, TASK_MEF_PRIORITY, NULL) != pdPASS)
@@ -160,6 +164,7 @@ void PORTC_PORTD_IRQHandler(void)
 	/* INTERRUPCION POR DATOS LISTOS */
     if (PORT_GetPinsInterruptFlags(INT1_PORT)){
     	xSemaphoreGiveFromISR((QueueHandle_t) DrydSemaphore, &xHigherPriorityTaskWoken);
+    	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);
     	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
     }
 
@@ -186,6 +191,15 @@ void PORTC_PORTD_IRQHandler(void)
 	 *  */
 
     return;
+}
+
+static void Queue_init(void){
+	queue_NormaMaxima = xQueueCreate(QUEUE_LONGITUD, sizeof(uint32_t));
+
+	if (queue_NormaMaxima == NULL)
+		PRINTF("No se pudo crear la cola de datos\r\n");
+
+	return;
 }
 
 static void Timers_init(void){
