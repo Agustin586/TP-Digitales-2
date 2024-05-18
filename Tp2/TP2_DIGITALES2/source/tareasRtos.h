@@ -20,6 +20,7 @@
 #define DELAY_100ms	pdMS_TO_TICKS(100)
 #define DELAY_250ms	pdMS_TO_TICKS(250)
 #define DELAY_500ms	pdMS_TO_TICKS(500)
+#define DELAY_2s	pdMS_TO_TICKS(2000)
 #define DELAY_3s	pdMS_TO_TICKS(3000)
 /*-----------------*/
 

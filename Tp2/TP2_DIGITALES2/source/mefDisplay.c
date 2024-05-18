@@ -1,92 +1,74 @@
 #include "mefDisplay.h"
 #include "display.h"
-#include "SD2_board.h"
-#include "oled.h"
+#include "mefSEC.h"
+#include "tareasRtos.h"
 #include "MACROS.h"
+#include "math.h"
+#include "mma8451.h"
+#include "oled.h"
+#include "queue.h"
 
 typedef enum {
 	EST_DISPLAY_REPOSO = 0,
-	EST_DISPLAY_RESULTADO_FINAL,
+	EST_DISPLAY_RESULTADOS,
+	EST_DISPLAY_ERROR,
 }estMefDisplay_enum;
 
 static estMefDisplay_enum estMefDisplay;
-static uint16_t Delay_ms, Delay_Clr;
+extern xQueueHandle queueNormaRaiz;
 
-/*
- * Nombre: mefDisplay_init
- *
- * Entrada: void
- * Salida: void
- *
- * Descripción: Inicializa la mef del display.
- *
- * */
 extern void mefDisplay_init(void){
-//	/* Modulo spi */
-//	board_configSPI0();
-//
-//	/* Modulo pantalla oled */
-//	oled_reset();
-
-//	display_init();
-//
-//	estMefDisplay = EST_DISPLAY_REPOSO;
-//
-//	Delay_ms = DELAY_500ms;
-//	Delay_Clr = FRAME_HZ_ticks(5);
+	estMefDisplay = EST_DISPLAY_REPOSO;
 
 	return;
 }
-
-/*
- * Nombre: mefDisplay
- *
- * Entrada: void
- * Salida: void
- *
- * Descripción: Mef del display.
- *
- * */
 extern void mefDisplay(void){
-//	switch (estMefDisplay) {
-//		case EST_DISPLAY_REPOSO:
-//			if (!Delay_Clr) {
-//				if (!Delay_ms) {
-//					display_frame();
-//					display_reposo();
-//				}
-//				Delay_Clr = FRAME_HZ_ticks(5);
-//			}
+	switch (estMefDisplay) {
+	case EST_DISPLAY_REPOSO:
+		display_frame();
+		display_reposo();
+
+		if (mefSEC_getEstado() == EST_SECUENCIA_RESULTADO)
+			estMefDisplay = EST_DISPLAY_RESULTADOS;
+		else if (mefSEC_getEstado() == EST_SECUENCIA_ERROR)
+			estMefDisplay = EST_DISPLAY_ERROR;
+
+		break;
+
+	case EST_DISPLAY_RESULTADOS:
+		display_frame();
+		display_mostrarResultado((float)mefSEC_getNormaMaxima()/100.0);
+
+//		#define BLANCO	OLED_COLOR_WHITE
+//		#define NEGRO	OLED_COLOR_BLACK
 //
-//			/* CAMBIO DE ESTADO */
-//			if (mefSecuencia_getEstado() == EST_SECUENCIA_RESULTADO) {
-//				estMefDisplay = EST_DISPLAY_RESULTADO_FINAL;
-//			}
+//		char buffer[40];
+//		uint32_t rx;
+//		xQueueReceive(queueNormaRaiz, &rx, DELAY_100ms);
 //
-//			break;
-//		case EST_DISPLAY_RESULTADO_FINAL:
-//			if (!Delay_Clr) {
-//				display_frame();
-//				display_mostrarResultado(mefSecuencia_getNormaMaxima()/100.0);
-//				Delay_Clr = FRAME_HZ_ticks(1.5);
-//			}
+//		sprintf(buffer, "%d g", 300);
 //
-//			/* CAMBIO DE ESTADO */
-//			if (mefSecuencia_getEstado() == EST_SECUENCIA_REPOSO) {
-//				estMefDisplay = EST_DISPLAY_REPOSO;
-//				display_frame();
-//			}
-//			break;
-//	}
+//		oled_putString(50, 50, (uint8_t *)buffer, BLANCO, NEGRO);
+
+		if (mefSEC_getEstado() == EST_SECUENCIA_REPOSO)
+			estMefDisplay = EST_DISPLAY_REPOSO;
+
+		break;
+
+	case EST_DISPLAY_ERROR:
+		display_frame();
+		display_error();
+
+		if (mefSEC_getEstado() == EST_SECUENCIA_REPOSO)
+			estMefDisplay = EST_DISPLAY_REPOSO;
+
+		break;
+
+	default:
+		estMefDisplay = EST_DISPLAY_REPOSO;
+		break;
+	}
 
 	return;
 }
 
-extern void mefDisplay_task1ms(void){
-	if (Delay_ms) {
-		Delay_ms--;
-	}
-	if (Delay_Clr) {
-		Delay_Clr--;
-	}
-}

@@ -61,7 +61,7 @@
 #define INT2_GPIO       GPIOD
 #define INT2_PIN        1
 
-#define QUEUE_LONGITUD	10
+#define QUEUE_LONGITUD	3
 
 /* TODO: insert other definitions and declarations here. */
 #define mainSYSTICK_SOFTWARE_TIMER_PERIOD	pdMS_TO_TICKS(10)
@@ -96,7 +96,7 @@ static void Semaphore_init(void);
 static void Queue_init(void);
 
 xSemaphoreHandle FreefallSemaphore,DrydSemaphore;
-xQueueHandle queue_NormaMaxima;
+xQueueHandle queue_NormaMaxima,queueNormaRaiz;
 
 /*
  * @brief   Application entry point.
@@ -198,6 +198,8 @@ static void Queue_init(void){
 
 	if (queue_NormaMaxima == NULL)
 		PRINTF("No se pudo crear la cola de datos\r\n");
+
+//	queueNormaRaiz = xQueueCreate(QUEUE_LONGITUD, sizeof(uint32_t));
 
 	return;
 }

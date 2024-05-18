@@ -2,13 +2,13 @@
 #include "oled.h"
 #include <stdint.h>
 #include <stdio.h>
+#include "mma8451.h"
 
 #define BLANCO	OLED_COLOR_WHITE
 #define NEGRO	OLED_COLOR_BLACK
 
 extern void display_init(void){
 	oled_clearScreen(NEGRO);
-//	oled_fillRect(5, 25, 125, 70, BLANCO);
 	oled_putString(15, 32, (uint8_t *)"MEDICION DE CAIDA", BLANCO, NEGRO);
 	oled_putString(50, 50, (uint8_t *)"LIBRE", BLANCO, NEGRO);
 	oled_putString(10, 10, (uint8_t *)"Ballin, Zuliani", OLED_COLOR_WHITE, OLED_COLOR_BLACK);
@@ -37,8 +37,20 @@ static char* intToString(float numero) {
 }
 
 extern void display_mostrarResultado(float res){
+	char buffer[40] = {"300.0"};
+
+//	sprintf(buffer, "%.2f g", res);
+
+//	PRINTF(buffer);
 	oled_putString(15, 32, (uint8_t *)"ACELERACION MAXIMA", BLANCO, NEGRO);
-	oled_putString(50, 50, (uint8_t *)intToString(res), BLANCO, NEGRO);
+	oled_putString(50, 50, (uint8_t *)buffer, BLANCO, NEGRO);
+
+	return;
+}
+
+extern void display_error(void){
+	oled_putString(15, 32, (uint8_t*) "ERROR AL LEER", BLANCO, NEGRO);
+	oled_putString(20, 50, (uint8_t*) "LA CAIDA LIBRE", BLANCO, NEGRO);
 
 	return;
 }

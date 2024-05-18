@@ -6,13 +6,6 @@
 
 /* Bloque de macros para los delays */
 
-//#define SYSTICK_TIMER	0.001
-//#define DELAY_500ms		0.5/SYSTICK_TIMER	// 500 ms
-//#define DELAY_10seg		10/SYSTICK_TIMER	// 10 segundos
-//#define DELAY_3seg		3/SYSTICK_TIMER		// 3 segundos
-//#define DELAY_100ms		0.1/SYSTICK_TIMER
-//#define DELAY_50ms		0.05/SYSTICK_TIMER
-//#define FRAME_HZ_ticks(x)	(1/x)/SYSTICK_TIMER;
 
 /* Bloque de macro para el muestreo de datos */
 

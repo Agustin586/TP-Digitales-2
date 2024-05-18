@@ -10,9 +10,10 @@ static uint16_t Delay_ms,Delay2_ms;
 static uint32_t ValNorma_Max=0;
 static estMefSec_enum estMefSec;
 
-extern xQueueHandle queue_NormaMaxima;
+extern xQueueHandle queue_NormaMaxima,queueNormaRaiz;
 
 #define DELAY_SOFTTIMER_500ms	50
+#define DELAY_SOFTTIMER_250ms	25
 #define DELAY_SOFTTIMER_10s		10*100
 
 extern estMefSec_enum mefSEC_getEstado(void){
@@ -46,6 +47,7 @@ extern void mefSEC(void){
 		/* CAMBIO DE ESTADO */
 		if (tareasRtos_getEst_IntFreefall()) {
 			estMefSec = EST_SECUENCIA_CAIDALIBRE;		// Cambia de estado
+			Delay_ms = DELAY_SOFTTIMER_250ms;
 		}
 
 		break;
@@ -60,7 +62,7 @@ extern void mefSEC(void){
 	case EST_SECUENCIA_CAIDALIBRE:
 		LED_AZUL(OFF);
 
-		if (xQueueReceive(queue_NormaMaxima, &ValNorma_Max, DELAY_100ms) != errQUEUE_EMPTY) {
+		if ((xQueueReceive(queue_NormaMaxima, &ValNorma_Max, DELAY_100ms) != errQUEUE_EMPTY) || !Delay_ms) {
 
 			/* CAMBIO DE ESTADO */
 			if (ValNorma_Max > THS_MAX_FF_CUADRADO) {
@@ -69,10 +71,19 @@ extern void mefSEC(void){
 
 				LED_ROJO(OFF);
 
+//				uint32_t valor = mefSEC_getNormaMaxima();
+
+//				xQueueSend(queueNormaRaiz, &valor, DELAY_250ms);
+
 				PRINTF("\nNorma Maxima:%.2f\r\n",
 						mefSEC_getNormaMaxima() / 100.0);
 
 				estMefSec = EST_SECUENCIA_RESULTADO;
+			}
+			else if (!Delay_ms) {
+				ValNorma_Max = 0;
+				tareasRtos_reset_IntFreefall();
+				estMefSec = EST_SECUENCIA_ERROR;
 			}
 		}
 
@@ -84,10 +95,6 @@ extern void mefSEC(void){
 			Delay2_ms = DELAY_SOFTTIMER_500ms;
 		}
 
-//		display_mostrarResultado(mefSEC_getNormaMaxima()/100.0);
-		display_frame();
-		display_mostrarResultado(300/100.0);
-
 		if (!Delay_ms || key_getPressEvRTOS(SW1)){
 			ValNorma_Max = 0;
 
@@ -97,7 +104,14 @@ extern void mefSEC(void){
 		}
 
 		break;
+
+	case EST_SECUENCIA_ERROR:
+		vTaskDelay(DELAY_2s);
+		estMefSec = EST_SECUENCIA_REPOSO;
+
+		break;
 	default:
+		estMefSec = EST_SECUENCIA_REPOSO;
 		break;
 	}
 

@@ -25,4 +25,9 @@ extern void display_frame(void);
  * */
 extern void display_mostrarResultado(float res);
 
+/*
+ * @brief Mensaje de error
+ * */
+extern void display_error(void);
+
 #endif /* DISPLAY_H_ */
