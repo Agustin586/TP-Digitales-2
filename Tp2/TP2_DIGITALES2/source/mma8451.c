@@ -169,7 +169,6 @@ typedef union {
 #define STATUS_ADDRESS       0X00
 
 volatile static int16_t readX, readY, readZ;
-volatile static uint8_t ff_flag = 0, dryd_flag = 0;
 
 static uint8_t mma8451_read_reg(uint8_t addr) {
 	i2c_master_transfer_t masterXfer;
@@ -346,7 +345,7 @@ int16_t mma8451_getAcZ(void) {
 	return (int16_t) (((int32_t) readZ * 100) / (int32_t) 4096);
 }
 
-uint32_t mma8451_norma_cuadrado(void) {
+uint32_t mma8451_cuadNorm(void) {
 	int32_t X, Y, Z;
 
 	X = mma8451_getAcX();
@@ -445,7 +444,7 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 15;		// Cuentas antes de la interrupción
+	ff_mt_count.D = 10;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////
@@ -557,7 +556,7 @@ void mma8451_disableDRDYInt(void) {
 	return;
 }
 
-extern void mma8451_IntDRYD(void) {
+extern void mma8451_readDRDY(void) {
 	int16_t readG;
 	INT_SOURCE_t intSource;
 

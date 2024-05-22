@@ -49,11 +49,11 @@ extern void tareasRtos_Freefall_Interrupt(void *pvparameters);
  *
  * @return bool
  * */
-extern bool tareasRtos_getEst_IntFreefall(void);
+extern bool tareasRtos_getIF_Freefall(void);
 
 /*
  * @brief Resetea la bandera
  * */
-extern void tareasRtos_reset_IntFreefall(void);
+extern void tareasRtos_clrIF_Freefall(void);
 
 #endif /* TAREASRTOS_H_ */
