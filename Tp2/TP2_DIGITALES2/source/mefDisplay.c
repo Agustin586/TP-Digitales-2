@@ -39,17 +39,6 @@ extern void mefDisplay(void){
 		display_frame();
 		display_mostrarResultado((float)mefSEC_getNormaMaxima()/100.0);
 
-//		#define BLANCO	OLED_COLOR_WHITE
-//		#define NEGRO	OLED_COLOR_BLACK
-//
-//		char buffer[40];
-//		uint32_t rx;
-//		xQueueReceive(queueNormaRaiz, &rx, DELAY_100ms);
-//
-//		sprintf(buffer, "%d g", 300);
-//
-//		oled_putString(50, 50, (uint8_t *)buffer, BLANCO, NEGRO);
-
 		if (mefSEC_getEstado() == EST_SECUENCIA_REPOSO)
 			estMefDisplay = EST_DISPLAY_REPOSO;
 
@@ -71,4 +60,3 @@ extern void mefDisplay(void){
 
 	return;
 }
-

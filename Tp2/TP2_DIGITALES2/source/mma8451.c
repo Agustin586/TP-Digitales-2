@@ -40,146 +40,128 @@
 /*==================[macros and definitions]=================================*/
 #define MMA8451_I2C_ADDRESS     (0x1d)
 
-typedef union
-{
-    struct
-    {
-        unsigned SRC_DRDY:1;
-        unsigned :1;
-        unsigned SRC_FF_MT:1;
-        unsigned SRC_PULSE:1;
-        unsigned SRC_LNDPRT:1;
-        unsigned SRC_TRANS:1;
-        unsigned SRC_FIFO:1;
-        unsigned SRC_ASLP:1;
-    };
-    uint8_t data;
-}INT_SOURCE_t;
+typedef union {
+	struct {
+		unsigned SRC_DRDY :1;
+		unsigned :1;
+		unsigned SRC_FF_MT :1;
+		unsigned SRC_PULSE :1;
+		unsigned SRC_LNDPRT :1;
+		unsigned SRC_TRANS :1;
+		unsigned SRC_FIFO :1;
+		unsigned SRC_ASLP :1;
+	};
+	uint8_t data;
+} INT_SOURCE_t;
 
-typedef union
-{
-    struct
-    {
-        unsigned XDR:1;
-        unsigned YDR:1;
-        unsigned ZDR:1;
-        unsigned ZYXDR:1;
-        unsigned XOW:1;
-        unsigned YOW:1;
-        unsigned ZOW:1;
-        unsigned ZYXOW:1;
-    };
-    uint8_t data;
-}STATUS_t;
+typedef union {
+	struct {
+		unsigned XDR :1;
+		unsigned YDR :1;
+		unsigned ZDR :1;
+		unsigned ZYXDR :1;
+		unsigned XOW :1;
+		unsigned YOW :1;
+		unsigned ZOW :1;
+		unsigned ZYXOW :1;
+	};
+	uint8_t data;
+} STATUS_t;
 
-typedef union
-{
-    struct
-    {
-        unsigned ACTIVE:1;
-        unsigned F_READ:1;
-        unsigned LNOISE:1;
-        unsigned DR:3;
-        unsigned ASLP_RATE:2;
-    };
-    uint8_t data;
-}CTRL_REG1_t;
+typedef union {
+	struct {
+		unsigned ACTIVE :1;
+		unsigned F_READ :1;
+		unsigned LNOISE :1;
+		unsigned DR :3;
+		unsigned ASLP_RATE :2;
+	};
+	uint8_t data;
+} CTRL_REG1_t;
 
 #define CTRL_REG1_ADDRESS   0X2A
 
 /* REGISTRO 4 */
 /////////////////////////////////////////
-typedef union
-{
-    struct
-    {
-        unsigned INT_EN_DRDY:1;
-        unsigned :1;
-        unsigned INT_EN_FF_MT:1;
-        unsigned INT_EN_PULSE:1;
-        unsigned INT_EN_LNDPRT:1;
-        unsigned INT_EN_TRANS:1;
-        unsigned INT_EN_FIFO:1;
-        unsigned INT_EN_ASLP:1;
-    };
-    uint8_t data;
-}CTRL_REG4_t;
+typedef union {
+	struct {
+		unsigned INT_EN_DRDY :1;
+		unsigned :1;
+		unsigned INT_EN_FF_MT :1;
+		unsigned INT_EN_PULSE :1;
+		unsigned INT_EN_LNDPRT :1;
+		unsigned INT_EN_TRANS :1;
+		unsigned INT_EN_FIFO :1;
+		unsigned INT_EN_ASLP :1;
+	};
+	uint8_t data;
+} CTRL_REG4_t;
 
 #define CTRL_REG4_ADDRESS   0X2D
 /////////////////////////////////////////
 
-typedef union
-{
-    struct
-    {
-        unsigned INT_CFG_DRDY:1;
-        unsigned :1;
-        unsigned INT_CFG_FF_MT:1;
-        unsigned INT_CFG_PULSE:1;
-        unsigned INT_CFG_LNDPRT:1;
-        unsigned INT_CFG_TRANS:1;
-        unsigned INT_CFG_FIFO:1;
-        unsigned INT_CFG_ASLP:1;
-    };
-    uint8_t data;
-}CTRL_REG5_t;
+typedef union {
+	struct {
+		unsigned INT_CFG_DRDY :1;
+		unsigned :1;
+		unsigned INT_CFG_FF_MT :1;
+		unsigned INT_CFG_PULSE :1;
+		unsigned INT_CFG_LNDPRT :1;
+		unsigned INT_CFG_TRANS :1;
+		unsigned INT_CFG_FIFO :1;
+		unsigned INT_CFG_ASLP :1;
+	};
+	uint8_t data;
+} CTRL_REG5_t;
 
 #define CTRL_REG5_ADDRESS   0X2E
 
 /* FF/MT THRESHOLD */
 /////////////////////////////////////////
-typedef union
-{
-    struct
-    {
-        unsigned THRESHOLD:7;	// Threshold
-        unsigned DBCNTM:1; 		// Detecta ruido por rebote
-    };
-    uint8_t data;
-}FF_MT_THS_t;
+typedef union {
+	struct {
+		unsigned THRESHOLD :7;	// Threshold
+		unsigned DBCNTM :1; 		// Detecta ruido por rebote
+	};
+	uint8_t data;
+} FF_MT_THS_t;
 
 #define FF_MT_THS_ADDRESS 0x17
 /////////////////////////////////////////
 
 /* FF/MT CONFIG */
 /////////////////////////////////////////
-typedef union
-{
-    struct
-    {
-    	unsigned :3;
-    	unsigned XEFE:1;
-    	unsigned YEFE:1;
-    	unsigned ZEFE:1;
-    	unsigned OAE:1;
-        unsigned ELE:1;
-    };
-    uint8_t data;
-}FF_MT_CFG_t;
+typedef union {
+	struct {
+		unsigned :3;
+		unsigned XEFE :1;
+		unsigned YEFE :1;
+		unsigned ZEFE :1;
+		unsigned OAE :1;
+		unsigned ELE :1;
+	};
+	uint8_t data;
+} FF_MT_CFG_t;
 
 #define FF_MT_CFG_ADDRESS 0x15
 /////////////////////////////////////////
 
-typedef union
-{
-    struct
-    {
-        unsigned D:8;
-    };
-    uint8_t data;
-}FF_MT_COUNT_t;
+typedef union {
+	struct {
+		unsigned D :8;
+	};
+	uint8_t data;
+} FF_MT_COUNT_t;
 
 #define FF_MT_COUNT_ADDRESS 0x18
 
-typedef union
-{
-    struct
-    {
-    	unsigned :7;
-        unsigned EVENT_ACTIVE:1;
-    };
-    uint8_t data;
-}FF_MT_SRC_t; //solo lectura
+typedef union {
+	struct {
+		unsigned :7;
+		unsigned EVENT_ACTIVE :1;
+	};
+	uint8_t data;
+} FF_MT_SRC_t; //solo lectura
 
 #define FF_MT_SRC_ADDRESS 0x16
 
@@ -187,10 +169,9 @@ typedef union
 #define STATUS_ADDRESS       0X00
 
 volatile static int16_t readX, readY, readZ;
-volatile static uint8_t ff_flag=0,dryd_flag=0;
+volatile static uint8_t ff_flag = 0, dryd_flag = 0;
 
-static uint8_t mma8451_read_reg(uint8_t addr)
-{
+static uint8_t mma8451_read_reg(uint8_t addr) {
 	i2c_master_transfer_t masterXfer;
 	uint8_t ret;
 
@@ -208,13 +189,12 @@ static uint8_t mma8451_read_reg(uint8_t addr)
 	return ret;
 }
 
-static void mma8451_write_reg(uint8_t addr, uint8_t data)
-{
+static void mma8451_write_reg(uint8_t addr, uint8_t data) {
 	i2c_master_transfer_t masterXfer;
 
-    memset(&masterXfer, 0, sizeof(masterXfer));
+	memset(&masterXfer, 0, sizeof(masterXfer));
 
-    masterXfer.slaveAddress = MMA8451_I2C_ADDRESS;
+	masterXfer.slaveAddress = MMA8451_I2C_ADDRESS;
 	masterXfer.direction = kI2C_Write;
 	masterXfer.subaddress = addr;
 	masterXfer.subaddressSize = 1;
@@ -222,95 +202,84 @@ static void mma8451_write_reg(uint8_t addr, uint8_t data)
 	masterXfer.dataSize = 1;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-    I2C_MasterTransferBlocking(I2C0, &masterXfer);
+	I2C_MasterTransferBlocking(I2C0, &masterXfer);
 }
 
-static void config_port_int1(void)
-{
+static void config_port_int1(void) {
 	const port_pin_config_t port_int1_config = {
-			/* Internal pull-up/down resistor is disabled */
-		.pullSelect = kPORT_PullDisable,
-		/* Slow slew rate is configured */
-		.slewRate = kPORT_SlowSlewRate,
-		/* Passive filter is disabled */
-		.passiveFilterEnable = kPORT_PassiveFilterDisable,
-		/* Low drive strength is configured */
-		.driveStrength = kPORT_LowDriveStrength,
-		/* Pin is configured as PTC3 */
-		.mux = kPORT_MuxAsGpio,
-	};
-	const gpio_pin_config_t gpio_int1_config = {
-		.pinDirection = kGPIO_DigitalInput,
-		.outputLogic = 0U
-	};
+	/* Internal pull-up/down resistor is disabled */
+	.pullSelect = kPORT_PullDisable,
+	/* Slow slew rate is configured */
+	.slewRate = kPORT_SlowSlewRate,
+	/* Passive filter is disabled */
+	.passiveFilterEnable = kPORT_PassiveFilterDisable,
+	/* Low drive strength is configured */
+	.driveStrength = kPORT_LowDriveStrength,
+	/* Pin is configured as PTC3 */
+	.mux = kPORT_MuxAsGpio, };
+	const gpio_pin_config_t gpio_int1_config = { .pinDirection =
+			kGPIO_DigitalInput, .outputLogic = 0U };
 
 	PORT_SetPinConfig(INT1_PORT, INT1_PIN, &port_int1_config);
 	GPIO_PinInit(INT1_GPIO, INT1_PIN, &gpio_int1_config);
 
 	/* Interrupt polarity active high, or active low. Default value: 0.
-	   0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
+	 0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
 	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
 	NVIC_EnableIRQ(PORTC_PORTD_IRQn);
 	NVIC_SetPriority(PORTC_PORTD_IRQn, 0);
 }
 
-static void config_port_int2(void)
-{
+static void config_port_int2(void) {
 	const port_pin_config_t port_int2_config = {
-			/* Internal pull-up/down resistor is disabled */
-		.pullSelect = kPORT_PullDisable,
-		/* Slow slew rate is configured */
-		.slewRate = kPORT_SlowSlewRate,
-		/* Passive filter is disabled */
-		.passiveFilterEnable = kPORT_PassiveFilterDisable,
-		/* Low drive strength is configured */
-		.driveStrength = kPORT_LowDriveStrength,
-		/* Pin is configured as PTD1 */
-		.mux = kPORT_MuxAsGpio,
-	};
-	const gpio_pin_config_t gpio_int2_config = {
-		.pinDirection = kGPIO_DigitalInput,
-		.outputLogic = 0U
-	};
+	/* Internal pull-up/down resistor is disabled */
+	.pullSelect = kPORT_PullDisable,
+	/* Slow slew rate is configured */
+	.slewRate = kPORT_SlowSlewRate,
+	/* Passive filter is disabled */
+	.passiveFilterEnable = kPORT_PassiveFilterDisable,
+	/* Low drive strength is configured */
+	.driveStrength = kPORT_LowDriveStrength,
+	/* Pin is configured as PTD1 */
+	.mux = kPORT_MuxAsGpio, };
+	const gpio_pin_config_t gpio_int2_config = { .pinDirection =
+			kGPIO_DigitalInput, .outputLogic = 0U };
 
 	PORT_SetPinConfig(INT2_PORT, INT2_PIN, &port_int2_config);
 	GPIO_PinInit(INT2_GPIO, INT2_PIN, &gpio_int2_config);
 
 	/* Interrupt polarity active high, or active low. Default value: 0.
-	   0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
+	 0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
 	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptLogicZero);
 
 	NVIC_EnableIRQ(PORTC_PORTD_IRQn);
 	NVIC_SetPriority(PORTC_PORTD_IRQn, 0);
 }
 
-extern void mma8451_init(void)
-{
+extern void mma8451_init(void) {
 	/* CONFIG I2C */
 	SD2_I2C_init();
 
-    /* CONFIG DRDY Y FREEFALL */
-    mma8451_DRDYinit ();
-    mma8451_FFinit ();
+	/* CONFIG DRDY Y FREEFALL */
+	mma8451_DRDYinit();
+	mma8451_FFinit();
 
-    /* HABILITACIÓN DEL ACELEROMETRO */
+	/* HABILITACIÓN DEL ACELEROMETRO */
 	mma8451_setDataRate(DR_100hz);
 	mma8451_activar();
 
-    /* CONFIG GPIOS */
-    config_port_int1();
-    config_port_int2();
+	/* CONFIG GPIOS */
+	config_port_int1();
+	config_port_int2();
 
-    return;
+	return;
 }
 
-extern void mma8451_activar(void)
-{
+extern void mma8451_activar(void) {
 	CTRL_REG1_t ctrl_reg1;
 
 	ctrl_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
-
 	ctrl_reg1.data |= 0b00000001;
 
 	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
@@ -318,18 +287,16 @@ extern void mma8451_activar(void)
 	return;
 }
 
-extern void mma8451_desactivar(void)
-{
+extern void mma8451_desactivar(void) {
 	CTRL_REG1_t ctrl_reg1;
 
 	ctrl_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
-
 	ctrl_reg1.data &= 0b11111110;
 
 	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
 }
 
-static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size){
+static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size) {
 	i2c_master_transfer_t masterXfer;
 
 	memset(&masterXfer, 0, sizeof(masterXfer));
@@ -344,17 +311,16 @@ static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size){
 	I2C_MasterTransferBlocking(I2C0, &masterXfer);
 }
 
-void mma8451_setDataRate(DR_enum rate)
-{
-    CTRL_REG1_t ctr_reg1;
-    bool estAct;
+void mma8451_setDataRate(DR_enum rate) {
+	CTRL_REG1_t ctr_reg1;
+	bool estAct;
 
-    /* Antes de modificar data rate es necesario poner ACTIVE = 0 */
-    ctr_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
+	/* Antes de modificar data rate es necesario poner ACTIVE = 0 */
+	ctr_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
 
-    /* Guarda valor que tiene ACTIVE y luego pone a cero */
-    estAct = ctr_reg1.ACTIVE;
-    ctr_reg1.ACTIVE = 0;
+	/* Guarda valor que tiene ACTIVE y luego pone a cero */
+	estAct = ctr_reg1.ACTIVE;
+	ctr_reg1.ACTIVE = 0;
 
 	mma8451_write_reg(CTRL_REG1_ADDRESS, ctr_reg1.data);
 
@@ -368,30 +334,26 @@ void mma8451_setDataRate(DR_enum rate)
 	ctr_reg1.data = mma8451_read_reg(0x2a);
 }
 
-int16_t mma8451_getAcX(void)
-{
-	return (int16_t)(((int32_t)readX * 100) / (int32_t)4096);
+int16_t mma8451_getAcX(void) {
+	return (int16_t) (((int32_t) readX * 100) / (int32_t) 4096);
 }
 
-int16_t mma8451_getAcY(void)
-{
-	return (int16_t)(((int32_t)readY * 100) / (int32_t)4096);
+int16_t mma8451_getAcY(void) {
+	return (int16_t) (((int32_t) readY * 100) / (int32_t) 4096);
 }
 
-int16_t mma8451_getAcZ(void)
-{
-	return (int16_t)(((int32_t)readZ * 100) / (int32_t)4096);
+int16_t mma8451_getAcZ(void) {
+	return (int16_t) (((int32_t) readZ * 100) / (int32_t) 4096);
 }
 
-uint32_t mma8451_norma_cuadrado(void)
-{
-	int32_t X,Y,Z;
+uint32_t mma8451_norma_cuadrado(void) {
+	int32_t X, Y, Z;
 
 	X = mma8451_getAcX();
 	Y = mma8451_getAcY();
 	Z = mma8451_getAcZ();
 
-	return (uint32_t) (X*X) + (Y*Y) + (Z*Z); // (es más rapido de computar y permite maximizar la aceleracion igualmente)
+	return (uint32_t) (X * X) + (Y * Y) + (Z * Z); // (es más rapido de computar y permite maximizar la aceleracion igualmente)
 }
 
 /* FUNCIONES DE FREEFALL */
@@ -403,16 +365,15 @@ void mma8451_FFinit(void) {
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
 
-	ctrl_reg1.ACTIVE = 0;
-	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
+	mma8451_desactivar();
 
 //	mma8451_write_reg(0x2A, 0X20);
 //	mma8451_write_reg(0x15, 0XB8);
 //	mma8451_write_reg(0x17, 0X03);
-//	mma8451_write_reg(0x18, 0X06);
+//	mma8451_write_reg(0x18, 0X0A);
 //	mma8451_write_reg(0x2D, 0X04);
 //	mma8451_write_reg(0x2E, 0X00);
-
+//
 //	mma8451_read_reg(CTRL_REG4_ADDRESS);
 //	mma8451_write_reg(0x2A, 0X00);
 
@@ -430,13 +391,13 @@ void mma8451_FFinit(void) {
 
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
-	ctrl_reg4.INT_EN_DRDY   = 0;	// Interrupción por drdy
-	ctrl_reg4.INT_EN_FF_MT  = 1; 	// Interrupción por freefall
-	ctrl_reg4.INT_EN_PULSE  = 0;
+	ctrl_reg4.INT_EN_DRDY = 0;		// Interrupción por drdy
+	ctrl_reg4.INT_EN_FF_MT = 1; 	// Interrupción por freefall
+	ctrl_reg4.INT_EN_PULSE = 0;
 	ctrl_reg4.INT_EN_LNDPRT = 0;
-	ctrl_reg4.INT_EN_TRANS  = 0;
-	ctrl_reg4.INT_EN_FIFO   = 0;
-	ctrl_reg4.INT_EN_ASLP   = 0;
+	ctrl_reg4.INT_EN_TRANS = 0;
+	ctrl_reg4.INT_EN_FIFO = 0;
+	ctrl_reg4.INT_EN_ASLP = 0;
 
 	mma8451_write_reg(CTRL_REG4_ADDRESS, ctrl_reg4.data);
 	ctrl_reg4.data = mma8451_read_reg(CTRL_REG4_ADDRESS);
@@ -444,13 +405,13 @@ void mma8451_FFinit(void) {
 
 	/* REGISTRO 5 */
 	////////////////////////////////////////////////////////////////////////////////////
-	ctrl_reg5.INT_CFG_DRDY   = 1;	// DRDY enrutado a INT 1
-	ctrl_reg5.INT_CFG_FF_MT  = 0; 	// FF enturaado a INT2
-	ctrl_reg5.INT_CFG_PULSE  = 0;
+	ctrl_reg5.INT_CFG_DRDY = 1;	// DRDY enrutado a INT 1
+	ctrl_reg5.INT_CFG_FF_MT = 0; 	// FF enturaado a INT2
+	ctrl_reg5.INT_CFG_PULSE = 0;
 	ctrl_reg5.INT_CFG_LNDPRT = 0;
-	ctrl_reg5.INT_CFG_TRANS  = 0;
-	ctrl_reg5.INT_CFG_FIFO   = 0;
-	ctrl_reg5.INT_CFG_ASLP   = 0;
+	ctrl_reg5.INT_CFG_TRANS = 0;
+	ctrl_reg5.INT_CFG_FIFO = 0;
+	ctrl_reg5.INT_CFG_ASLP = 0;
 
 	mma8451_write_reg(CTRL_REG5_ADDRESS, ctrl_reg5.data);
 	ctrl_reg5.data = mma8451_read_reg(CTRL_REG5_ADDRESS);
@@ -465,50 +426,38 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT CONFIG */
 	////////////////////////////////////////////////////////////////////////////////////
-    ff_mt_cfg.ELE = 1;		// Event flag latch enable
-    ff_mt_cfg.OAE = 0; 		// Freefall flag
-    ff_mt_cfg.ZEFE = 1;		// Eje z
-    ff_mt_cfg.YEFE = 1;		// Eje y
-    ff_mt_cfg.XEFE = 1;		// Eje x
+	ff_mt_cfg.ELE = 1;		// Event flag latch enable
+	ff_mt_cfg.OAE = 0; 		// Freefall flag
+	ff_mt_cfg.ZEFE = 1;		// Eje z
+	ff_mt_cfg.YEFE = 1;		// Eje y
+	ff_mt_cfg.XEFE = 1;		// Eje x
 
-    mma8451_write_reg(FF_MT_CFG_ADDRESS, ff_mt_cfg.data);
+	mma8451_write_reg(FF_MT_CFG_ADDRESS, ff_mt_cfg.data);
 	////////////////////////////////////////////////////////////////////////////////////
 
-    /* FF/MT THRESHOLD */
+	/* FF/MT THRESHOLD */
 	////////////////////////////////////////////////////////////////////////////////////
-    ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
-//	ff_mt_ths.THRESHOLD = 0B0000011;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
-//    ff_mt_ths.THRESHOLD = (uint8_t) (THS_cm(10)/THS_CM_TO_COUNT);	// 25 cm
-    ff_mt_ths.THRESHOLD = 3;
+	ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
+	ff_mt_ths.THRESHOLD = 0B0000011;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
 
 	mma8451_write_reg(FF_MT_THS_ADDRESS, ff_mt_ths.data);
 	////////////////////////////////////////////////////////////////////////////////////
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 0X06;		// 10 cuentas antes de la interrupción
+	ff_mt_count.D = 15;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////
 
-	/* REGISTRO 1 */
-	////////////////////////////////////////////////////////////////////////////////////
-	ctrl_reg1.ACTIVE = 1; // Aca se pasa al MMA a modo activo.
-	ctrl_reg1.F_READ = 0;
-	ctrl_reg1.LNOISE = 0;
-	ctrl_reg1.DR = 0B011; // configurado un data rate de 100Hz.
-	ctrl_reg1.ASLP_RATE = 0B00;
-
-	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
-	ctrl_reg1.data = mma8451_read_reg(CTRL_REG1_ADDRESS);
-	////////////////////////////////////////////////////////////////////////////////////
+	mma8451_activar();
 
 	/*================================================================================*/
 
 	return;
 }
 
-extern void mma8451_IntFF(void){
+extern void mma8451_IntFF(void) {
 	INT_SOURCE_t intSource;
 
 	intSource.data = mma8451_read_reg(INT_SOURCE_ADDRESS);
@@ -523,22 +472,21 @@ extern void mma8451_IntFF(void){
 /* FUNCIONES DE DATO LISTO */
 ///////////////////////////
 void mma8451_DRDYinit(void) {
-	CTRL_REG1_t ctrl_reg1;
+//	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
 
-	ctrl_reg1.ACTIVE = 0;
-	mma8451_write_reg(CTRL_REG1_ADDRESS, ctrl_reg1.data);
+	mma8451_desactivar();
 
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
-	ctrl_reg4.INT_EN_DRDY   = 0;	//Espera interrupcion por data ready
-	ctrl_reg4.INT_EN_FF_MT  = 1;
-	ctrl_reg4.INT_EN_PULSE  = 0;
+	ctrl_reg4.INT_EN_DRDY = 0;	//Espera interrupcion por data ready
+	ctrl_reg4.INT_EN_FF_MT = 1;
+	ctrl_reg4.INT_EN_PULSE = 0;
 	ctrl_reg4.INT_EN_LNDPRT = 0;
-	ctrl_reg4.INT_EN_TRANS  = 0;
-	ctrl_reg4.INT_EN_FIFO   = 0;
-	ctrl_reg4.INT_EN_ASLP   = 0;
+	ctrl_reg4.INT_EN_TRANS = 0;
+	ctrl_reg4.INT_EN_FIFO = 0;
+	ctrl_reg4.INT_EN_ASLP = 0;
 
 	mma8451_write_reg(CTRL_REG4_ADDRESS, ctrl_reg4.data);
 	ctrl_reg4.data = mma8451_read_reg(CTRL_REG4_ADDRESS);
@@ -546,13 +494,13 @@ void mma8451_DRDYinit(void) {
 
 	/* REGISTRO 5 */
 	////////////////////////////////////////////////////////////////////////////////////
-	ctrl_reg5.INT_CFG_DRDY   = 1;	//Enruta la interrupcion por INT1
-	ctrl_reg5.INT_CFG_FF_MT  = 0;
-	ctrl_reg5.INT_CFG_PULSE  = 0;
+	ctrl_reg5.INT_CFG_DRDY = 1;	//Enruta la interrupcion por INT1
+	ctrl_reg5.INT_CFG_FF_MT = 0;
+	ctrl_reg5.INT_CFG_PULSE = 0;
 	ctrl_reg5.INT_CFG_LNDPRT = 0;
-	ctrl_reg5.INT_CFG_TRANS  = 0;
-	ctrl_reg5.INT_CFG_FIFO   = 0;
-	ctrl_reg5.INT_CFG_ASLP   = 0;
+	ctrl_reg5.INT_CFG_TRANS = 0;
+	ctrl_reg5.INT_CFG_FIFO = 0;
+	ctrl_reg5.INT_CFG_ASLP = 0;
 
 	mma8451_write_reg(CTRL_REG5_ADDRESS, ctrl_reg5.data);
 	ctrl_reg5.data = mma8451_read_reg(CTRL_REG5_ADDRESS);
@@ -561,7 +509,7 @@ void mma8451_DRDYinit(void) {
 	return;
 }
 
-void mma8451_enableDRDYInt(void){
+void mma8451_enableDRDYInt(void) {
 	CTRL_REG4_t ctrl_reg4;
 
 	mma8451_desactivar();
@@ -585,7 +533,7 @@ void mma8451_enableDRDYInt(void){
 	return;
 }
 
-void mma8451_disableDRDYInt(void){
+void mma8451_disableDRDYInt(void) {
 	CTRL_REG4_t ctrl_reg4;
 
 	mma8451_desactivar();
@@ -609,11 +557,11 @@ void mma8451_disableDRDYInt(void){
 	return;
 }
 
-extern void mma8451_IntDRYD(void){
+extern void mma8451_IntDRYD(void) {
 	int16_t readG;
 	INT_SOURCE_t intSource;
 
-	#define BUF_LENGTH 7
+#define BUF_LENGTH 7
 	static uint8_t bufTemp[BUF_LENGTH];
 
 	intSource.data = mma8451_read_reg(INT_SOURCE_ADDRESS);

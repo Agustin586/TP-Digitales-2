@@ -30,18 +30,17 @@ extern void display_frame(void){
 }
 
 static char* intToString(float numero) {
-  static char buffer[40];   // Buffer para almacenar la cadena resultante, ajusta el tamaño según sea necesario
+  static char buffer[10];   // Buffer para almacenar la cadena resultante, ajusta el tamaño según sea necesario
   sprintf(buffer, "%.2f g", numero);   // Convierte el número a una cadena de caracteres
 
   return buffer;
 }
 
 extern void display_mostrarResultado(float res){
-	char buffer[40] = {"300.0"};
+	char buffer[10];
 
-//	sprintf(buffer, "%.2f g", res);
+	sprintf(buffer, "%.2f g", res);
 
-//	PRINTF(buffer);
 	oled_putString(15, 32, (uint8_t *)"ACELERACION MAXIMA", BLANCO, NEGRO);
 	oled_putString(50, 50, (uint8_t *)buffer, BLANCO, NEGRO);
 

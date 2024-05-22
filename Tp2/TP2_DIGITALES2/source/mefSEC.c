@@ -71,10 +71,6 @@ extern void mefSEC(void){
 
 				LED_ROJO(OFF);
 
-//				uint32_t valor = mefSEC_getNormaMaxima();
-
-//				xQueueSend(queueNormaRaiz, &valor, DELAY_250ms);
-
 				PRINTF("\nNorma Maxima:%.2f\r\n",
 						mefSEC_getNormaMaxima() / 100.0);
 

@@ -135,7 +135,7 @@ static void Tareas_init(void){
 		PRINTF("No se pudo crear tarea de MEF");
 
 	/* TAREA DE DISPLAY */
-	if (xTaskCreate(tareasRtos_TaskDisplay, "Tarea Display", STACK_SIZE, NULL, TASK_DISPLAY_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(tareasRtos_TaskDisplay, "Tarea Display", STACK_SIZE+200, NULL, TASK_DISPLAY_PRIORITY, NULL) != pdPASS)
 		PRINTF("No se pudo crear Tarea display");
 
 	return;
@@ -151,7 +151,7 @@ static void Semaphore_init(void){
 	DrydSemaphore = xSemaphoreCreateBinary();
 
 	if (DrydSemaphore != NULL) {
-		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+100, NULL, configMAX_PRIORITIES-1, NULL);
+		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+200, NULL, configMAX_PRIORITIES-1, NULL);
 	}
 
 	return;

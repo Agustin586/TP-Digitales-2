@@ -77,7 +77,7 @@ typedef enum
 #define THS_cm(d)		((d/100.0)*2)/(G*t_s(d)*t_s(d))
 #define THS_CM_TO_COUNT	0.063
 
-#define G_THS		0.8
+#define G_THS		0.3
 #define THS_MAX_FF 	G_THS*100
 #define THS_MAX_FF_CUADRADO	THS_MAX_FF*THS_MAX_FF
 #define THS_REF_RANGO_2G_CUADRADO	200*200
