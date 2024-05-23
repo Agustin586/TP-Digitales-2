@@ -14,7 +14,7 @@
 extern xSemaphoreHandle FreefallSemaphore, DrydSemaphore;
 
 extern void tareasRtos_TaskMEF(void *pvparameters) {
-	PRINTF("Se creo la tarea MEF\r\n");
+//	PRINTF("Se creo la tarea MEF\r\n");
 
 	mefSEC_init();
 
@@ -28,7 +28,7 @@ extern void tareasRtos_TaskMEF(void *pvparameters) {
 }
 
 extern void tareasRtos_TaskDisplay(void *pvparameters) {
-	PRINTF("Se creo la tarea Display\r\n");
+//	PRINTF("Se creo la tarea Display\r\n");
 
 	board_configSPI0();
 	oled_reset();
@@ -48,16 +48,31 @@ extern void tareasRtos_TaskDisplay(void *pvparameters) {
 }
 
 extern void tareasRtos_TaskRxMMA8451(void *pvparameters) {
-	PRINTF("Se creo la tarea Interrupcion por drdy\r\n");
+//	PRINTF("Se creo la tarea Interrupcion por drdy\r\n");
 
 	mefInt2_init();
 
 	for (;;) {
-		if (xSemaphoreTake(DrydSemaphore, portMAX_DELAY) == pdTRUE) {
-			mefInt2();
 
-			PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
-			PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN,
+		if (xSemaphoreTake(DrydSemaphore, portMAX_DELAY) == pdTRUE) {
+
+			/* TOMO TODOS LO DATOS NECESARIOS */
+			for (;;) {
+				mefInt2();
+//				vTaskDelay(DELAY_50ms);
+
+				if (mefInt2_getFDrdy()) {
+					mefInt2_clrFDrdy();
+					break;
+				}
+			}
+//
+//			PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+//			PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN,
+//					kPORT_InterruptLogicZero);
+//		}
+			PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);
+			PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN,
 					kPORT_InterruptLogicZero);
 		}
 	}
@@ -68,21 +83,19 @@ extern void tareasRtos_TaskRxMMA8451(void *pvparameters) {
 	 * */
 
 	vTaskDelete(NULL);
+
+	return;
 }
 
 extern void tareasRtos_Freefall_Interrupt(void *pvparameters) {
 	for (;;) {
 		if (xSemaphoreTake(FreefallSemaphore, portMAX_DELAY) == pdTRUE) {
-			PRINTF("Caida Libre\r\n");
+			PRINTF("Caida Libre!!!\r\n");
 
 			mma8451_IntFF();
-
-			PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);
-			PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN,
-					kPORT_InterruptLogicZero);
-
 			mefInt2_reset();
 			mma8451_enableDRDYInt();
+			xSemaphoreGive(DrydSemaphore);
 		}
 	}
 

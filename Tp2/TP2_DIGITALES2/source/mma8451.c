@@ -265,11 +265,11 @@ extern void mma8451_init(void) {
 	mma8451_FFinit();
 
 	/* HABILITACIÓN DEL ACELEROMETRO */
-	mma8451_setDataRate(DR_100hz);
+	mma8451_setDataRate(DR_800hz);
 	mma8451_activar();
 
 	/* CONFIG GPIOS */
-	config_port_int1();
+//	config_port_int1();
 	config_port_int2();
 
 	return;
@@ -346,7 +346,7 @@ int16_t mma8451_getAcZ(void) {
 }
 
 uint32_t mma8451_cuadNorm(void) {
-	int32_t X, Y, Z;
+	int16_t X, Y, Z;
 
 	X = mma8451_getAcX();
 	Y = mma8451_getAcY();
@@ -437,14 +437,14 @@ void mma8451_FFinit(void) {
 	/* FF/MT THRESHOLD */
 	////////////////////////////////////////////////////////////////////////////////////
 	ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
-	ff_mt_ths.THRESHOLD = 0B0000011;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
+	ff_mt_ths.THRESHOLD = 3;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
 
 	mma8451_write_reg(FF_MT_THS_ADDRESS, ff_mt_ths.data);
 	////////////////////////////////////////////////////////////////////////////////////
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 10;		// Cuentas antes de la interrupción
+	ff_mt_count.D = 20;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////
@@ -556,7 +556,7 @@ void mma8451_disableDRDYInt(void) {
 	return;
 }
 
-extern void mma8451_readDRDY(void) {
+extern bool mma8451_readDRDY(void) {
 	int16_t readG;
 	INT_SOURCE_t intSource;
 
@@ -576,9 +576,11 @@ extern void mma8451_readDRDY(void) {
 
 		readG = (int16_t) bufTemp[5] << 8 | bufTemp[6];
 		readZ = readG >> 2;
+
+		return true;
 	}
 
-	return;
+	return false;
 }
 ///////////////////////////
 

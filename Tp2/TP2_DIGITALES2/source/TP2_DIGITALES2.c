@@ -116,6 +116,12 @@ int main(void) {
 	key_init();
 	mma8451_init();
 
+	PRINTF("\n\n\tSENSOR DE CAIDA LIBRE\t\r\n\n");
+	PRINTF("ALUMNOS:Zuliani,Agustin y Ballin,Tomas\r\n");
+	PRINTF("DESCRIPCION: Uso del sensor mma8451 mediante la programacion"
+			"en FreeRtos\r\n");
+	PRINTF("\nDATOS:\r\n\n");
+
 	/* INICIALIZACIÓN DE FREERTOS */
     Tareas_init();
     Semaphore_init();
@@ -145,13 +151,13 @@ static void Semaphore_init(void){
 	FreefallSemaphore = xSemaphoreCreateBinary();
 
 	if (FreefallSemaphore != NULL) {
-		xTaskCreate(tareasRtos_Freefall_Interrupt, "Interrupcion Freefall", STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
+		xTaskCreate(tareasRtos_Freefall_Interrupt, "Interrupcion Freefall", STACK_SIZE+100, NULL, configMAX_PRIORITIES-1, NULL);
 	}
 
 	DrydSemaphore = xSemaphoreCreateBinary();
 
 	if (DrydSemaphore != NULL) {
-		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+200, NULL, configMAX_PRIORITIES-1, NULL);
+		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+300, NULL, TASK_RX_MMA8451_PRIORITY, NULL);
 	}
 
 	return;
@@ -212,8 +218,8 @@ static void Timers_init(void){
 	 * */
 	Soft_SysTick = xTimerCreate("Timer 10 ms", mainSYSTICK_SOFTWARE_TIMER_PERIOD, pdTRUE, NULL, (TimerCallbackFunction_t) Software_SysTick);
 
-	if (xTimerStart(Soft_SysTick, 0) == pdPASS)
-		PRINTF("Inicia el Timer\r\n");
+	if (xTimerStart(Soft_SysTick, 0) != pdPASS)
+		PRINTF("No se inicio el Timer\r\n");
 
 	return;
 }

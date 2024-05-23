@@ -110,7 +110,7 @@ void mma8451_enableDRDYInt(void);
 void mma8451_disableDRDYInt(void);
 
 extern void mma8451_IntFF(void);
-extern void mma8451_readDRDY(void);
+extern bool mma8451_readDRDY(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
