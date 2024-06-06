@@ -52,6 +52,7 @@
 #include "MACROS.h"
 #include "mma8451.h"
 #include "mefSEC.h"
+#include "arm_math.h"
 
 #define INT1_PORT       PORTC
 #define INT1_GPIO       GPIOC
@@ -157,7 +158,7 @@ static void Semaphore_init(void){
 	DrydSemaphore = xSemaphoreCreateBinary();
 
 	if (DrydSemaphore != NULL) {
-		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+300, NULL, TASK_RX_MMA8451_PRIORITY, NULL);
+		xTaskCreate(tareasRtos_TaskRxMMA8451, "Recepcion Continua", STACK_SIZE+700, NULL, TASK_RX_MMA8451_PRIORITY, NULL);
 	}
 
 	return;
