@@ -27,28 +27,13 @@ extern void mefServo(void) {
 
 		break;
 	case EST_SERVO_RUNNING:
-//		getCharValue = GETCHAR() - 0x30U;
-//
-//		PRINTF("%d\r\n", getCharValue);
-//
-//		if (getCharValue == 1)
-//			MG90S_setAngle(-90);
-//		if (getCharValue == 5)
-//			MG90S_setAngle(0);
-//		if (getCharValue == 9)
-//			MG90S_setAngle(90);
-//		if (getCharValue == 7)
-//			MG90S_setAngle(-180);
-//		if (getCharValue == 8)
-//			MG90S_setAngle(3300);
-
-		for (int8_t angle = -60; angle <= 30; angle = angle + 15) {
+		for (int8_t angle = -75; angle <= 45; angle = angle + 15) {
 			angle_servo = angle;
 			MG90S_setAngle(-angle-15);
 			taskRtosPERIFERICOS_delay(100);
 		}
 
-		for (int8_t angle = 30; angle >= -60; angle -= 15) {
+		for (int8_t angle = 45; angle >= -75; angle -= 15) {
 			angle_servo = angle;
 			MG90S_setAngle(-angle-15);
 			taskRtosPERIFERICOS_delay(100);

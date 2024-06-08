@@ -4,6 +4,7 @@
 #include "IncludesFiles/taskRtosNextion.h"
 #include "IncludesFiles/Uart1.h"
 #include "IncludesFiles/mefServo.h"
+#include "IncludesFiles/HCSR04.h"
 #include <stdint.h>
 
 #define PIC_ID	0
@@ -19,7 +20,7 @@ extern void mefNextion_init(void) {
 }
 
 extern void mefNextion(void) {
-	static uint8_t idPic = 22;
+	static int16_t angle_old = 0;
 
 	switch (estMefNextion) {
 	case EST_NEXTION_RESET:
@@ -33,7 +34,15 @@ extern void mefNextion(void) {
 		estMefNextion = nextion_getPage();
 		break;
 	case EST_NEXTION_pRADAR:
-		nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
+		if(angle_old != mefServo_getAngle()) {
+			nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
+			angle_old = mefServo_getAngle();
+		}
+
+		for(uint8_t i = 0;i<30;i++){
+			nextion_putObj(105+mefServo_getAngle(), HCSR04_getDistance(), i);
+		}
+
 
 //		estMefNextion = nextion_getPage();
 		break;
@@ -49,9 +58,9 @@ extern void mefNextion(void) {
 }
 
 static uint8_t picMovRadar(int angle) {
-#define NUM_TOTAL_PASOS	7
-	int angles[] = { -60, -45, -30, -15, 0, 15, 30 };
-	int values[] = { 22, 23, 24, 25, 26, 27, 28 };
+#define NUM_TOTAL_PASOS	9
+	int angles[] = { -75, -60, -45, -30, -15, 0, 15, 30, 45 };
+	int values[] = { 22, 23, 24, 25, 26, 27, 28, 29, 30 };
 
 	for (int i = 0; i < NUM_TOTAL_PASOS; i++) {
 		if (angles[i] == angle) {

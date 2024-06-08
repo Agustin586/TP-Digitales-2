@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define CANT_MAXIMA_OBJETOS	7
+#define CANT_MAXIMA_OBJETOS	30
 #define CANT_MAX_PIXEL_X	320
 #define CANT_MAX_PIXEL_Y	240
 #define EJE_X_TRANSFORMACION_LINEAL	160
@@ -70,15 +70,6 @@ static void nextion_sendTrama(char *str);
  * */
 static void nextion_EndTrama(void);
 
-/*
- * @brief Setea los parametros del objeto detectado.
- *
- * @param int8_t angle	Angulo en que se encuentra el sensor o servo
- * @param float radio	Radio o distancia detectada por el sensor
- * @param uint8_t id	Identificador del nro de objeto
- * */
-static void nextion_setDataObj(int16_t angle, float radio, uint8_t id);
-
 extern void nextion_init(void) {
 
 	return;
@@ -120,8 +111,6 @@ extern estMefNextion_enum nextion_getPage(void) {
 extern void nextion_putObj(int16_t angle, float radio, uint8_t id) {
 	TipoTramaNextion_st Trama;
 
-	nextion_setDataObj(angle, radio, id);
-
 	strcpy(Trama.comando, draw_cirs);
 	sprintf(Trama.parametro, "%d,%d,%d,%d", Objeto[id].Display.pixelX,
 			Objeto[id].Display.pixelY, Objeto[id].Display.radio,
@@ -135,7 +124,7 @@ extern void nextion_putObj(int16_t angle, float radio, uint8_t id) {
 	return;
 }
 
-static void nextion_setDataObj(int16_t angle, float radio, uint8_t id) {
+extern void nextion_setDataObj(int16_t angle, float radio, uint8_t id) {
 	/* Parametros propios del objeto */
 	Objeto[id].Posicion.Angle = angle;
 	Objeto[id].Posicion.Radio = radio;
@@ -177,10 +166,6 @@ static void nextion_sendTrama(char *trama) {
 }
 
 static void nextion_EndTrama(void) {
-//	Uart1_send("ff");
-//	Uart1_send("ff");
-//	Uart1_send("ff");
-//	Uart1_send("\r\n");
 	uint8_t end_cmd[] = { 0xFF, 0xFF, 0xFF };
 	UART_WriteBlocking(UART1, end_cmd, sizeof(end_cmd));
 
