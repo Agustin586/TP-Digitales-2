@@ -33,7 +33,7 @@ extern void mefSensor(void) {
 		if (!HCSR04_distanceReady()) {
 			TriggerPulse();
 		} else {
-			PRINTF("Distancia medida:%.2f\r\n", HCSR04_getDistance());
+			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
 			taskRtosPERIFERICOS_delay(50);
 		}
 
@@ -49,6 +49,10 @@ extern void mefSensor(void) {
 	}
 
 	return;
+}
+
+extern float mefSensor_getDistance(void) {
+	return HCSR04_getDistance();
 }
 
 static void TriggerPulse(void) {

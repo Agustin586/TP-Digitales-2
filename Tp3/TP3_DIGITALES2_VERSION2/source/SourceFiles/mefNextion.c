@@ -5,11 +5,13 @@
 #include "IncludesFiles/Uart1.h"
 #include "IncludesFiles/mefServo.h"
 #include "IncludesFiles/HCSR04.h"
+#include "IncludesFiles/mefSensor.h"
 #include <stdint.h>
 
 #define PIC_ID	0
 
 static estMefNextion_enum estMefNextion;
+static uint8_t obj_guardados = 0;
 
 static uint8_t picMovRadar(int angle);
 
@@ -34,15 +36,18 @@ extern void mefNextion(void) {
 		estMefNextion = nextion_getPage();
 		break;
 	case EST_NEXTION_pRADAR:
-		if(angle_old != mefServo_getAngle()) {
+		if (angle_old != mefServo_getAngle()) {
+			if(angle_old == 45)	obj_guardados = 0;
+
+			nextion_setDataObj(105 + mefServo_getAngle(), mefSensor_getDistance(), obj_guardados);
+			obj_guardados++;
 			nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
 			angle_old = mefServo_getAngle();
 		}
 
-		for(uint8_t i = 0;i<30;i++){
-			nextion_putObj(105+mefServo_getAngle(), HCSR04_getDistance(), i);
+		for (uint8_t i = 0; i < obj_guardados; i++) {
+			nextion_putObj(i,63);
 		}
-
 
 //		estMefNextion = nextion_getPage();
 		break;

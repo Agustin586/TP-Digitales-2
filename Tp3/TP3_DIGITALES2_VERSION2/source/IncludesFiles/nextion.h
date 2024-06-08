@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 extern void nextion_init(void);
-extern void nextion_putObj(int16_t angle, float radio, uint8_t id);
+extern void nextion_putObj(uint8_t id,uint16_t colorNew);
 extern void nextion_reset(void);
 extern estMefNextion_enum nextion_getPage(void);
 extern void nextion_putPicture(uint8_t picId, uint8_t newPic);

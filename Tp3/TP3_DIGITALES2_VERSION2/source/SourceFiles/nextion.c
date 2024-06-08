@@ -108,13 +108,13 @@ extern estMefNextion_enum nextion_getPage(void) {
 	return EST_NEXTION_RESET;
 }
 
-extern void nextion_putObj(int16_t angle, float radio, uint8_t id) {
+extern void nextion_putObj(uint8_t id,uint16_t colorNew) {
 	TipoTramaNextion_st Trama;
 
 	strcpy(Trama.comando, draw_cirs);
 	sprintf(Trama.parametro, "%d,%d,%d,%d", Objeto[id].Display.pixelX,
 			Objeto[id].Display.pixelY, Objeto[id].Display.radio,
-			Objeto[id].Display.Color);
+			colorNew);
 	strcpy(Trama.trama, Trama.comando);
 	strcat(Trama.trama, Trama.parametro);
 
