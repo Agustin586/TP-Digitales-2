@@ -5,7 +5,7 @@
 static uint32_t duracion_us = 0;
 static float distancia_mm = 0.0;
 
-static const float velocidad_sonido_mm_us = 0.34;
+static const float velocidad_sonido_cm_us = 0.34;
 
 // Se pone en 0 cuando se genera un disparo del sensor.
 // Se pone en 1 cuando se completa la lectura de la senal 'echo'.
@@ -126,7 +126,7 @@ void TPM1_IRQHandler(void) {
 			// Calcula la diferencia de tiempo
 			duracion_us = captura_ahora - captura_anterior; // en microsegundos
 
-			distancia_mm = ((float) duracion_us) * velocidad_sonido_mm_us / 2.0;
+			distancia_mm = ((float) duracion_us) * velocidad_sonido_cm_us / 2.0;
 
 			echo_flag = 1;
 		}

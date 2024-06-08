@@ -36,6 +36,7 @@ extern void mefSensor(void) {
 			PRINTF("Distancia medida:%.2f\r\n", HCSR04_getDistance());
 			taskRtosPERIFERICOS_delay(50);
 		}
+
 //		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
