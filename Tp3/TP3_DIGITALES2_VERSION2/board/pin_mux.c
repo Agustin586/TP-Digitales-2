@@ -61,8 +61,8 @@ pin_labels:
 - {pin_num: '16', pin_signal: LCD_P57/ADC0_DP2/ADC0_SE2/PTE18/SPI0_MOSI/I2C0_SDA/SPI0_MISO/LCD_P57_Fault, label: 'J3[5]'}
 - {pin_num: '17', pin_signal: LCD_P58/ADC0_DM2/ADC0_SE6a/PTE19/SPI0_MISO/I2C0_SCL/SPI0_MOSI/LCD_P58_Fault, label: 'J3[3]'}
 - {pin_num: '28', pin_signal: PTE31/TPM0_CH4, label: 'J3[1]', identifier: PWM_CHANNEL}
-- {pin_num: '53', pin_signal: LCD_P0/ADC0_SE8/TSI0_CH0/PTB0/LLWU_P5/I2C0_SCL/TPM1_CH0/LCD_P0_Fault, label: 'J4[2]/A0'}
-- {pin_num: '54', pin_signal: LCD_P1/ADC0_SE9/TSI0_CH6/PTB1/I2C0_SDA/TPM1_CH1/LCD_P1_Fault, label: 'J4[4]/A1'}
+- {pin_num: '53', pin_signal: LCD_P0/ADC0_SE8/TSI0_CH0/PTB0/LLWU_P5/I2C0_SCL/TPM1_CH0/LCD_P0_Fault, label: 'J4[2]/A0', identifier: TRIGGER_PIN}
+- {pin_num: '54', pin_signal: LCD_P1/ADC0_SE9/TSI0_CH6/PTB1/I2C0_SDA/TPM1_CH1/LCD_P1_Fault, label: 'J4[4]/A1', identifier: ECHO_PIN}
 - {pin_num: '55', pin_signal: LCD_P2/ADC0_SE12/TSI0_CH7/PTB2/I2C0_SCL/TPM2_CH0/LCD_P2_Fault, label: 'J4[6]/A2'}
 - {pin_num: '56', pin_signal: LCD_P3/ADC0_SE13/TSI0_CH8/PTB3/I2C0_SDA/TPM2_CH1/LCD_P3_Fault, label: 'J4[8]/A3'}
 - {pin_num: '72', pin_signal: LCD_P22/ADC0_SE11/TSI0_CH15/PTC2/I2C1_SDA/TPM0_CH1/I2S0_TX_FS/LCD_P22_Fault, label: 'J4[10]/A4'}
@@ -144,6 +144,9 @@ BOARD_InitPins:
   - {pin_num: '2', peripheral: UART1, signal: RX, pin_signal: LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault}
   - {pin_num: '1', peripheral: UART1, signal: TX, pin_signal: LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault}
   - {pin_num: '28', peripheral: TPM0, signal: 'CH, 4', pin_signal: PTE31/TPM0_CH4, slew_rate: fast}
+  - {pin_num: '54', peripheral: TPM1, signal: 'CH, 1', pin_signal: LCD_P1/ADC0_SE9/TSI0_CH6/PTB1/I2C0_SDA/TPM1_CH1/LCD_P1_Fault, direction: INPUT, slew_rate: fast,
+    pull_select: down, pull_enable: enable}
+  - {pin_num: '53', peripheral: GPIOB, signal: 'GPIO, 0', pin_signal: LCD_P0/ADC0_SE8/TSI0_CH0/PTB0/LLWU_P5/I2C0_SCL/TPM1_CH0/LCD_P0_Fault, direction: OUTPUT}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -156,8 +159,35 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
     /* Port E Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
+
+    gpio_pin_config_t TRIGGER_PIN_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+    /* Initialize GPIO functionality on pin PTB0 (pin 53)  */
+    GPIO_PinInit(BOARD_TRIGGER_PIN_GPIO, BOARD_TRIGGER_PIN_PIN, &TRIGGER_PIN_config);
+
+    /* PORTB0 (pin 53) is configured as PTB0 */
+    PORT_SetPinMux(BOARD_TRIGGER_PIN_PORT, BOARD_TRIGGER_PIN_PIN, kPORT_MuxAsGpio);
+
+    /* PORTB1 (pin 54) is configured as TPM1_CH1 */
+    PORT_SetPinMux(BOARD_ECHO_PIN_PORT, BOARD_ECHO_PIN_PIN, kPORT_MuxAlt3);
+
+    PORTB->PCR[1] = ((PORTB->PCR[1] &
+                      /* Mask bits to zero which are setting */
+                      (~(PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_SRE_MASK | PORT_PCR_ISF_MASK)))
+
+                     /* Pull Select: Internal pulldown resistor is enabled on the corresponding pin, if the
+                      * corresponding PE field is set. */
+                     | (uint32_t)(kPORT_PullDown)
+
+                     /* Slew Rate Enable: Fast slew rate is configured on the corresponding pin, if the pin is
+                      * configured as a digital output. */
+                     | PORT_PCR_SRE(kPORT_FastSlewRate));
 
     /* PORTE0 (pin 1) is configured as UART1_TX */
     PORT_SetPinMux(PORTE, 0U, kPORT_MuxAlt3);

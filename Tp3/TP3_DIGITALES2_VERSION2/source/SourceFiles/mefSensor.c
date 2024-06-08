@@ -1,5 +1,7 @@
 #include "IncludesFiles/mefSensor.h"
 #include "IncludesFiles/HCSR04.h"
+#include "IncludesFiles/taskRtosPERIFERICOS.h"
+#include "fsl_debug_console.h"
 
 #define SENSOR_DELAY 10
 
@@ -9,9 +11,11 @@ typedef enum {
 
 static estMefSensor_enum estMefSensor;
 
-extern void mefSensor_init(void) {
+static void TriggerPulse(void);
 
+extern void mefSensor_init(void) {
 	estMefSensor = EST_SENSOR_RESET;
+
 	return;
 }
 
@@ -20,24 +24,34 @@ extern void mefSensor(void) {
 	case EST_SENSOR_RESET:
 		/*Acciones de reset*/
 		HCSR04_init();
+
 		estMefSensor = EST_SENSOR_ENABLE;
 		break;
 	case EST_SENSOR_ENABLE:
 		/*Acciones de enable*/
-		if(HCSR04_disponible()){
-			HCSR04_disparar();
+
+		if (!HCSR04_distanceReady()) {
+			TriggerPulse();
+		} else {
+			PRINTF("Distancia medida:%.2f\r\n", HCSR04_getDistance());
+			taskRtosPERIFERICOS_delay(50);
 		}
-		estMefSensor = EST_SENSOR_DISABLE;
+//		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
 		/*Acciones de disable*/
 //		vtaskDelay(SENSOR_DELAY);
-
-		estMefSensor = EST_SENSOR_ENABLE;
+//		estMefSensor = EST_SENSOR_ENABLE;
 		break;
 	default:
 		break;
 	}
 
 	return;
+}
+
+static void TriggerPulse(void) {
+	HCSR04_setTrigger();
+	taskRtosPERIFERICOS_delay(2);
+	HCSR04_clrTrigger();
 }

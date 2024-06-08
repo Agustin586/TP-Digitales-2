@@ -24,8 +24,8 @@ extern void mefSensor(void) {
 		break;
 	case EST_SENSOR_ENABLE:
 		/*Acciones de enable*/
-		if(HCSR04_disponible()){
-			HCSR04_disparar();
+		if(HCSR04_distanceReady()){
+			HCSR04_setTrigger();
 		}
 		estMefSensor = EST_SENSOR_DISABLE;
 		break;

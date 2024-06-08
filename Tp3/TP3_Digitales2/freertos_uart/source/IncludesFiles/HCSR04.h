@@ -41,7 +41,7 @@ extern void HCSR04_init();
  **
  **/
 
-extern void HCSR04_disparar(void);
+extern void HCSR04_setTrigger(void);
 
 /** \brief Devuelve la echo_flag, indicando que no hay mediciones en proceso.
  **
@@ -49,7 +49,7 @@ extern void HCSR04_disparar(void);
  **
  **/
 
-extern uint8_t HCSR04_disponible(void);
+extern bool HCSR04_distanceReady(void);
 
 
 /** \brief Devuelve la ultima distancia detectada por el sensor, en mm.

@@ -29,7 +29,7 @@ static const TaskConfig_t taskConfigs[NUM_TASK] = {
 //    {taskRtosUART0_Rx, "ISR_RX_U0", STACK_SIZE_GENERAL, UART0_RX_PRIORITY},
 //    {taskRtosUART0_Tx, "ISR_TX_U0", STACK_SIZE_GENERAL, UART0_TX_PRIORITY},
     {(void (*)(void*))taskRtosNextion, "Nextion", STACK_SIZE_GENERAL+150, NULL, NEXTION_PRIORITY},
-    {(void (*)(void*))taskRtosPERIFERICOS_Sensor, "Sensor", STACK_SIZE_GENERAL, NULL, PERIFERICOS_PRIORITY},
+    {(void (*)(void*))taskRtosPERIFERICOS_Sensor, "Sensor", STACK_SIZE_GENERAL+100, NULL, PERIFERICOS_PRIORITY},
 	{(void (*)(void*))taskRtosPERIFERICOS_Servo, "Servo", STACK_SIZE_GENERAL+100, NULL, PERIFERICOS_PRIORITY},
 };
 

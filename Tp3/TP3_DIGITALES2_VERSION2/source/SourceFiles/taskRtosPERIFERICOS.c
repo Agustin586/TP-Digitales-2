@@ -23,7 +23,7 @@ extern void taskRtosPERIFERICOS_Servo(void) {
 }
 
 extern void taskRtosPERIFERICOS_Sensor(void) {
-	PRINTF("Tarea: Manejo de sensor\r\n");
+	PRINTF("Tarea: Manejo de Sensor\r\n");
 
 	mefSensor_init();
 
@@ -38,7 +38,7 @@ extern void taskRtosPERIFERICOS_Sensor(void) {
 	return;
 }
 
-extern void taskRtosPERIFERICOS_delayServo(uint16_t delay) {
+extern void taskRtosPERIFERICOS_delay(uint16_t delay) {
 	vTaskDelay(delay);
 
 	return;

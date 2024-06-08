@@ -3,6 +3,7 @@
 
 /*==================[inclusions]=============================================*/
 #include <stdint.h>
+#include <stdbool.h>
 #include "fsl_tpm.h"
 #include "fsl_clock.h"
 #include "fsl_port.h"
@@ -16,17 +17,15 @@ extern "C" {
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
+#define HCSR04_TRIGGER_PORT PORTB
+#define HCSR04_TRIGGER_GPIO GPIOB
+#define HCSR04_TRIGGER_PIN 0
 
-#define HCSR04_TRIGGER_PORT PORTE
-#define HCSR04_TRIGGER_GPIO GPIOE
-#define HCSR04_TRIGGER_PIN 20
-
-#define HCSR04_ECHO_PORT PORTA
-#define HCSR04_ECHO_GPIO GPIOA
-#define HCSR04_ECHO_PIN 13
+#define HCSR04_ECHO_PORT PORTB
+#define HCSR04_ECHO_GPIO GPIOB
+#define HCSR04_ECHO_PIN 1
 
 #define HCSR04_ECHO_INT_PRIORITY 2
-
 
 /*==================[external functions definition]==========================*/
 
@@ -41,7 +40,7 @@ extern void HCSR04_init();
  **
  **/
 
-extern void HCSR04_disparar(void);
+extern void HCSR04_setTrigger(void);
 
 /** \brief Devuelve la echo_flag, indicando que no hay mediciones en proceso.
  **
@@ -49,7 +48,7 @@ extern void HCSR04_disparar(void);
  **
  **/
 
-extern uint8_t HCSR04_disponible(void);
+extern bool HCSR04_distanceReady(void);
 
 
 /** \brief Devuelve la ultima distancia detectada por el sensor, en mm.
@@ -59,6 +58,12 @@ extern uint8_t HCSR04_disponible(void);
  **/
 
 extern float HCSR04_getDistance(void);
+
+
+/*
+ * @brief Pone en bajo el valor del pin de trigger
+ * */
+extern void HCSR04_clrTrigger(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

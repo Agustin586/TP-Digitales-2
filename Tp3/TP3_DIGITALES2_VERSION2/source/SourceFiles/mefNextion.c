@@ -33,18 +33,6 @@ extern void mefNextion(void) {
 		estMefNextion = nextion_getPage();
 		break;
 	case EST_NEXTION_pRADAR:
-//		for (int16_t angle=30;angle<=150;angle=angle+15){
-//			nextion_putPicture(0, idPic);
-//			taskRtosNextion_delay(100);
-//			for(uint8_t radio=10;radio<=50;radio+=10){
-//				nextion_putObj(angle, radio, 1);
-//				taskRtosNextion_delay(200);
-//			}
-//			idPic++;
-//			if(idPic==29)	idPic=22;
-//			taskRtosNextion_delay(1200);
-//		}
-
 		nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
 
 //		estMefNextion = nextion_getPage();

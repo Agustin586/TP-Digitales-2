@@ -37,6 +37,29 @@ void BOARD_InitBootPins(void);
 #define BOARD_PWM_CHANNEL_PIN_MASK (1U << 31U)      /*!<@brief PORT pin mask */
                                                     /* @} */
 
+/*! @name PORTB1 (number 54), J4[4]/A1
+  @{ */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_ECHO_PIN_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define BOARD_ECHO_PIN_PIN 1U                   /*!<@brief PORT pin number */
+#define BOARD_ECHO_PIN_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
+                                                /* @} */
+
+/*! @name PORTB0 (number 53), J4[2]/A0
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define BOARD_TRIGGER_PIN_FGPIO FGPIOB             /*!<@brief FGPIO peripheral base pointer */
+#define BOARD_TRIGGER_PIN_GPIO GPIOB               /*!<@brief GPIO peripheral base pointer */
+#define BOARD_TRIGGER_PIN_GPIO_PIN_MASK (1U << 0U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_TRIGGER_PIN_PORT PORTB               /*!<@brief PORT peripheral base pointer */
+#define BOARD_TRIGGER_PIN_PIN 0U                   /*!<@brief PORT pin number */
+#define BOARD_TRIGGER_PIN_PIN_MASK (1U << 0U)      /*!<@brief PORT pin mask */
+                                                   /* @} */
+
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *

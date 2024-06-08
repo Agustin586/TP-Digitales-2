@@ -45,13 +45,13 @@ extern void mefServo(void) {
 		for (int8_t angle = -60; angle <= 30; angle = angle + 15) {
 			angle_servo = angle;
 			MG90S_setAngle(-angle-15);
-			taskRtosPERIFERICOS_delayServo(100);
+			taskRtosPERIFERICOS_delay(100);
 		}
 
 		for (int8_t angle = 30; angle >= -60; angle -= 15) {
 			angle_servo = angle;
 			MG90S_setAngle(-angle-15);
-			taskRtosPERIFERICOS_delayServo(100);
+			taskRtosPERIFERICOS_delay(100);
 		}
 
 		break;

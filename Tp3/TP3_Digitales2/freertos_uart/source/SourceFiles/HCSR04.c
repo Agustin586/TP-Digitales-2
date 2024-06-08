@@ -83,7 +83,7 @@ extern void HCSR04_init() {
 	return;
 }
 
-extern void HCSR04_disparar(void) {
+extern void HCSR04_setTrigger(void) {
 	echo_flag = 0;
 	trigger_flag = 1;
 
@@ -93,7 +93,7 @@ extern void HCSR04_disparar(void) {
 	return;
 }
 
-extern uint8_t HCSR04_disponible(void) {
+extern bool HCSR04_distanceReady(void) {
 	return echo_flag;
 }
 

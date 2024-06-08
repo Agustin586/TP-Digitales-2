@@ -40,7 +40,7 @@ extern void mefServo(void) {
 		if (getCharValue == 8)
 			MG90S_setAngle(3300);
 
-		taskRtosPERIFERICOS_delayServo();
+		taskRtosPERIFERICOS_delay();
 
 		break;
 	case EST_SERVO_STOP:

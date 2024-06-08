@@ -9,6 +9,6 @@
 
 extern void taskRtosPERIFERICOS_Sensor(void);
 extern void taskRtosPERIFERICOS_Servo(void);
-extern void taskRtosPERIFERICOS_delayServo(void);
+extern void taskRtosPERIFERICOS_delay(void);
 
 #endif /* TASKRTOSPERIFERICOS_H_ */
