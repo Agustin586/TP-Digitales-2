@@ -3,6 +3,8 @@
 #include "fsl_debug_console.h"
 #include "IncludesFiles/taskRtosPERIFERICOS.h"
 
+static int8_t angle_servo = 0;
+
 typedef enum {
 	EST_SERVO_RESET = 0, EST_SERVO_RUNNING, EST_SERVO_STOP,
 } estMefServo_enum;
@@ -16,7 +18,7 @@ extern void mefServo_init(void) {
 	return;
 }
 
-uint8_t getCharValue = 0U;
+//uint8_t getCharValue = 0U;
 
 extern void mefServo(void) {
 	switch (estMefServo) {
@@ -25,24 +27,31 @@ extern void mefServo(void) {
 
 		break;
 	case EST_SERVO_RUNNING:
-		getCharValue = GETCHAR() - 0x30U;
+//		getCharValue = GETCHAR() - 0x30U;
+//
+//		PRINTF("%d\r\n", getCharValue);
+//
+//		if (getCharValue == 1)
+//			MG90S_setAngle(-90);
+//		if (getCharValue == 5)
+//			MG90S_setAngle(0);
+//		if (getCharValue == 9)
+//			MG90S_setAngle(90);
+//		if (getCharValue == 7)
+//			MG90S_setAngle(-180);
+//		if (getCharValue == 8)
+//			MG90S_setAngle(3300);
 
-		PRINTF("%d\r\n", getCharValue);
+		for (int8_t angle = -60; angle <= 30; angle = angle + 15) {
+			angle_servo = angle;
+			MG90S_setAngle(-angle-15);
+			taskRtosPERIFERICOS_delayServo(100);
+		}
 
-		if (getCharValue == 1)
-			MG90S_setAngle(-90);
-		if (getCharValue == 5)
-			MG90S_setAngle(0);
-		if (getCharValue == 9)
-			MG90S_setAngle(95);
-		if (getCharValue == 7)
-			MG90S_setAngle(-180);
-		if (getCharValue == 8)
-			MG90S_setAngle(3300);
-
-		for(int8_t angle=-60;angle<=60;angle=angle+15){
-			MG90S_setAngle(angle);
-			taskRtosPERIFERICOS_delayServo(1200);
+		for (int8_t angle = 30; angle >= -60; angle -= 15) {
+			angle_servo = angle;
+			MG90S_setAngle(-angle-15);
+			taskRtosPERIFERICOS_delayServo(100);
 		}
 
 		break;
@@ -54,4 +63,8 @@ extern void mefServo(void) {
 	}
 
 	return;
+}
+
+extern int8_t mefServo_getAngle(void) {
+	return angle_servo;
 }

@@ -3,9 +3,14 @@
 #include "fsl_debug_console.h"
 #include "IncludesFiles/taskRtosNextion.h"
 #include "IncludesFiles/Uart1.h"
+#include "IncludesFiles/mefServo.h"
 #include <stdint.h>
 
+#define PIC_ID	0
+
 static estMefNextion_enum estMefNextion;
+
+static uint8_t picMovRadar(int angle);
 
 extern void mefNextion_init(void) {
 	estMefNextion = EST_NEXTION_pRADAR;
@@ -14,7 +19,7 @@ extern void mefNextion_init(void) {
 }
 
 extern void mefNextion(void) {
-	static uint8_t idPic=22;
+	static uint8_t idPic = 22;
 
 	switch (estMefNextion) {
 	case EST_NEXTION_RESET:
@@ -28,17 +33,19 @@ extern void mefNextion(void) {
 		estMefNextion = nextion_getPage();
 		break;
 	case EST_NEXTION_pRADAR:
-		for (int16_t angle=30;angle<=150;angle=angle+15){
-			nextion_putPicture(0, idPic);
-			taskRtosNextion_delay(100);
-			for(uint8_t radio=10;radio<=50;radio+=10){
-				nextion_putObj(angle, radio, 1);
-				taskRtosNextion_delay(200);
-			}
-			idPic++;
-			if(idPic==29)	idPic=22;
-			taskRtosNextion_delay(1200);
-		}
+//		for (int16_t angle=30;angle<=150;angle=angle+15){
+//			nextion_putPicture(0, idPic);
+//			taskRtosNextion_delay(100);
+//			for(uint8_t radio=10;radio<=50;radio+=10){
+//				nextion_putObj(angle, radio, 1);
+//				taskRtosNextion_delay(200);
+//			}
+//			idPic++;
+//			if(idPic==29)	idPic=22;
+//			taskRtosNextion_delay(1200);
+//		}
+
+		nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
 
 //		estMefNextion = nextion_getPage();
 		break;
@@ -51,4 +58,17 @@ extern void mefNextion(void) {
 	}
 
 	return;
+}
+
+static uint8_t picMovRadar(int angle) {
+#define NUM_TOTAL_PASOS	7
+	int angles[] = { -60, -45, -30, -15, 0, 15, 30 };
+	int values[] = { 22, 23, 24, 25, 26, 27, 28 };
+
+	for (int i = 0; i < NUM_TOTAL_PASOS; i++) {
+		if (angles[i] == angle) {
+			return values[i];
+		}
+	}
+	return -1;
 }
