@@ -1,27 +1,30 @@
-#include "IncludesFiles/taskRtosUART0.h"
-#include "IncludesFiles/semaphore.h"
-#include "IncludesFiles/MACROS.h"
+#include "stdio.h"
+
+#include "SD2_board.h"
+
+#include "taskRtosUART0.h"
+#include "semaphore.h"
+#include "MACROS.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "UART0.h"
+#include "mefRecTrama.h"
 
-extern void taskRtosUART0_Rx(void) {
+extern void taskRtosUART0(void) {
 
-	for (;;) {
-		if (semaphore_take(SEMAPHORE_RX_UART0, portMAX_DELAY)) {
+	uart0_init();
 
-		}
-	}
-
-	vTaskDelete(NULL);
-	return;
-}
-
-extern void taskRtosUART0_Tx(void) {
+	mefRecTrama_init();
 
 	for (;;) {
-		if (semaphore_take(SEMAPHORE_TX_UART0, portMAX_DELAY)) {
+		//if (semaphore_take(SEMAPHORE_UART0, portMAX_DELAY)) {
 
-		}
+
+			mefRecTrama_task();
+
+			vTaskDelay(DELAY_10ms);
+
+		//}
 	}
 
 	vTaskDelete(NULL);
