@@ -34,7 +34,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "stdio.h"
-#include <UART0.h>
+#include "uart0_dma.h"
 #include "mefRecTrama.h"
 #include "procTrama.h"
 

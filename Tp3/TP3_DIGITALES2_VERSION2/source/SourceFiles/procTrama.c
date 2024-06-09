@@ -45,11 +45,10 @@
 
 /*==================[inclusions]=============================================*/
 #include "stdio.h"
-#include <UART0.h>
 #include "string.h"
 #include "procTrama.h"
 #include "SD2_board.h"
-#include "UART0.h"
+#include "uart0_dma.h"
 #include "mefRecTrama.h"
 
 /*==================[macros and definitions]=================================*/
