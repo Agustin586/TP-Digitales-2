@@ -50,6 +50,8 @@
 #include "IncludesFiles/SD2_board.h"
 #include "IncludesFiles/mefRecTrama.h"
 #include "IncludesFiles/uart0_dma.h"
+#include "IncludesFiles/mefSensor.h"
+#include "IncludesFiles/mefServo.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -148,11 +150,11 @@ void procTrama(char *buf, int length) {
 	//Mensaje: Transmitir ultimos valores de angulo en grados (GGG) y distancia en mm (DDD).
 	else if (buf[2] == '2' && buf[3] == '1') {
 
-		distancia = 0;
+		distancia = (uint32_t)10*mefSensor_getDistance();
 
 		// AGREGAR INFO ANGULO /////////////////////////////////////////////////////////////
 
-		angulo = 0;
+		angulo = 105 + mefServo_getAngle();
 
 		////////////////////////////////////////////////////////////////////////////////////
 
