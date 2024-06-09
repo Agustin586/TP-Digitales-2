@@ -58,7 +58,7 @@
 /*==================[internal data declaration]==============================*/
 static lpsci_dma_handle_t lpsciDmaHandle;
 static dma_handle_t lpsciTxDmaHandle;
-volatile bool txOnGoing = false; /*<Deberia usarse un semaforo para implementarlo mejor>*/
+static volatile bool txOnGoing = false; /*<Deberia usarse un semaforo para implementarlo mejor>*/
 
 static QueueHandle_t Rx_Queue;
 static QueueHandle_t Tx_Queue;

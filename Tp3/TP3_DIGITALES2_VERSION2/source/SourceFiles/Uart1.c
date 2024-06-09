@@ -1,75 +1,134 @@
+// Librería UART1_DMA.c
 #include "IncludesFiles/Uart1.h"
-#include "MKL46Z4.h"
-#include "fsl_uart.h"
-#include "fsl_port.h"
-#include "IncludesFiles/SD2_board.h"
-#include "board.h"
-#include "IncludesFiles/semaphore.h"
-#include "semphr.h"
-#include "FreeRTOS.h"
-#include "fsl_uart_freertos.h"
-#include "clock_config.h"
-#include "pin_mux.h"
-#include <string.h>
 
-#define UART UART1
-#define UART_CLKSRC BUS_CLK
-#define UART_CLK_FREQ CLOCK_GetFreq(BUS_CLK)
-#define UART_RX_TX_IRQn UART1_RX_TX_IRQn
+// Declaraciones de variables globales
+dma_handle_t dmaTxHandle;
+uart_handle_t uartHandle;
+QueueHandle_t uartTxQueue;
+QueueHandle_t uartRxQueue;
 
-/* Variables del entorno de uart_freertos */
-const char *send_ring_overrun = "\r\nRing buffer overrun!\r\n";
-const char *send_hardware_overrun = "\r\nHardware buffer overrun!\r\n";
+static volatile bool txOnGoing = false;
 
-uint8_t background_buffer[32];
-uint8_t recv_buffer[4];
-uart_rtos_handle_t handle;
-struct _uart_handle t_handle;
+#define TX_DMA_CHANNEL 1U
 
-uart_rtos_config_t uart_config = {
-    .baudrate = 115200,
-    .parity = kUART_ParityDisabled,
-    .stopbits = kUART_OneStopBit,
-    .buffer = background_buffer,
-    .buffer_size = sizeof(background_buffer),
-};
+static void UART1_DMA_TxCallback(dma_handle_t *handle, void *userData) {
 
-void init_pins(void) {
-    CLOCK_EnableClock(kCLOCK_PortE);
-    PORT_SetPinMux(PORTE, 0U, kPORT_MuxAlt3); // UART1_TX
-    PORT_SetPinMux(PORTE, 1U, kPORT_MuxAlt3); // UART1_RX
+	txOnGoing = false;
+	UART_EnableInterrupts(UART1, kUART_TxDataRegEmptyInterruptEnable);
+
 }
+
 
 extern void Uart1_init(void) {
-    init_pins();
+    // Crear colas para transmitir y recibir datos
+    uartTxQueue = xQueueCreate(30, sizeof(uint8_t));
+    uartRxQueue = xQueueCreate(30, sizeof(uint8_t));
 
-    uart_config.srcclk = UART_CLK_FREQ;
-    uart_config.base = UART;
+    // Configurar la UART1
+    uart_config_t uartConfig;
+    UART_GetDefaultConfig(&uartConfig);
+    uartConfig.baudRate_Bps = 115200;
+    uartConfig.enableTx = true;
+    uartConfig.enableRx = true;
+    UART_Init(UART1, &uartConfig, CLOCK_GetFreq(kCLOCK_BusClk));
 
-    if (UART_RTOS_Init(&handle, &t_handle, &uart_config) != kStatus_Success) {
-        // Handle error
-        while (1);
-    }
+
+    /* CONFIGURACIÓN DMA */
+    /* Init DMAMUX */
+    DMAMUX_Init(DMAMUX0);
+
+    /* Set channel for LPSCI  */
+    DMAMUX_SetSource(DMAMUX0, TX_DMA_CHANNEL, kDmaRequestMux0UART1Tx);
+    DMAMUX_EnableChannel(DMAMUX0, TX_DMA_CHANNEL);
+
+    // Inicializar el DMA
+    DMA_Init(DMA0);
+
+    // Configurar el handle del DMA para TX
+    DMA_CreateHandle(&dmaTxHandle, DMA0, TX_DMA_CHANNEL);
+
+    DMA_SetCallback(&dmaTxHandle, UART1_DMA_TxCallback, NULL);
+
+    // Configurar el handle de la UART1
+    UART_TransferCreateHandle(UART1, &uartHandle, NULL, NULL);
+
+    // Habilitar interrupción por transmisión vacía (TX)
+    UART_EnableInterrupts(UART1, kUART_TxDataRegEmptyInterruptEnable);
+    UART_EnableInterrupts(UART1, kUART_RxDataRegFullInterruptEnable);
+
+    NVIC_EnableIRQ(UART1_IRQn);
 }
 
-extern void Uart1_send(char *to_send) {
-    UART_RTOS_Send(&handle, (uint8_t*) to_send, strlen(to_send));
+extern void Uart1_send(char* to_send) {
+
+	uint32_t size = strlen(to_send), ret = 0;
+    // Colocar los datos en la cola para ser transmitidos
+
+	NVIC_DisableIRQ(UART1_IRQn);
+
+	if (uxQueueMessagesWaiting(uartTxQueue) == 0)
+			UART_EnableInterrupts(UART1, kUART_TxDataRegEmptyInterruptEnable);
+
+
+	while (uxQueueSpacesAvailable(uartTxQueue) && ret < size) {
+			xQueueSendToBack(uartTxQueue, &to_send[ret], pdMS_TO_TICKS(100));
+			ret++;
+		}
+
+	NVIC_EnableIRQ(UART1_IRQn);
 }
 
 extern void Uart1_read(uint8_t *receive) {
-    size_t n;
-    int error;
+	int32_t ret = 0;
 
-    error = UART_RTOS_Receive(&handle, receive, sizeof(recv_buffer), &n);
+	/* entra sección de código crítico */
+	NVIC_DisableIRQ(UART1_IRQn);
 
-    if (error == kStatus_UART_RxHardwareOverrun) {
-        if (kStatus_Success != UART_RTOS_Send(&handle, (uint8_t*) send_hardware_overrun, strlen(send_hardware_overrun))) {
-            vTaskSuspend(NULL);
+	while (uxQueueMessagesWaiting(uartRxQueue)) {
+		uint8_t dato;
+
+		xQueueReceive( uartRxQueue, &dato, portMAX_DELAY);
+		receive[ret] = dato;
+		ret++;
+	}
+
+	/* sale de sección de código crítico */
+	NVIC_EnableIRQ(UART1_IRQn);
+}
+
+void UART1_IRQHandler() {
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    uint32_t flags = UART_GetStatusFlags(UART1);
+
+    // Manejar interrupción por transmisión vacía (TX)
+    if (flags & kUART_TxDataRegEmptyFlag) {
+
+        UART_ClearStatusFlags(UART1, kUART_TxDataRegEmptyFlag);
+        uint8_t data;
+
+        if(!txOnGoing && uxQueueMessagesWaiting(uartTxQueue)){
+
+				xQueueReceiveFromISR(uartTxQueue, &data, &xHigherPriorityTaskWoken);
+				UART_WriteByte(UART1, data);
+				txOnGoing = true;
+
         }
-    }
-    if (error == kStatus_UART_RxRingBufferOverrun) {
-        if (kStatus_Success != UART_RTOS_Send(&handle, (uint8_t*) send_ring_overrun, strlen(send_ring_overrun))) {
-            vTaskSuspend(NULL);
+
+        else {
+        			/* si el RB está vacío deshabilita interrupción TX */
+        			UART_DisableInterrupts(UART1,
+        					kUART_TxDataRegEmptyInterruptEnable);
         }
+
+        UART_DisableInterrupts(UART1, kUART_TxDataRegEmptyInterruptEnable);
     }
+
+    // Manejar interrupción por recepción de datos (RX)
+    if (flags & kUART_RxDataRegFullFlag) {
+        UART_ClearStatusFlags(UART1, kUART_RxDataRegFullFlag);
+        uint8_t data = UART_ReadByte(UART1);
+        xQueueSendFromISR(uartRxQueue, &data, NULL);
+    }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

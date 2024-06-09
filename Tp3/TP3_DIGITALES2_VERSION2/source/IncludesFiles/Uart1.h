@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include "fsl_dma.h"
+#include "fsl_dmamux.h"
+#include "fsl_uart.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 extern void Uart1_init(void);
 extern void Uart1_send(char* to_send);
