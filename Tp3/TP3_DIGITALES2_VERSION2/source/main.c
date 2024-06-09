@@ -51,6 +51,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "timers.h"
+#include "IncludesFiles/timersRtos.h"
 
 /* TODO: insert other definitions and declarations here. */
 
@@ -70,6 +71,7 @@ int main(void) {
 	board_init();
 
 	semaphore_create();
+	timersRtos_create();
 	taskRtos_create();
 
 	vTaskStartScheduler();

@@ -52,6 +52,7 @@
 #include "IncludesFiles/uart0_dma.h"
 #include "IncludesFiles/mefSensor.h"
 #include "IncludesFiles/mefServo.h"
+#include "IncludesFiles/timersRtos.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -83,13 +84,15 @@ void procTrama(char *buf, int length) {
 	if (buf[2] == '0' && buf[3] == '1') {
 		switch (buf[4]) {
 		case 'E':
+			timersRtos_stop(TIMER2);
 			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_ON);
 			break;
 		case 'A':
+			timersRtos_stop(TIMER2);
 			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_OFF);
 			break;
 		case 'T':
-			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_TOGGLE);
+			timersRtos_start(TIMER2);
 			break;
 		}
 
