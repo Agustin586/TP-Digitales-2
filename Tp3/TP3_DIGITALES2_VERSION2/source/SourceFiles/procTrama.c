@@ -42,14 +42,13 @@
  *
  */
 
-
 /*==================[inclusions]=============================================*/
-#include "stdio.h"
-#include "IncludesFiles/UART0.h"
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
 #include "IncludesFiles/procTrama.h"
 #include "IncludesFiles/SD2_board.h"
 #include "IncludesFiles/mefRecTrama.h"
+#include "IncludesFiles/uart0_dma.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -63,125 +62,113 @@
 
 /*==================[external functions definition]==========================*/
 
-static uint8_t auxBuf[11]={0,0,0,0,0,
-						   0,0,0,0,0,0};
-
+static uint8_t auxBuf[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static uint32_t distancia = 0, angulo = 0;
+static uint8_t salto_linea[2] = { '\n', '\r' };
 
-static uint8_t salto_linea[2] = {'\n','\r'};
+void procTrama(char *buf, int length) {
+	// Mensaje: Accion sobre el Led Rojo
+	if (buf[2] == '0' && buf[3] == '1') {
+		switch (buf[4]) {
+		case 'E':
+			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_ON);
+			break;
+		case 'A':
+			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_OFF);
+			break;
+		case 'T':
+			board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_TOGGLE);
+			break;
+		}
 
-static char numtochar(uint8_t num){
-	if(num<10) return (num+48);
-	else return '#';
-}
+		// Retransmitir el mismo mensaje recibido.
+		uart0_envByte(':');
+		uart0_envDatos(buf, 5);
+		uart0_envDatos(salto_linea, 2);
+	}
 
-void procTrama(char *buf, int length)
-{
-    // Mensaje: Accion sobre el Led Rojo
-    if(buf[2] == '0' && buf[3] == '1'){
-	    switch (buf[4]){
-        	case 'E':
-            	board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_ON);
-            	break;
-        	case 'A':
-            	board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_OFF);
-            	break;
-        	case 'T':
-            	board_setLed(BOARD_LED_ID_ROJO, BOARD_LED_MSG_TOGGLE);
-            	break;
-    	    }
-    	    
-    	    // Retransmitir el mismo mensaje recibido.
+	// Mensaje: Leer mefRecTrama_est de SW1
+	else if (buf[2] == '1' && buf[3] == '1') {
+		if (board_getSw(BOARD_SW_ID_1)) {
+			// Transmitir el mensaje :XX11P’LF’ (las XX deben ser iguales a las recibidas).
+			strcpy(auxBuf, ":XX11P");
+			auxBuf[1] = buf[0];
+			auxBuf[2] = buf[1];
 
-	    	uart0_envByte(':');
-	    	uart0_envDatos(buf, 5);
-	    	uart0_envDatos(salto_linea, 2);
-     }
-     
-     // Mensaje: Leer estado de SW1
-     else if(buf[2] == '1' && buf[3] == '1'){
-	    if(board_getSw(BOARD_SW_ID_1)){
-	    
-	    	// Transmitir el mensaje :XX11P’LF’ (las XX deben ser iguales a las recibidas).
-	    	strcpy(auxBuf, ":XX11P");
-	    	auxBuf[1] = buf[0];
-	    	auxBuf[2] = buf[1];
+			uart0_envDatos(auxBuf, 6);
+			uart0_envDatos(salto_linea, 2);
+		}
 
-	    	uart0_envDatos(auxBuf, 6);
-	    	uart0_envDatos(salto_linea, 2);
-	    }
-	    
-	    else{
-	    	// Transmitir el mensaje :XX11N’LF’ (las XX deben ser iguales a las recibidas).
-	    	strcpy(auxBuf, ":XX11N");
-	        auxBuf[1] = buf[0];
-	    	auxBuf[2] = buf[1];
+		else {
+			// Transmitir el mensaje :XX11N’LF’ (las XX deben ser iguales a las recibidas).
+			strcpy(auxBuf, ":XX11N");
+			auxBuf[1] = buf[0];
+			auxBuf[2] = buf[1];
 
-	    	uart0_envDatos(auxBuf, 6);
-	    	uart0_envDatos(salto_linea, 2);
-	    }
-     }
-	
-     // Mensaje: Accion sobre el radar
-     else if(buf[2] == '0' && buf[3] == '2'){
-	    switch (buf[4]){
-        	case 'E':
-            	
-            	// Encender radar.
-        		uart0_envByte('E');
-				uart0_envDatos(salto_linea, 2);
+			uart0_envDatos(auxBuf, 6);
+			uart0_envDatos(salto_linea, 2);
+		}
+	}
 
-            	break;
-        	case 'A':
-        	
-            	// Apagar radar.
-        		uart0_envByte('A');
-        		uart0_envDatos(salto_linea, 2);
-            	
-            	break;
+	// Mensaje: Accion sobre el radar
+	else if (buf[2] == '0' && buf[3] == '2') {
+		switch (buf[4]) {
+		case 'E':
 
-    	    }
-    	    
-    	    // Retransmitir el mismo mensaje recibido.
-	    	uart0_envByte(':');
-	        uart0_envDatos(buf, 5);
-	        uart0_envDatos(salto_linea, 2);
-     }
-     
-    //Mensaje: Transmitir ultimos valores de angulo en grados (GGG) y distancia en mm (DDD).
-     else if(buf[2] == '2' && buf[3] == '1'){
+			// Encender radar.
+			uart0_envByte('E');
+			uart0_envDatos(salto_linea, 2);
 
-    	// distancia = (uint32_t)HCSR04_getDistance();
+			break;
+		case 'A':
 
-    	// AGREGAR INFO ANGULO /////////////////////////////////////////////////////////////
-	   
-    	// angulo = (uint32_t)MG90S_getAngle();
+			// Apagar radar.
+			uart0_envByte('A');
+			uart0_envDatos(salto_linea, 2);
 
-    	////////////////////////////////////////////////////////////////////////////////////
+			break;
 
-	    // Transmitir los bytes :XX21GGGDDD’LF’ (las XX deben ser iguales a las recibidas).
-    	/*
-    	 strcpy(auxBuf,":XX21");
-         auxBuf[1] = buf[0];
-    	 auxBuf[2] = buf[1];
-    	 auxBuf[5] = numtochar(  angulo/100 );
-    	 auxBuf[6] = numtochar(  angulo/10 - auxBuf[5]*10 );
-    	 auxBuf[7] = numtochar(  angulo - (angulo/10)*10  );
-    	 auxBuf[8] = numtochar(  distancia/100 );
-    	 auxBuf[9] = numtochar(  distancia/10 - auxBuf[8]*10 );
-    	 auxBuf[10] = numtochar(  distancia - (distancia/10)*10  );
-    	 auxBuf[11] = 0x0D;
+		}
 
-    	 uart0_envDatos(auxBuf, 11);
-    	 uart0_envDatos(salto_linea, 2);
-    	*/
+		// Retransmitir el mismo mensaje recibido.
+		uart0_envByte(':');
+		uart0_envDatos(buf, 5);
+		uart0_envDatos(salto_linea, 2);
+	}
 
-    	 uart0_envByte('#');
-    	 uart0_envDatos(salto_linea, 2);
-     }
+	//Mensaje: Transmitir ultimos valores de angulo en grados (GGG) y distancia en mm (DDD).
+	else if (buf[2] == '2' && buf[3] == '1') {
+
+		// distancia = (uint32_t)HCSR04_getDistance();
+
+		// AGREGAR INFO ANGULO /////////////////////////////////////////////////////////////
+
+		// angulo = (uint32_t)MG90S_getAngle();
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		// Transmitir los bytes :XX21GGGDDD’LF’ (las XX deben ser iguales a las recibidas).
+		/*
+		 strcpy(auxBuf,":XX21");
+		 auxBuf[1] = buf[0];
+		 auxBuf[2] = buf[1];
+		 auxBuf[5] = numtochar(  angulo/100 );
+		 auxBuf[6] = numtochar(  angulo/10 - auxBuf[5]*10 );
+		 auxBuf[7] = numtochar(  angulo - (angulo/10)*10  );
+		 auxBuf[8] = numtochar(  distancia/100 );
+		 auxBuf[9] = numtochar(  distancia/10 - auxBuf[8]*10 );
+		 auxBuf[10] = numtochar(  distancia - (distancia/10)*10  );
+		 auxBuf[11] = 0x0D;
+
+		 uart0_envDatos(auxBuf, 11);
+		 uart0_envDatos(salto_linea, 2);
+		 */
+
+		uart0_envByte('#');
+		uart0_envDatos(salto_linea, 2);
+	}
 
 }
 
 /*==================[end of file]============================================*/
-
 

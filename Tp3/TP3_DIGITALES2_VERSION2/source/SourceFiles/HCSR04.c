@@ -13,9 +13,6 @@
 volatile uint32_t g_echoDuration = 0;
 volatile bool g_captureFlag = false;
 volatile bool distanceReady = false;
-
-static const float velocidad_sonido_cm_us = 0.0343;
-
 //-------------------------------------------------------------------------
 
 extern void HCSR04_init() {

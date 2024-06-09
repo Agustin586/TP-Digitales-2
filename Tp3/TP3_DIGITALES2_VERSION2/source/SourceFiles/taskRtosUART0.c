@@ -7,22 +7,19 @@
 #include "IncludesFiles/MACROS.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "IncludesFiles/UART0.h"
 #include "IncludesFiles/mefRecTrama.h"
+#include "IncludesFiles/uart0_dma.h"
 
-extern void taskRtosUART0(void) {
-
+extern void taskRtosUART0(void *pvParameter) {
 	uart0_init();
 
 	mefRecTrama_init();
 
 	for (;;) {
 		//if (semaphore_take(SEMAPHORE_UART0, portMAX_DELAY)) {
+		mefRecTrama_task();
 
-
-			mefRecTrama_task();
-
-			vTaskDelay(DELAY_10ms);
+		vTaskDelay(DELAY_100ms);
 
 		//}
 	}

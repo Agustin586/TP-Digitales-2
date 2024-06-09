@@ -85,12 +85,12 @@ typedef struct
  **/
 void board_init(void);
 
-/** \brief setea estado del led indicado
+/** \brief setea mefRecTrama_est del led indicado
  **
  **/
 void board_setLed(board_ledId_enum id, board_ledMsg_enum msg);
 
-/** \brief Devuelve estado del pulsador indicado
+/** \brief Devuelve mefRecTrama_est del pulsador indicado
  **
  ** \return true: si el pulsdor est� apretado
  **         false: si el pulsador no est� apretado

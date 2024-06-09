@@ -92,7 +92,7 @@ void procTrama(char *buf, int length)
 	    	uart_ringBuffer_envDatos(buf, 6);
      }
      
-     // Mensaje: Leer estado de SW1
+     // Mensaje: Leer mefRecTrama_est de SW1
      else if(buf[2] == '1' && buf[3] == '1'){
 	    if(board_getSw(BOARD_SW_ID_1)){
 	    

@@ -34,30 +34,25 @@
 
 /*==================[inclusions]=============================================*/
 #include <stdio.h>
-#include "IncludesFiles/UART0.h"
+#include <stdint.h>
 #include "IncludesFiles/mefRecTrama.h"
 #include "IncludesFiles/procTrama.h"
+#include "IncludesFiles/uart0_dma.h"
 
 /*==================[macros and definitions]=================================*/
-typedef enum
-{
-	MEF_REC_ESPERANDO_INICIO = 0,
-	MEF_REC_RECIBIENDO,
-	MEF_REC_ESPERANDO_0A,
-}mefRecTrama_estado_enum;
+typedef enum {
+	MEF_REC_ESPERANDO_INICIO = 0, MEF_REC_RECIBIENDO, MEF_REC_ESPERANDO_0A,
+} est_mefRecTrama_enum;
 
 #define BUFFER_SIZE		8
-
 #define CHAR_CR			0xd
 #define CHAR_LF			0xa
 
 /*==================[internal data declaration]==============================*/
 static char bufferRec[BUFFER_SIZE];
 
-static mefRecTrama_estado_enum estado;
-
+static est_mefRecTrama_enum mefRecTrama_est;
 static uint8_t indexRec;
-
 
 /*==================[internal functions declaration]=========================*/
 
@@ -67,14 +62,13 @@ static uint8_t indexRec;
 
 /*==================[external functions definition]==========================*/
 
-void mefRecTrama_init(void){
+void mefRecTrama_init(void) {
+	mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
 
-	estado = MEF_REC_ESPERANDO_INICIO;
-
+	return;
 }
 
-void mefRecTrama_task(void)
-{
+void mefRecTrama_task(void) {
 	uint32_t flagRec;
 	uint8_t byteRec;
 
@@ -85,79 +79,68 @@ void mefRecTrama_task(void)
 
 	flagRec = uart0_recDatos(&byteRec, 1);
 
-
 	// mostrar entrada en consola.
-	if(flagRec){
+	if (flagRec) {
 
-		if(byteRec != CHAR_LF && byteRec != CHAR_CR){
+		if (byteRec != CHAR_LF && byteRec != CHAR_CR) {
 
 			uart0_envDatos(&byteRec, 1);
 
 		}
 
-		else{
+		else {
 
 			uart0_envDatos(enter, 2);
 
 		}
 	}
 
-	switch (estado)
-	{
-		case MEF_REC_ESPERANDO_INICIO:
-			if (flagRec != 0 && byteRec == ':')
-			{
-				indexRec = 0;
-				estado = MEF_REC_RECIBIENDO;
-			}
-			break;
+	switch (mefRecTrama_est) {
+	case MEF_REC_ESPERANDO_INICIO:
+		if (flagRec != 0 && byteRec == ':') {
+			indexRec = 0;
+			mefRecTrama_est = MEF_REC_RECIBIENDO;
+		}
+		break;
 
-		case MEF_REC_RECIBIENDO:
+	case MEF_REC_RECIBIENDO:
 
-			if (flagRec != 0 && byteRec != CHAR_CR)
-			{
-				if (indexRec < BUFFER_SIZE)
-					bufferRec[indexRec] = byteRec;
-				indexRec++;
-			}
+		if (flagRec != 0 && byteRec != CHAR_CR) {
+			if (indexRec < BUFFER_SIZE)
+				bufferRec[indexRec] = byteRec;
+			indexRec++;
+		}
 
-			if (flagRec != 0 && byteRec == ':')
-				indexRec = 0;
+		if (flagRec != 0 && byteRec == ':')
+			indexRec = 0;
 
-			if (flagRec != 0 && byteRec == CHAR_LF)
-			{
-				estado = MEF_REC_ESPERANDO_0A;
-			}
+		if (flagRec != 0 && byteRec == CHAR_LF) {
+			mefRecTrama_est = MEF_REC_ESPERANDO_0A;
+		}
 
-			if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_CR) )
-			{
-				estado = MEF_REC_ESPERANDO_INICIO;
-			}
+		if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_CR)) {
+			mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
+		}
 
-			break;
+		break;
 
-		case MEF_REC_ESPERANDO_0A:
+	case MEF_REC_ESPERANDO_0A:
 
-			if (flagRec != 0 && byteRec == ':')
-			{
-				indexRec = 0;
-				estado = MEF_REC_RECIBIENDO;
-			}
+		if (flagRec != 0 && byteRec == ':') {
+			indexRec = 0;
+			mefRecTrama_est = MEF_REC_RECIBIENDO;
+		}
 
-			else{
+		else {
 
-				procTrama(bufferRec, indexRec);
-				estado = MEF_REC_ESPERANDO_INICIO;
+			procTrama(bufferRec, indexRec);
+			mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
 
-			}
+		}
 
-			break;
+		break;
 	}
 }
 
-
-
-
 /*==================[end of file]============================================*/
-
 

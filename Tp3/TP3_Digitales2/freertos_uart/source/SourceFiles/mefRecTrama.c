@@ -43,7 +43,7 @@ typedef enum
 	MEF_REC_ESPERANDO_INICIO = 0,
 	MEF_REC_RECIBIENDO,
 	MEF_REC_ESPERANDO_0A,
-}mefRecTrama_estado_enum;
+}est_mefRecTrama_enum;
 
 #define BUFFER_SIZE		8
 
@@ -63,7 +63,7 @@ static char bufferRec[BUFFER_SIZE];
 
 void mefRecTrama_task(void)
 {
-	static mefRecTrama_estado_enum estado = MEF_REC_ESPERANDO_INICIO;
+	static est_mefRecTrama_enum mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
 
 	uint32_t flagRec;
 	uint8_t byteRec;
@@ -71,13 +71,13 @@ void mefRecTrama_task(void)
 
 	flagRec = uart_ringBuffer_recDatos(&byteRec, sizeof(byteRec));
 
-	switch (estado)
+	switch (mefRecTrama_est)
 	{
 		case MEF_REC_ESPERANDO_INICIO:
 			if (flagRec != 0 && byteRec == ':')
 			{
 				indexRec = 0;
-				estado = MEF_REC_RECIBIENDO;
+				mefRecTrama_est = MEF_REC_RECIBIENDO;
 			}
 			break;
 
@@ -95,12 +95,12 @@ void mefRecTrama_task(void)
 
 			if (flagRec != 0 && byteRec == CHAR_CR)
 			{
-				estado = MEF_REC_ESPERANDO_0A;
+				mefRecTrama_est = MEF_REC_ESPERANDO_0A;
 			}
 
 			if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_LF) )
 			{
-				estado = MEF_REC_ESPERANDO_INICIO;
+				mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
 			}
 
 			break;
@@ -110,7 +110,7 @@ void mefRecTrama_task(void)
 			if (flagRec != 0 && byteRec == ':')
 			{
 				indexRec = 0;
-				estado = MEF_REC_RECIBIENDO;
+				mefRecTrama_est = MEF_REC_RECIBIENDO;
 			}
 
 			if (flagRec != 0 && byteRec != ':')
@@ -118,7 +118,7 @@ void mefRecTrama_task(void)
 				if (byteRec == CHAR_LF)
 					procTrama(bufferRec, indexRec);
 
-				estado = MEF_REC_ESPERANDO_INICIO;
+				mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
 			}
 			break;
 	}
