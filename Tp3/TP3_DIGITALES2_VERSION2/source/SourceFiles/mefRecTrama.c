@@ -33,10 +33,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "stdio.h"
-#include <UART0.h>
-#include "mefRecTrama.h"
-#include "procTrama.h"
+#include <stdio.h>
+#include "IncludesFiles/UART0.h"
+#include "IncludesFiles/mefRecTrama.h"
+#include "IncludesFiles/procTrama.h"
 
 /*==================[macros and definitions]=================================*/
 typedef enum

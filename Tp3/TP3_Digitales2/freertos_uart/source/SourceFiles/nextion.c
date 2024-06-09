@@ -120,9 +120,9 @@ extern void nextion_putObj(int8_t angle, float radio, uint8_t id) {
 	nextion_setDataObj(angle, radio, id);
 
 	strcpy(Trama.comando, draw_cirs);
-	sprintf(Trama.parametro, "%d,%d,%d,%d\r\n", Objeto[id].Display.pixelX,
-			Objeto[id].Display.pixelY, Objeto[id].Display.radio,
-			Objeto[id].Display.Color);
+	sprintf(Trama.parametro, "%d,%d,%d,%d\r\n", Objeto[paso][muestra].Display.pixelX,
+			Objeto[paso][muestra].Display.pixelY, Objeto[paso][muestra].Display.radio,
+			Objeto[paso][muestra].Display.Color);
 	strcpy(Trama.trama, Trama.comando);
 	strcat(Trama.trama, Trama.parametro);
 
@@ -134,18 +134,18 @@ extern void nextion_putObj(int8_t angle, float radio, uint8_t id) {
 
 static void nextion_setDataObj(int8_t angle, float radio, uint8_t id) {
 	/* Parametros propios del objeto */
-	Objeto[id].Posicion.Angle = angle;
-	Objeto[id].Posicion.Radio = radio;
-	Objeto[id].Posicion.posX = radio * cos(angle);
-	Objeto[id].Posicion.posY = radio * sin(angle);
+	Objeto[paso][muestra].Posicion.Angle = angle;
+	Objeto[paso][muestra].Posicion.Radio = radio;
+	Objeto[paso][muestra].Posicion.posX = radio * cos(angle);
+	Objeto[paso][muestra].Posicion.posY = radio * sin(angle);
 
 	/* Parametros a enviar en el display */
-	Objeto[id].Display.Color = COLOR_RED;
-	Objeto[id].Display.radio = 1;
-	Objeto[id].Display.pixelX = EJE_X_TRANSFORMACION_LINEAL
-			- (Objeto[id].Posicion.posX * CONVERSION_PIXEL_RADIO);
-	Objeto[id].Display.pixelY = EJE_Y_TRANSFORMACION_LINEAL
-			- (Objeto[id].Posicion.posY * CONVERSION_PIXEL_RADIO);
+	Objeto[paso][muestra].Display.Color = COLOR_RED;
+	Objeto[paso][muestra].Display.radio = 1;
+	Objeto[paso][muestra].Display.pixelX = EJE_X_TRANSFORMACION_LINEAL
+			- (Objeto[paso][muestra].Posicion.posX * CONVERSION_PIXEL_RADIO);
+	Objeto[paso][muestra].Display.pixelY = EJE_Y_TRANSFORMACION_LINEAL
+			- (Objeto[paso][muestra].Posicion.posY * CONVERSION_PIXEL_RADIO);
 
 	return;
 }

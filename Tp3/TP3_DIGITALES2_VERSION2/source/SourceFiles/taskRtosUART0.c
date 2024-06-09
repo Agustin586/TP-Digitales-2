@@ -1,14 +1,14 @@
 #include "stdio.h"
 
-#include "SD2_board.h"
+#include "IncludesFiles/SD2_board.h"
 
-#include "taskRtosUART0.h"
-#include "semaphore.h"
-#include "MACROS.h"
+#include "IncludesFiles/taskRtosUART0.h"
+#include "IncludesFiles/semaphore.h"
+#include "IncludesFiles/MACROS.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "UART0.h"
-#include "mefRecTrama.h"
+#include "IncludesFiles/UART0.h"
+#include "IncludesFiles/mefRecTrama.h"
 
 extern void taskRtosUART0(void) {
 

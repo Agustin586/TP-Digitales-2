@@ -1,6 +1,8 @@
 #include "IncludesFiles/mefSensor.h"
 #include "IncludesFiles/HCSR04.h"
 #include "IncludesFiles/taskRtosPERIFERICOS.h"
+#include "IncludesFiles/nextion.h"
+#include "IncludesFiles/mefServo.h"
 #include "fsl_debug_console.h"
 
 #define SENSOR_DELAY 10
@@ -20,6 +22,7 @@ extern void mefSensor_init(void) {
 }
 
 extern void mefSensor(void) {
+#define MAXIMA_DISTANCIA	60
 	switch (estMefSensor) {
 	case EST_SENSOR_RESET:
 		/*Acciones de reset*/
@@ -34,7 +37,9 @@ extern void mefSensor(void) {
 			TriggerPulse();
 		} else {
 			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
-			taskRtosPERIFERICOS_delay(50);
+			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
+				nextion_setDataObj(mefServo_getAngle() + 105,
+						mefSensor_getDistance());
 		}
 
 //		estMefSensor = EST_SENSOR_DISABLE;

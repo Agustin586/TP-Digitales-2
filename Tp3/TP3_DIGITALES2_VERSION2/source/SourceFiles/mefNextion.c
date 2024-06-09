@@ -11,7 +11,6 @@
 #define PIC_ID	0
 
 static estMefNextion_enum estMefNextion;
-static uint8_t obj_guardados = 0;
 
 static uint8_t picMovRadar(int angle);
 
@@ -22,12 +21,15 @@ extern void mefNextion_init(void) {
 }
 
 extern void mefNextion(void) {
+#define COLOR_RED	63488
+#define PASO		0
+#define CANT_MAX_MUESTRAS	10
 	static int16_t angle_old = 0;
+	static uint8_t muestra = 0;
 
 	switch (estMefNextion) {
 	case EST_NEXTION_RESET:
 		PRINTF("No se detecto la pagina de la pantalla\r\n");
-//		taskRtosNextion_error();
 
 		estMefNextion = nextion_getPage();
 		break;
@@ -37,17 +39,18 @@ extern void mefNextion(void) {
 		break;
 	case EST_NEXTION_pRADAR:
 		if (angle_old != mefServo_getAngle()) {
-			if(angle_old == 45)	obj_guardados = 0;
-
-			nextion_setDataObj(105 + mefServo_getAngle(), mefSensor_getDistance(), obj_guardados);
-			obj_guardados++;
 			nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
 			angle_old = mefServo_getAngle();
 		}
 
-		for (uint8_t i = 0; i < obj_guardados; i++) {
-			nextion_putObj(i,63);
-		}
+		nextion_putObj(PASO, muestra, nextion_getColorAngle(muestra, mefServo_getAngle()));
+
+		if (muestra < CANT_MAX_MUESTRAS)
+			muestra++;
+		else
+			muestra = 0;
+
+		taskRtosNextion_delay(5);
 
 //		estMefNextion = nextion_getPage();
 		break;
