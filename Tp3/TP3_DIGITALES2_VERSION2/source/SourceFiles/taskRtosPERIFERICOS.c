@@ -30,7 +30,7 @@ extern void taskRtosPERIFERICOS_Sensor(void) {
 	for (;;) {
 		mefSensor();
 
-		vTaskDelay(DELAY_50ms);
+		vTaskDelay(DELAY_100ms);
 	}
 
 	vTaskDelete(NULL);

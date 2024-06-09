@@ -51,7 +51,7 @@ extern "C" {
 
 /*==================[external functions definition]==========================*/
 
-void uart_ringBuffer_init(void);
+void uart0_init(void);
 
 /** \brief recibe datos por puerto serie accediendo al RB
  **
@@ -59,7 +59,7 @@ void uart_ringBuffer_init(void);
  ** \param[in] size tamaño del buffer
  ** \return cantidad de bytes recibidos
  **/
-int32_t uart_ringBuffer_recDatos(uint8_t *pBuf, int32_t size);
+int32_t uart0_recDatos(uint8_t *pBuf, int32_t size);
 
 /** \brief envía datos por puerto serie accediendo al RB
  **
@@ -67,7 +67,7 @@ int32_t uart_ringBuffer_recDatos(uint8_t *pBuf, int32_t size);
  ** \param[in] size tamaño del buffer
  ** \return cantidad de bytes enviados
  **/
-int32_t uart_ringBuffer_envDatos(uint8_t *pBuf, int32_t size);
+int32_t uart0_envDatos(uint8_t *pBuf, int32_t size);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

@@ -16,7 +16,7 @@ extern void taskRtosNextion(void) {
 	for (;;) {
 		mefNextion();
 
-		vTaskDelay(DELAY_100ms);
+		vTaskDelay(DELAY_10ms);
 	}
 
 	vTaskDelete(NULL);
