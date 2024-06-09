@@ -198,6 +198,7 @@ extern void uart0_envByte(uint8_t byte) {
 }
 
 void UART0_IRQHandler(void) {
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	uint8_t data;
 
 	lpsci_transfer_t transferido = { &data, 1 };
@@ -209,7 +210,7 @@ void UART0_IRQHandler(void) {
 		data = LPSCI_ReadByte(UART0);
 
 		/* pone dato en cola */
-		xQueueSendFromISR(Rx_Queue, &data, NULL); //ringBuffer_putData(pRingBufferRx, data);
+		xQueueSendFromISR(Rx_Queue, &data, &xHigherPriorityTaskWoken); //ringBuffer_putData(pRingBufferRx, data);
 
 		LPSCI_ClearStatusFlags(UART0, kLPSCI_RxDataRegFullFlag);
 	}
@@ -243,7 +244,7 @@ void UART0_IRQHandler(void) {
 		 }
 		 */
 		if (!txOnGoing && uxQueueMessagesWaiting(Tx_Queue)) {
-			xQueueReceiveFromISR(Tx_Queue, &data, portMAX_DELAY);
+			xQueueReceiveFromISR(Tx_Queue, &data, &xHigherPriorityTaskWoken);
 
 			//LPSCI_WriteByte(UART0, data);
 			transferido.data = &data;
@@ -260,6 +261,7 @@ void UART0_IRQHandler(void) {
 		LPSCI_ClearStatusFlags(UART0, kLPSCI_TxDataRegEmptyFlag);
 	}
 
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /*==================[end of file]============================================*/
