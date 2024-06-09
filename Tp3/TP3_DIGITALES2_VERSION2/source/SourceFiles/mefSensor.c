@@ -38,26 +38,21 @@ extern void mefSensor(void) {
 		if (!HCSR04_distanceReady()) {
 			TriggerPulse();
 		} else {
-			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
+//			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
 			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
 				nextion_setDataObj(mefServo_getAngle() + 105,
 						mefSensor_getDistance());
 		}
 
 		if(!procTrama_estadoRadar()){
-
 			estMefSensor = EST_SENSOR_DISABLE;
-
 		}
 
 //		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
-
 		if(procTrama_estadoRadar()){
-
 			estMefSensor = EST_SENSOR_ENABLE;
-
 		}
 
 		break;

@@ -71,9 +71,8 @@ static uint8_t salto_linea[2] = { '\n', '\r' };
 
 static uint8_t estadoRadar = 1;
 
-
 // Si retorna 1, el radar debe encenderse. Si retorna 0, el radar debe apagarse.
-extern uint8_t procTrama_estadoRadar(void){
+extern uint8_t procTrama_estadoRadar(void) {
 
 	return estadoRadar;
 
@@ -96,7 +95,7 @@ void procTrama(char *buf, int length) {
 
 		// Retransmitir el mismo mensaje recibido.
 		uart0_envByte(':');
-		uart0_envDatos((uint8_t*)buf, 5);
+		uart0_envDatos((uint8_t*) buf, 5);
 		uart0_envDatos(salto_linea, 2);
 	}
 
@@ -104,21 +103,21 @@ void procTrama(char *buf, int length) {
 	else if (buf[2] == '1' && buf[3] == '1') {
 		if (board_getSw(BOARD_SW_ID_1)) {
 			// Transmitir el mensaje :XX11P’LF’ (las XX deben ser iguales a las recibidas).
-			strcpy((char*)auxBuf, ":XX11P");
+			strcpy((char*) auxBuf, ":XX11P");
 			auxBuf[1] = buf[0];
 			auxBuf[2] = buf[1];
 
-			uart0_envDatos((uint8_t*)auxBuf, 6);
+			uart0_envDatos((uint8_t*) auxBuf, 6);
 			uart0_envDatos(salto_linea, 2);
 		}
 
 		else {
 			// Transmitir el mensaje :XX11N’LF’ (las XX deben ser iguales a las recibidas).
-			strcpy((char*)auxBuf, ":XX11N");
+			strcpy((char*) auxBuf, ":XX11N");
 			auxBuf[1] = buf[0];
 			auxBuf[2] = buf[1];
 
-			uart0_envDatos((uint8_t*)auxBuf, 6);
+			uart0_envDatos((uint8_t*) auxBuf, 6);
 			uart0_envDatos(salto_linea, 2);
 		}
 	}
@@ -143,14 +142,18 @@ void procTrama(char *buf, int length) {
 
 		// Retransmitir el mismo mensaje recibido.
 		uart0_envByte(':');
-		uart0_envDatos((uint8_t*)buf, 5);
+		uart0_envDatos((uint8_t*) buf, 5);
 		uart0_envDatos(salto_linea, 2);
 	}
 
 	//Mensaje: Transmitir ultimos valores de angulo en grados (GGG) y distancia en mm (DDD).
 	else if (buf[2] == '2' && buf[3] == '1') {
+#define MAX_DISTANCIA	999
 
-		distancia = (uint32_t)10*mefSensor_getDistance();
+		distancia = (uint32_t) 10.0 * mefSensor_getDistance();
+
+		if (distancia > MAX_DISTANCIA)
+			distancia = 0;
 
 		// AGREGAR INFO ANGULO /////////////////////////////////////////////////////////////
 
@@ -160,12 +163,11 @@ void procTrama(char *buf, int length) {
 
 		// Transmitir los bytes :XX21GGGDDD’LF’ (las XX deben ser iguales a las recibidas).
 
+		sprintf((char*) auxBuf, ":%c%c21%03d%03d", buf[0], buf[1], angulo,
+				distancia);
 
-		 sprintf((char*)auxBuf, ":%c%c21%03d%03d",
-		  	  	  buf[0], buf[1], angulo, distancia);
-
-		 uart0_envDatos(auxBuf, 11);
-		 uart0_envDatos(salto_linea, 2);
+		uart0_envDatos(auxBuf, 11);
+		uart0_envDatos(salto_linea, 2);
 
 	}
 
