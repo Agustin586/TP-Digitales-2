@@ -164,7 +164,7 @@ static int16_t nextion_getAngleMuestraX(uint8_t muestra) {
 }
 
 extern uint16_t nextion_getColorAngle(uint8_t muestra, int16_t angle_actual) {
-	if (nextion_getAngleMuestraX(muestra) <= (angle_actual + 105 + 30)
+	if (nextion_getAngleMuestraX(muestra) <= (angle_actual + 105 + 15)
 			&& nextion_getAngleMuestraX(muestra) >= (angle_actual - 15 + 105))
 		return COLOR_RED;
 	return COLOR_GREY;
