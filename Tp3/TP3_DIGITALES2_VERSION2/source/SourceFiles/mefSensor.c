@@ -5,6 +5,8 @@
 #include "IncludesFiles/mefServo.h"
 #include "fsl_debug_console.h"
 
+#include "IncludesFiles/procTrama.h"
+
 #define SENSOR_DELAY 10
 
 typedef enum {
@@ -42,12 +44,22 @@ extern void mefSensor(void) {
 						mefSensor_getDistance());
 		}
 
+		if(!procTrama_estadoRadar()){
+
+			estMefSensor = EST_SENSOR_DISABLE;
+
+		}
+
 //		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
-		/*Acciones de disable*/
-//		vtaskDelay(SENSOR_DELAY);
-//		estMefSensor = EST_SENSOR_ENABLE;
+
+		if(procTrama_estadoRadar()){
+
+			estMefSensor = EST_SENSOR_ENABLE;
+
+		}
+
 		break;
 	default:
 		break;

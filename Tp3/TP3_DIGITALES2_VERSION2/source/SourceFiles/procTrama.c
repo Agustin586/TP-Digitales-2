@@ -45,6 +45,7 @@
 /*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include "IncludesFiles/procTrama.h"
 #include "IncludesFiles/SD2_board.h"
 #include "IncludesFiles/mefRecTrama.h"
@@ -65,6 +66,16 @@
 static uint8_t auxBuf[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static uint32_t distancia = 0, angulo = 0;
 static uint8_t salto_linea[2] = { '\n', '\r' };
+
+static uint8_t estadoRadar = 1;
+
+
+// Si retorna 1, el radar debe encenderse. Si retorna 0, el radar debe apagarse.
+extern uint8_t procTrama_estadoRadar(void){
+
+	return estadoRadar;
+
+}
 
 void procTrama(char *buf, int length) {
 	// Mensaje: Accion sobre el Led Rojo
@@ -116,15 +127,13 @@ void procTrama(char *buf, int length) {
 		case 'E':
 
 			// Encender radar.
-			uart0_envByte('E');
-			uart0_envDatos(salto_linea, 2);
+			estadoRadar = 1;
 
 			break;
 		case 'A':
 
 			// Apagar radar.
-			uart0_envByte('A');
-			uart0_envDatos(salto_linea, 2);
+			estadoRadar = 0;
 
 			break;
 
