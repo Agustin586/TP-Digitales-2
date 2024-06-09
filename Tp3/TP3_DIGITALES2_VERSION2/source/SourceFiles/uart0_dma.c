@@ -47,7 +47,10 @@
 #include "board.h"
 #include "MKL46Z4.h"
 #include "pin_mux.h"
-#include "uart0_drv.h"
+#include "uart0_dma.h"
+
+#include "FreeRTOS.h"
+#include "queue.h"
 
 /*==================[macros and definitions]=================================*/
 #define LPSCI_TX_DMA_CHANNEL 0U
@@ -199,7 +202,9 @@ int32_t uart0_recDatos(uint8_t *pBuf, int32_t size)
 
 extern void uart0_envByte(uint8_t byte)
 {
-	lpsci_transfer_t xfer;
+		lpsci_transfer_t xfer;
+
+		uint8_t size = 1;
 
 	    if (txOnGoing)
 	    {
@@ -208,16 +213,15 @@ extern void uart0_envByte(uint8_t byte)
 	    else
 	    {
 	        // Hace copia del buffer a transmitir en otro arreglo
-	        memcpy(txBuffer_dma, &byte, 1);
+	        memcpy(txBuffer_dma, &byte, size);
 
 	        xfer.data = txBuffer_dma;
-	        xfer.dataSize = 1;
+	        xfer.dataSize = size;
 
 	        txOnGoing = true;
 	        LPSCI_TransferSendDMA(UART0, &lpsciDmaHandle, &xfer);
 
 	        LPSCI_EnableInterrupts(UART0, kLPSCI_TransmissionCompleteInterruptEnable);
-
 
 	    }
 }
@@ -249,7 +253,6 @@ void UART0_IRQHandler(void)
         board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
 
     }
-
 
 }
 
