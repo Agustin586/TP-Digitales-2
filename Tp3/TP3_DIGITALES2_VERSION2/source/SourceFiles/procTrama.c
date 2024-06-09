@@ -83,7 +83,7 @@ void procTrama(char *buf, int length) {
 
 		// Retransmitir el mismo mensaje recibido.
 		uart0_envByte(':');
-		uart0_envDatos(buf, 5);
+		uart0_envDatos((uint8_t*)buf, 5);
 		uart0_envDatos(salto_linea, 2);
 	}
 
@@ -91,21 +91,21 @@ void procTrama(char *buf, int length) {
 	else if (buf[2] == '1' && buf[3] == '1') {
 		if (board_getSw(BOARD_SW_ID_1)) {
 			// Transmitir el mensaje :XX11P’LF’ (las XX deben ser iguales a las recibidas).
-			strcpy(auxBuf, ":XX11P");
+			strcpy((char*)auxBuf, ":XX11P");
 			auxBuf[1] = buf[0];
 			auxBuf[2] = buf[1];
 
-			uart0_envDatos(auxBuf, 6);
+			uart0_envDatos((uint8_t*)auxBuf, 6);
 			uart0_envDatos(salto_linea, 2);
 		}
 
 		else {
 			// Transmitir el mensaje :XX11N’LF’ (las XX deben ser iguales a las recibidas).
-			strcpy(auxBuf, ":XX11N");
+			strcpy((char*)auxBuf, ":XX11N");
 			auxBuf[1] = buf[0];
 			auxBuf[2] = buf[1];
 
-			uart0_envDatos(auxBuf, 6);
+			uart0_envDatos((uint8_t*)auxBuf, 6);
 			uart0_envDatos(salto_linea, 2);
 		}
 	}
@@ -132,40 +132,30 @@ void procTrama(char *buf, int length) {
 
 		// Retransmitir el mismo mensaje recibido.
 		uart0_envByte(':');
-		uart0_envDatos(buf, 5);
+		uart0_envDatos((uint8_t*)buf, 5);
 		uart0_envDatos(salto_linea, 2);
 	}
 
 	//Mensaje: Transmitir ultimos valores de angulo en grados (GGG) y distancia en mm (DDD).
 	else if (buf[2] == '2' && buf[3] == '1') {
 
-		// distancia = (uint32_t)HCSR04_getDistance();
+		distancia = 0;
 
 		// AGREGAR INFO ANGULO /////////////////////////////////////////////////////////////
 
-		// angulo = (uint32_t)MG90S_getAngle();
+		angulo = 0;
 
 		////////////////////////////////////////////////////////////////////////////////////
 
 		// Transmitir los bytes :XX21GGGDDD’LF’ (las XX deben ser iguales a las recibidas).
-		/*
-		 strcpy(auxBuf,":XX21");
-		 auxBuf[1] = buf[0];
-		 auxBuf[2] = buf[1];
-		 auxBuf[5] = numtochar(  angulo/100 );
-		 auxBuf[6] = numtochar(  angulo/10 - auxBuf[5]*10 );
-		 auxBuf[7] = numtochar(  angulo - (angulo/10)*10  );
-		 auxBuf[8] = numtochar(  distancia/100 );
-		 auxBuf[9] = numtochar(  distancia/10 - auxBuf[8]*10 );
-		 auxBuf[10] = numtochar(  distancia - (distancia/10)*10  );
-		 auxBuf[11] = 0x0D;
+
+
+		 sprintf((char*)auxBuf, ":%c%c21%03d%03d",
+		  	  	  buf[0], buf[1], angulo, distancia);
 
 		 uart0_envDatos(auxBuf, 11);
 		 uart0_envDatos(salto_linea, 2);
-		 */
 
-		uart0_envByte('#');
-		uart0_envDatos(salto_linea, 2);
 	}
 
 }
