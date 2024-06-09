@@ -33,9 +33,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "IncludesFiles/mefRecTrama.h"
-#include "IncludesFiles/procTrama.h"
-#include "IncludesFiles/uart_ringBuffer.h"
+#include "stdio.h"
+#include <UART0.h>
+#include "mefRecTrama.h"
+#include "procTrama.h"
 
 /*==================[macros and definitions]=================================*/
 typedef enum
@@ -53,6 +54,11 @@ typedef enum
 /*==================[internal data declaration]==============================*/
 static char bufferRec[BUFFER_SIZE];
 
+static mefRecTrama_estado_enum estado;
+
+static uint8_t indexRec;
+
+
 /*==================[internal functions declaration]=========================*/
 
 /*==================[external data definition]===============================*/
@@ -61,15 +67,40 @@ static char bufferRec[BUFFER_SIZE];
 
 /*==================[external functions definition]==========================*/
 
+void mefRecTrama_init(void){
+
+	estado = MEF_REC_ESPERANDO_INICIO;
+
+}
+
 void mefRecTrama_task(void)
 {
-	static mefRecTrama_estado_enum estado = MEF_REC_ESPERANDO_INICIO;
-
 	uint32_t flagRec;
 	uint8_t byteRec;
-	static uint8_t indexRec;
 
-	flagRec = uart_ringBuffer_recDatos(&byteRec, sizeof(byteRec));
+	uint8_t enter[2];
+
+	enter[0] = '\n';
+	enter[1] = '\r';
+
+	flagRec = uart0_recDatos(&byteRec, 1);
+
+
+	// mostrar entrada en consola.
+	if(flagRec){
+
+		if(byteRec != CHAR_LF && byteRec != CHAR_CR){
+
+			uart0_envDatos(&byteRec, 1);
+
+		}
+
+		else{
+
+			uart0_envDatos(enter, 2);
+
+		}
+	}
 
 	switch (estado)
 	{
@@ -93,12 +124,12 @@ void mefRecTrama_task(void)
 			if (flagRec != 0 && byteRec == ':')
 				indexRec = 0;
 
-			if (flagRec != 0 && byteRec == CHAR_CR)
+			if (flagRec != 0 && byteRec == CHAR_LF)
 			{
 				estado = MEF_REC_ESPERANDO_0A;
 			}
 
-			if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_LF) )
+			if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_CR) )
 			{
 				estado = MEF_REC_ESPERANDO_INICIO;
 			}
@@ -113,16 +144,18 @@ void mefRecTrama_task(void)
 				estado = MEF_REC_RECIBIENDO;
 			}
 
-			if (flagRec != 0 && byteRec != ':')
-			{
-				if (byteRec == CHAR_LF)
-					procTrama(bufferRec, indexRec);
+			else{
 
+				procTrama(bufferRec, indexRec);
 				estado = MEF_REC_ESPERANDO_INICIO;
+
 			}
+
 			break;
 	}
 }
+
+
 
 
 /*==================[end of file]============================================*/
