@@ -48,6 +48,7 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions definition]==========================*/
+void mefRecTrama_init(void);
 void mefRecTrama_task(void);
 
 /*==================[cplusplus]==============================================*/
