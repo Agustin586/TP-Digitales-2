@@ -4,8 +4,9 @@
 #include "IncludesFiles/nextion.h"
 #include "IncludesFiles/mefServo.h"
 #include "fsl_debug_console.h"
-
-#define SENSOR_DELAY 10
+#include "IncludesFiles/timersRtos.h"
+#include "IncludesFiles/SD2_board.h"
+#include "IncludesFiles/procTrama.h"
 
 typedef enum {
 	EST_SENSOR_RESET = 0, EST_SENSOR_ENABLE, EST_SENSOR_DISABLE,
@@ -27,6 +28,7 @@ extern void mefSensor(void) {
 	case EST_SENSOR_RESET:
 		/*Acciones de reset*/
 		HCSR04_init();
+		board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
 
 		estMefSensor = EST_SENSOR_ENABLE;
 		break;
@@ -42,12 +44,20 @@ extern void mefSensor(void) {
 						mefSensor_getDistance());
 		}
 
+		if(!procTrama_estadoRadar()){
+			estMefSensor = EST_SENSOR_DISABLE;
+			timersRtos_start(TIMER1);
+		}
+
 //		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
-		/*Acciones de disable*/
+		if(procTrama_estadoRadar()){
+			timersRtos_stop(TIMER1);
+			board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
+			estMefSensor = EST_SENSOR_ENABLE;
+		}
 
-//		estMefSensor = EST_SENSOR_ENABLE;
 		break;
 	default:
 		break;

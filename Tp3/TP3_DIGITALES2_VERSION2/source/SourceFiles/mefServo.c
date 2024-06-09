@@ -4,6 +4,8 @@
 #include "IncludesFiles/taskRtosPERIFERICOS.h"
 #include "IncludesFiles/nextion.h"
 
+#include "IncludesFiles/procTrama.h"
+
 static int8_t angle_servo = 0;
 
 typedef enum {
@@ -43,8 +45,20 @@ extern void mefServo(void) {
 
 		nextion_clrDatos();
 
+		if(!procTrama_estadoRadar()){
+
+			estMefServo = EST_SERVO_STOP;
+
+		}
+
 		break;
 	case EST_SERVO_STOP:
+
+		if(procTrama_estadoRadar()){
+
+			estMefServo = EST_SERVO_RUNNING;
+
+		}
 
 		break;
 	default:
@@ -57,3 +71,7 @@ extern void mefServo(void) {
 extern int8_t mefServo_getAngle(void) {
 	return angle_servo;
 }
+
+
+
+

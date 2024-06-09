@@ -51,6 +51,8 @@ extern "C" {
 
 void procTrama(char *buf, int length);
 
+extern uint8_t procTrama_estadoRadar(void);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
