@@ -36,7 +36,7 @@ extern void mefSensor(void) {
 		if (!HCSR04_distanceReady()) {
 			TriggerPulse();
 		} else {
-			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
+//			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
 			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
 				nextion_setDataObj(mefServo_getAngle() + 105,
 						mefSensor_getDistance());
@@ -46,7 +46,7 @@ extern void mefSensor(void) {
 		break;
 	case EST_SENSOR_DISABLE:
 		/*Acciones de disable*/
-//		vtaskDelay(SENSOR_DELAY);
+
 //		estMefSensor = EST_SENSOR_ENABLE;
 		break;
 	default:
