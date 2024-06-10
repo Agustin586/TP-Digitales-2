@@ -5,10 +5,9 @@
 #include "task.h"
 #include "fsl_debug_console.h"
 
-extern void taskRtosNextion(void) {
+extern void taskRtosNextion(void *pvParameters) {
 	PRINTF("Tarea: Manejo de pantalla Nextion\r\n");
 
-	Uart1_init();
 	mefNextion_init();
 
 	vTaskDelay(DELAY_3s);
@@ -16,7 +15,7 @@ extern void taskRtosNextion(void) {
 	for (;;) {
 		mefNextion();
 
-		vTaskDelay(DELAY_10ms);
+		vTaskDelay(DELAY_100ms);
 	}
 
 	vTaskDelete(NULL);

@@ -6,7 +6,7 @@
 #include "task.h"
 #include "fsl_debug_console.h"
 
-extern void taskRtosPERIFERICOS_Servo(void) {
+extern void taskRtosPERIFERICOS_Servo(void *pvParameters) {
 	PRINTF("Tarea: Manejo de Servo Motor\r\n");
 
 	mefServo_init();
@@ -22,7 +22,7 @@ extern void taskRtosPERIFERICOS_Servo(void) {
 	return;
 }
 
-extern void taskRtosPERIFERICOS_Sensor(void) {
+extern void taskRtosPERIFERICOS_Sensor(void *pvParameters) {
 	PRINTF("Tarea: Manejo de Sensor\r\n");
 
 	mefSensor_init();

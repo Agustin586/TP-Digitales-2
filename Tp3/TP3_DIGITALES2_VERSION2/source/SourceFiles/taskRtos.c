@@ -7,26 +7,29 @@
 #include "IncludesFiles/taskRtosUART0.h"
 #include "IncludesFiles/taskRtosNextion.h"
 #include "IncludesFiles/taskRtosPERIFERICOS.h"
+#include "IncludesFiles/taskRtosUART1.h"
 #include "fsl_debug_console.h"
 
 #define UART0_PRIORITY_TX_RX	configMAX_PRIORITIES - 1
 #define NEXTION_PRIORITY		tskIDLE_PRIORITY + 1
 #define PERIFERICOS_PRIORITY	tskIDLE_PRIORITY + 1
 #define STACK_SIZE_GENERAL		configMINIMAL_STACK_SIZE
+#define UART1_PRIORITY_TX_RX	configMAX_PRIORITIES - 1
 
 typedef struct {
 	TaskFunction_t taskFunction;
 	const char *taskName;
 	uint16_t stackDepth;
-	void *pvParameters;
+	void *const pvParameters;
 	UBaseType_t priority;
 } TaskConfig_t;
 
 static const TaskConfig_t taskConfigs[NUM_TASK] = {
-    {(void (*)(void*))taskRtosUART0, "UART0_task", STACK_SIZE_GENERAL+200, UART0_PRIORITY_TX_RX},
-    {(void (*)(void*))taskRtosNextion, "Nextion", STACK_SIZE_GENERAL+500, NULL, NEXTION_PRIORITY},
-    {(void (*)(void*))taskRtosPERIFERICOS_Sensor, "Sensor", STACK_SIZE_GENERAL+300, NULL, PERIFERICOS_PRIORITY},
-	{(void (*)(void*))taskRtosPERIFERICOS_Servo, "Servo", STACK_SIZE_GENERAL+150, NULL, PERIFERICOS_PRIORITY},
+	{taskRtosUART1_Rx, "UART1_task", STACK_SIZE_GENERAL+50, NULL, UART1_PRIORITY_TX_RX},
+    {taskRtosUART0, "UART0_task", STACK_SIZE_GENERAL, NULL, UART0_PRIORITY_TX_RX},
+    {taskRtosNextion, "Nextion_task", STACK_SIZE_GENERAL+300, NULL, NEXTION_PRIORITY},
+    {taskRtosPERIFERICOS_Sensor, "Sensor_task", STACK_SIZE_GENERAL+100, NULL, PERIFERICOS_PRIORITY},
+	{taskRtosPERIFERICOS_Servo, "Servo_task", STACK_SIZE_GENERAL, NULL, PERIFERICOS_PRIORITY},
 };
 
 extern void taskRtos_create(void) {

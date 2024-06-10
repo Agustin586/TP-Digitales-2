@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define CANT_TOTAL_PASOS	1
-#define MUESTRAS			10
+#define MUESTRAS			5
 
 extern void nextion_init(void);
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew);

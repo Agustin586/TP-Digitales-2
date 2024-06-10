@@ -16,7 +16,7 @@ static estMefNextion_enum estMefNextion;
 static uint8_t picMovRadar(int angle);
 
 extern void mefNextion_init(void) {
-	estMefNextion = EST_NEXTION_pMAIN;
+	estMefNextion = EST_NEXTION_pRADAR;
 
 	return;
 }
@@ -24,7 +24,7 @@ extern void mefNextion_init(void) {
 extern void mefNextion(void) {
 #define COLOR_RED	63488
 #define PASO		0
-#define CANT_MAX_MUESTRAS	10
+#define CANT_MAX_MUESTRAS	4
 	static int16_t angle_old = 0;
 	static uint8_t muestra = 0;
 
@@ -41,7 +41,10 @@ extern void mefNextion(void) {
 		if (angle_old != mefServo_getAngle()) {
 			nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
 			angle_old = mefServo_getAngle();
+			nextion_clrPaso();
 		}
+
+		taskRtosNextion_delay(10);
 
 		nextion_putObj(PASO, muestra,
 				nextion_getColorAngle(muestra, mefServo_getAngle()));
@@ -51,7 +54,7 @@ extern void mefNextion(void) {
 		else
 			muestra = 0;
 
-		taskRtosNextion_delay(5);
+		taskRtosNextion_delay(50);
 
 		estMefNextion = nextion_getPage(EST_NEXTION_pRADAR);
 		break;

@@ -4,8 +4,8 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
-#define MAX_QUEUES 10
-#define MAX_DATA_SIZE 100  // Tamaño máximo de los datos a enviar
+#define MAX_QUEUES 3
+#define MAX_DATA_SIZE 1 // Tamaño máximo de los datos a enviar
 
 typedef struct {
     QueueHandle_t handle;
@@ -13,6 +13,9 @@ typedef struct {
 } QueueInfo;
 
 static QueueInfo queueList[MAX_QUEUES];
+
+const char *queueDatos_AngDist = "Queue1";
+const char *queueUART1 = "Uart1_Rx";
 
 QueueHandle_t queueRtos_create(const char *name, UBaseType_t queueLength) {
     for (int i = 0; i < MAX_QUEUES; i++) {
@@ -59,6 +62,10 @@ BaseType_t queueRtos_receiveFromQueue(QueueHandle_t queue, void *buffer, size_t 
         }
     }
     return result;
+}
+
+UBaseType_t queueRtos_msgWaiting(QueueHandle_t queue){
+	return uxQueueMessagesWaiting(queue);
 }
 
 void deleteQueueByName(const char *name) {

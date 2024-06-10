@@ -5,7 +5,7 @@
 #include "timers.h"
 
 typedef enum {
-	TIMER1 = 0, TIMER2, NUM_TIMERS,
+	TIMER1 = 0, TIMER2, TIMER3, NUM_TIMERS,
 } TimersId_t;
 
 extern void timersRtos_create(void);

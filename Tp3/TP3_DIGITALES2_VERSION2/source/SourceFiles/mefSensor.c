@@ -13,6 +13,8 @@ typedef enum {
 } estMefSensor_enum;
 
 static estMefSensor_enum estMefSensor;
+static float ult_dist = 0;
+static bool dato_listo = false;
 
 static void TriggerPulse(void);
 
@@ -29,31 +31,29 @@ extern void mefSensor(void) {
 		/*Acciones de reset*/
 		HCSR04_init();
 		board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
+		timersRtos_start(TIMER3);
 
 		estMefSensor = EST_SENSOR_ENABLE;
 		break;
 	case EST_SENSOR_ENABLE:
 		/*Acciones de enable*/
-
-		if (!HCSR04_distanceReady()) {
-			TriggerPulse();
-		} else {
-//			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
+		if (dato_listo) {
+			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
 			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
 				nextion_setDataObj(mefServo_getAngle() + 105,
 						mefSensor_getDistance());
 		}
 
-		if(!procTrama_estadoRadar()){
+		if (!procTrama_estadoRadar()) {
 			estMefSensor = EST_SENSOR_DISABLE;
 			timersRtos_start(TIMER1);
+			timersRtos_stop(TIMER3);
 		}
-
-//		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
-		if(procTrama_estadoRadar()){
+		if (procTrama_estadoRadar()) {
 			timersRtos_stop(TIMER1);
+			timersRtos_start(TIMER3);
 			board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
 			estMefSensor = EST_SENSOR_ENABLE;
 		}
@@ -66,12 +66,21 @@ extern void mefSensor(void) {
 	return;
 }
 
+extern void Timer3_Callback(void *pvParameters) {
+	if (!HCSR04_distanceReady())
+		TriggerPulse();
+	else
+		ult_dist = HCSR04_getDistance(), dato_listo = true;
+
+	return;
+}
+
 extern float mefSensor_getDistance(void) {
-	return HCSR04_getDistance();
+	return ult_dist;
 }
 
 static void TriggerPulse(void) {
 	HCSR04_setTrigger();
-	taskRtosPERIFERICOS_delay(2);
+	taskRtosPERIFERICOS_delay(10);
 	HCSR04_clrTrigger();
 }

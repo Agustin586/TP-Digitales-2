@@ -1,12 +1,15 @@
 #include "IncludesFiles/nextion.h"
 #include "IncludesFiles/Uart1.h"
 #include "fsl_uart.h"
+#include "IncludesFiles/queueRtos.h"
+#include "queue.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
 
 #define CANT_MAX_PIXEL_X	320
 #define CANT_MAX_PIXEL_Y	240
+#define MAX_CARACTERES_TRAMA	50
 #define EJE_X_TRANSFORMACION_LINEAL	160
 #define EJE_Y_TRANSFORMACION_LINEAL	170
 #define CONVERSION_PIXEL_RADIO	25/10
@@ -22,7 +25,6 @@ const char *pic = "pic=";
 const char *draw_cirs = "cirs ";
 const char *waveform = "add";
 const char *reset = "rest";
-const char *color_Red = "RED";
 
 /*
  * @brief Parametros que son leidos desde algún sensor
@@ -32,7 +34,7 @@ const char *color_Red = "RED";
 typedef struct {
 	float posX; /*!<Posicion del eje X --> Conversión en coordenadas cartesianas>*/
 	float posY; /*!<Posicion del eje Y --> Conversión en coordenadas cartesianas>*/
-	int8_t Angle; /*!<Angulo seteado al servo motor>*/
+	int16_t Angle; /*!<Angulo seteado al servo motor>*/
 	float Radio; /*!<Radio o distancia medida por el sensor al objeto detectado>*/
 } TipoObjeto_pos;
 
@@ -53,13 +55,12 @@ typedef struct {
 } TipoObjeto_st;
 
 typedef struct {
-	char comando[10];
-	char parametro[30];
-	char trama[40];
+	char trama[MAX_CARACTERES_TRAMA];
 } TipoTramaNextion_st;
 
 static TipoObjeto_st Objeto[CANT_TOTAL_PASOS][MUESTRAS];
 static uint8_t muestra_nrm[CANT_TOTAL_PASOS], paso_nrm = 0;
+static TipoTramaNextion_st Trama;
 
 /*
  * @brief Envia la trama que se carga.
@@ -67,11 +68,6 @@ static uint8_t muestra_nrm[CANT_TOTAL_PASOS], paso_nrm = 0;
  * @param char *
  * */
 static void nextion_sendTrama(char *str);
-
-/*
- * @brief Finaliza la trama con 0xFF 0xFF 0xFF
- * */
-static void nextion_EndTrama(void);
 
 static int16_t nextion_getAngleMuestraX(uint8_t muestra);
 
@@ -81,56 +77,49 @@ extern void nextion_init(void) {
 }
 
 extern void nextion_reset(void) {
-	TipoTramaNextion_st Trama;
-
-	strcpy(Trama.trama, reset);
+	sprintf(Trama.trama, "%s\xFF\xFF\xFF", reset);
 	nextion_sendTrama(Trama.trama);
-	nextion_EndTrama();
 
 	return;
 }
 
 extern estMefNextion_enum nextion_getPage(estMefNextion_enum page_actual) {
-#define CANT_MAX_BUFFER	10
-#define CANT_DE_BYTES_A_RECIBIR	5
+#define CANT_MAX_BUFFER	5
+#define CANT_DE_BYTES_A_RECIBIR	1
 
 	uint8_t rev_buffer[CANT_MAX_BUFFER];
+	QueueHandle_t queueRx = queueRtos_getQueueByName("Uart1_Rx");
 
 	/*Hay que pedirle que solo guarde si es 0x66*/
-	if (Uart1_read(rev_buffer, CANT_DE_BYTES_A_RECIBIR) == kStatus_Success) {
-		if (rev_buffer[0] == 0x66) {
-			switch (rev_buffer[1]) {
-			case PAGE_MAIN:
-				return EST_NEXTION_pMAIN;
-				break;
-			case PAGE_RADAR:
-				return EST_NEXTION_pRADAR;
-				break;
-			case PAGE_SERVO:
-				return EST_NEXTION_pSERVO;
-				break;
-			default:
-				return EST_NEXTION_RESET;
-				break;
-			}
+	if (queueRtos_msgWaiting(queueRx) == pdTRUE) {
+		queueRtos_receiveFromQueue(queueRx, rev_buffer, CANT_DE_BYTES_A_RECIBIR,
+				pdMS_TO_TICKS(200));
+
+		switch (rev_buffer[0]) {
+		case PAGE_MAIN:
+			return EST_NEXTION_pMAIN;
+			break;
+		case PAGE_RADAR:
+			return EST_NEXTION_pRADAR;
+			break;
+		case PAGE_SERVO:
+			return EST_NEXTION_pSERVO;
+			break;
+		default:
+			return EST_NEXTION_RESET;
+			break;
 		}
 	}
+
 	return page_actual;
 }
 
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew) {
-	TipoTramaNextion_st Trama;
-
-	strcpy(Trama.comando, draw_cirs);
-	sprintf(Trama.parametro, "%d,%d,%d,%d",
+	sprintf(Trama.trama, "%s%d,%d,%d,%d\xFF\xFF\xFF", draw_cirs,
 			Objeto[paso][muestra].Display.pixelX,
-			Objeto[paso][muestra].Display.pixelY,
-			Objeto[paso][muestra].Display.radio, colorNew);
-	strcpy(Trama.trama, Trama.comando);
-	strcat(Trama.trama, Trama.parametro);
+			Objeto[paso][muestra].Display.pixelY, 2, colorNew);
 
 	nextion_sendTrama(Trama.trama);
-	nextion_EndTrama();
 
 	return;
 }
@@ -155,6 +144,11 @@ extern void nextion_setDataObj(int16_t angle, float radio) {
 	EJE_Y_TRANSFORMACION_LINEAL
 			- (Objeto[paso_nrm][muestra_nrm[paso_nrm]].Posicion.posY
 					* CONVERSION_PIXEL_RADIO);
+
+	if (Objeto[paso_nrm][muestra_nrm[paso_nrm]].Display.pixelX > 320)
+		Objeto[paso_nrm][muestra_nrm[paso_nrm]].Display.pixelX = 0;
+	if (Objeto[paso_nrm][muestra_nrm[paso_nrm]].Display.pixelY > 240)
+		Objeto[paso_nrm][muestra_nrm[paso_nrm]].Display.pixelY = 0;
 
 	if (muestra_nrm[paso_nrm] < MUESTRAS)
 		muestra_nrm[paso_nrm]++;
@@ -216,46 +210,24 @@ extern void nextion_clrDatos(void) {
 }
 
 extern void nextion_putPicture(uint8_t picId, uint8_t newPic) {
-	TipoTramaNextion_st Trama;
-	char buffer[15];
-
-	sprintf(buffer, "p%d.", picId);
-	strcpy(Trama.trama, buffer);
-	strcat(Trama.trama, pic);
-	buffer[0] = '\0';
-	sprintf(buffer, "%d", newPic);
-	strcat(Trama.trama, buffer);
-
+	sprintf(Trama.trama, "p%d.pic=%d\xFF\xFF\xFF", picId, newPic);
 	nextion_sendTrama(Trama.trama);
-	nextion_EndTrama();
 
 	return;
 }
 
 extern void nextion_sendPwmValue(uint8_t IdWaveform, uint8_t channel,
 		uint8_t val) {
-	TipoTramaNextion_st Trama;
-	char buffer[20];
-
-	sprintf(buffer, " %d,%d,%d", IdWaveform, channel, val);
-	strcpy(Trama.trama, waveform);
-	strcat(Trama.trama, buffer);
+	sprintf(Trama.trama, "%s %d,%d,%d\xFF\xFF\xFF", waveform, IdWaveform,
+			channel, val);
 
 	nextion_sendTrama(Trama.trama);
-	nextion_EndTrama();
 
 	return;
 }
 
 static void nextion_sendTrama(char *trama) {
 	Uart1_send(trama);
-
-	return;
-}
-
-static void nextion_EndTrama(void) {
-	uint8_t end_cmd[] = { 0xFF, 0xFF, 0xFF };
-	UART_WriteBlocking(UART1, end_cmd, sizeof(end_cmd));
 
 	return;
 }

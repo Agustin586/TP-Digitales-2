@@ -1,7 +1,8 @@
 #include "IncludesFiles/timersRtos.h"
 #include "IncludesFiles/SD2_board.h"
+#include "IncludesFiles/mefSensor.h"
 
-TimerHandle_t Timer1, Timer2;
+TimerHandle_t Timer1, Timer2, Timer3;
 
 void Timer1_Callback(void *pvParameters);
 void Timer2_Callback(void *pvParameters);
@@ -11,7 +12,8 @@ extern void timersRtos_create(void) {
 			Timer1_Callback);
 	Timer2 = xTimerCreate("Msj Toggle LRojo", pdMS_TO_TICKS(500), pdTRUE, NULL,
 			Timer2_Callback);
-
+	Timer3 = xTimerCreate("Lectura sensor", pdMS_TO_TICKS(20), pdTRUE, NULL,
+			Timer3_Callback);
 	return;
 }
 
@@ -37,6 +39,9 @@ extern void timersRtos_start(TimersId_t TimerId) {
 	case TIMER2:
 		xTimerStart(Timer2, pdMS_TO_TICKS(100));
 		break;
+	case TIMER3:
+		xTimerStart(Timer3, pdMS_TO_TICKS(100));
+		break;
 	default:
 		break;
 	}
@@ -51,6 +56,9 @@ extern void timersRtos_stop(TimersId_t TimerId) {
 		break;
 	case TIMER2:
 		xTimerStop(Timer2, pdMS_TO_TICKS(100));
+		break;
+	case TIMER3:
+		xTimerStop(Timer3, pdMS_TO_TICKS(100));
 		break;
 	default:
 		break;

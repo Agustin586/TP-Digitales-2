@@ -52,6 +52,7 @@
 #include "task.h"
 #include "timers.h"
 #include "IncludesFiles/timersRtos.h"
+#include "IncludesFiles/queueRtos.h"
 
 /* TODO: insert other definitions and declarations here. */
 
@@ -68,10 +69,16 @@ int main(void) {
 	BOARD_InitDebugConsole();
 #endif
 
-	board_init();
+	PRINTF("------------------------\r\n");
+	PRINTF("Inicialización del programa\r\n");
+	PRINTF("------------------------\r\n");
 
+	board_init();
 	semaphore_create();
 	timersRtos_create();
+#define LONG_RINGBUFFER_RX_UART1	20
+#define MAX_READ_LENGH	1
+	queueRtos_create("Uart1_Rx", LONG_RINGBUFFER_RX_UART1);
 	taskRtos_create();
 
 	vTaskStartScheduler();
