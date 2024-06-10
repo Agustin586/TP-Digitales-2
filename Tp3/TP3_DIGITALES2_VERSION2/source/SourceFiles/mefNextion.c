@@ -6,6 +6,7 @@
 #include "IncludesFiles/mefServo.h"
 #include "IncludesFiles/HCSR04.h"
 #include "IncludesFiles/mefSensor.h"
+#include "IncludesFiles/pwm.h"
 #include <stdint.h>
 
 #define PIC_ID	0
@@ -15,7 +16,7 @@ static estMefNextion_enum estMefNextion;
 static uint8_t picMovRadar(int angle);
 
 extern void mefNextion_init(void) {
-	estMefNextion = EST_NEXTION_pRADAR;
+	estMefNextion = EST_NEXTION_pMAIN;
 
 	return;
 }
@@ -31,11 +32,10 @@ extern void mefNextion(void) {
 	case EST_NEXTION_RESET:
 		PRINTF("No se detecto la pagina de la pantalla\r\n");
 
-		estMefNextion = nextion_getPage();
+		estMefNextion = nextion_getPage(EST_NEXTION_RESET);
 		break;
 	case EST_NEXTION_pMAIN:
-
-		estMefNextion = nextion_getPage();
+		estMefNextion = nextion_getPage(EST_NEXTION_pMAIN);
 		break;
 	case EST_NEXTION_pRADAR:
 		if (angle_old != mefServo_getAngle()) {
@@ -43,7 +43,8 @@ extern void mefNextion(void) {
 			angle_old = mefServo_getAngle();
 		}
 
-		nextion_putObj(PASO, muestra, nextion_getColorAngle(muestra, mefServo_getAngle()));
+		nextion_putObj(PASO, muestra,
+				nextion_getColorAngle(muestra, mefServo_getAngle()));
 
 		if (muestra < CANT_MAX_MUESTRAS)
 			muestra++;
@@ -52,11 +53,16 @@ extern void mefNextion(void) {
 
 		taskRtosNextion_delay(5);
 
-//		estMefNextion = nextion_getPage();
+		estMefNextion = nextion_getPage(EST_NEXTION_pRADAR);
 		break;
 	case EST_NEXTION_pSERVO:
+#define WAVEFORM_ID	2
+#define WAVEFORM_CHANNEL	0
+#define MAX_VAL_DISPLAY		255
 
-		estMefNextion = nextion_getPage();
+		nextion_sendPwmValue(WAVEFORM_ID, WAVEFORM_CHANNEL, pwm_Value()*(1+MAX_VAL_DISPLAY));
+
+		estMefNextion = nextion_getPage(EST_NEXTION_pSERVO);
 		break;
 	default:
 		break;

@@ -10,7 +10,7 @@
 extern void nextion_init(void);
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew);
 extern void nextion_reset(void);
-extern estMefNextion_enum nextion_getPage(void);
+extern estMefNextion_enum nextion_getPage(estMefNextion_enum page_actual);
 extern void nextion_putPicture(uint8_t picId, uint8_t newPic);
 /*
  * @brief Setea los parametros del objeto detectado.
@@ -27,5 +27,6 @@ extern void nextion_DisminuirCantPasos(void);
 extern uint8_t nextion_getPasosTomados(void);
 extern void nextion_clrDatos(void);
 extern uint16_t nextion_getColorAngle(uint8_t muestra, int16_t angle_actual);
+extern void nextion_sendPwmValue(uint8_t IdWaveform, uint8_t channel, uint8_t val);
 
 #endif /* NEXTION_H_ */

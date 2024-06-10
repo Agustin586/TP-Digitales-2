@@ -6,6 +6,6 @@
 
 extern void Uart1_init(void);
 extern void Uart1_send(char* to_send);
-extern void Uart1_read(uint8_t* receive);
+extern int Uart1_read(uint8_t* receive, uint8_t length);
 
 #endif /* UART1_H_ */

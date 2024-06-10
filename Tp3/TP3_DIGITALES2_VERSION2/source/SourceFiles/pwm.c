@@ -58,3 +58,7 @@ extern void pwm_reStart(void) {
 
 	return;
 }
+
+extern float pwm_Value(void) {
+	return TPM1->CONTROLS[1].CnV / ((float)TPM1->MOD);
+}

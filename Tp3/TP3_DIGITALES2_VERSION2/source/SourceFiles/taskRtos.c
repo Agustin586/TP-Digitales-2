@@ -24,7 +24,7 @@ typedef struct {
 
 static const TaskConfig_t taskConfigs[NUM_TASK] = {
     {(void (*)(void*))taskRtosUART0, "UART0_task", STACK_SIZE_GENERAL+200, UART0_PRIORITY_TX_RX},
-    {(void (*)(void*))taskRtosNextion, "Nextion", STACK_SIZE_GENERAL+400, NULL, NEXTION_PRIORITY},
+    {(void (*)(void*))taskRtosNextion, "Nextion", STACK_SIZE_GENERAL+500, NULL, NEXTION_PRIORITY},
     {(void (*)(void*))taskRtosPERIFERICOS_Sensor, "Sensor", STACK_SIZE_GENERAL+300, NULL, PERIFERICOS_PRIORITY},
 	{(void (*)(void*))taskRtosPERIFERICOS_Servo, "Servo", STACK_SIZE_GENERAL+150, NULL, PERIFERICOS_PRIORITY},
 };

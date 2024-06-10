@@ -56,11 +56,11 @@ extern void Uart1_send(char *to_send) {
     UART_RTOS_Send(&handle, (uint8_t*) to_send, strlen(to_send));
 }
 
-extern void Uart1_read(uint8_t *receive) {
+extern int Uart1_read(uint8_t *receive, uint8_t length) {
     size_t n;
     int error;
 
-    error = UART_RTOS_Receive(&handle, receive, sizeof(recv_buffer), &n);
+    error = UART_RTOS_Receive(&handle, receive, length, &n);
 
     if (error == kStatus_UART_RxHardwareOverrun) {
         if (kStatus_Success != UART_RTOS_Send(&handle, (uint8_t*) send_hardware_overrun, strlen(send_hardware_overrun))) {
@@ -72,4 +72,5 @@ extern void Uart1_read(uint8_t *receive) {
             vTaskSuspend(NULL);
         }
     }
+    return error;
 }

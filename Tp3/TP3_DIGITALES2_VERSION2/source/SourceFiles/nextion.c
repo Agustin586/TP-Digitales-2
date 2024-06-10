@@ -20,6 +20,7 @@
 
 const char *pic = "pic=";
 const char *draw_cirs = "cirs ";
+const char *waveform = "add";
 const char *reset = "rest";
 const char *color_Red = "RED";
 
@@ -89,27 +90,32 @@ extern void nextion_reset(void) {
 	return;
 }
 
-extern estMefNextion_enum nextion_getPage(void) {
-	char rev_buffer[7];
+extern estMefNextion_enum nextion_getPage(estMefNextion_enum page_actual) {
+#define CANT_MAX_BUFFER	10
+#define CANT_DE_BYTES_A_RECIBIR	5
 
-	Uart1_read((uint8_t*) rev_buffer);
+	uint8_t rev_buffer[CANT_MAX_BUFFER];
 
-	switch ((uint8_t) rev_buffer[2]) {
-	case PAGE_MAIN:
-		return EST_NEXTION_pMAIN;
-		break;
-	case PAGE_RADAR:
-		return EST_NEXTION_pRADAR;
-		break;
-	case PAGE_SERVO:
-		return EST_NEXTION_pSERVO;
-		break;
-	default:
-		return EST_NEXTION_RESET;
-		break;
+	/*Hay que pedirle que solo guarde si es 0x66*/
+	if (Uart1_read(rev_buffer, CANT_DE_BYTES_A_RECIBIR) == kStatus_Success) {
+		if (rev_buffer[0] == 0x66) {
+			switch (rev_buffer[1]) {
+			case PAGE_MAIN:
+				return EST_NEXTION_pMAIN;
+				break;
+			case PAGE_RADAR:
+				return EST_NEXTION_pRADAR;
+				break;
+			case PAGE_SERVO:
+				return EST_NEXTION_pSERVO;
+				break;
+			default:
+				return EST_NEXTION_RESET;
+				break;
+			}
+		}
 	}
-
-	return EST_NEXTION_RESET;
+	return page_actual;
 }
 
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew) {
@@ -218,6 +224,21 @@ extern void nextion_putPicture(uint8_t picId, uint8_t newPic) {
 	strcat(Trama.trama, pic);
 	buffer[0] = '\0';
 	sprintf(buffer, "%d", newPic);
+	strcat(Trama.trama, buffer);
+
+	nextion_sendTrama(Trama.trama);
+	nextion_EndTrama();
+
+	return;
+}
+
+extern void nextion_sendPwmValue(uint8_t IdWaveform, uint8_t channel,
+		uint8_t val) {
+	TipoTramaNextion_st Trama;
+	char buffer[20];
+
+	sprintf(buffer, " %d,%d,%d", IdWaveform, channel, val);
+	strcpy(Trama.trama, waveform);
 	strcat(Trama.trama, buffer);
 
 	nextion_sendTrama(Trama.trama);
