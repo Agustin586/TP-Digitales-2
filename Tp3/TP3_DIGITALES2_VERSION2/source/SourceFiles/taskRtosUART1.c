@@ -10,15 +10,13 @@
 extern void taskRtosUART1_Rx(void *pvParameters) {
 	PRINTF("Tarea: Uart1\r\n");
 #define LONG_RINGBUFFER_RX_UART1	20
-#define MAX_READ_LENGH	1
+#define MAX_READ_LENGH	20
 
 	const char *queue_Uart1 = "Uart1_Rx";
 	char bufferRx[2];
 	bool page = false;
 
 	Uart1_init();
-
-	PRINTF("Uart 1 Inicializado\r\n");
 
 	for (;;) {
 		if (Uart1_read((uint8_t *)bufferRx, MAX_READ_LENGH)

@@ -35,11 +35,17 @@ extern void mefServo(void) {
 			taskRtosPERIFERICOS_delay(600);
 		}
 
+		nextion_clrPaso();
+		nextion_clrDatos();
+
 		for (int8_t angle = 45; angle >= -75; angle -= 15) {
 			angle_servo = angle;
 			MG90S_setAngle(-angle-15);
 			taskRtosPERIFERICOS_delay(600);
 		}
+
+		nextion_clrPaso();
+		nextion_clrDatos();
 
 		if(!procTrama_estadoRadar()){
 			estMefServo = EST_SERVO_STOP;

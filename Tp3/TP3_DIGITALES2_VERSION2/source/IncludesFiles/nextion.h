@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define CANT_TOTAL_PASOS	1
-#define MUESTRAS			5
+#define MUESTRAS			15
 
 extern void nextion_init(void);
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew);
@@ -28,5 +28,10 @@ extern uint8_t nextion_getPasosTomados(void);
 extern void nextion_clrDatos(void);
 extern uint16_t nextion_getColorAngle(uint8_t muestra, int16_t angle_actual);
 extern void nextion_sendPwmValue(uint8_t IdWaveform, uint8_t channel, uint8_t val);
+extern void nextion_setDistanciaProm(void);
+extern void nextion_setAngle(int16_t angle);
+extern void nextion_refs(void);
+extern void nextion_sendFreqPwm(uint8_t idNumber,uint8_t val);
+extern void nextion_setMsPwm(float val);
 
 #endif /* NEXTION_H_ */

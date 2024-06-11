@@ -5,7 +5,7 @@
 #include "queue.h"
 
 #define QUEUE_NAME_SIZE 32
-#define MAX_DATA_SIZE 1  // Tamaño máximo de los datos a enviar
+#define MAX_DATA_SIZE 50  // Tamaño máximo de los datos a enviar
 
 typedef struct {
     uint8_t data[MAX_DATA_SIZE];

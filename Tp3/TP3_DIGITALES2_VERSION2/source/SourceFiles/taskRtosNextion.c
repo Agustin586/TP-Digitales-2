@@ -10,12 +10,12 @@ extern void taskRtosNextion(void *pvParameters) {
 
 	mefNextion_init();
 
-	vTaskDelay(DELAY_3s);
+	vTaskDelay(DELAY_2s);
 
 	for (;;) {
 		mefNextion();
 
-		vTaskDelay(DELAY_100ms);
+		vTaskDelay(DELAY_50ms);
 	}
 
 	vTaskDelete(NULL);

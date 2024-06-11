@@ -2,6 +2,8 @@
 #include "IncludesFiles/Uart1.h"
 #include "fsl_uart.h"
 #include "IncludesFiles/queueRtos.h"
+#include "IncludesFiles/mefNextion.h"
+#include "IncludesFiles/taskRtosNextion.h"
 #include "queue.h"
 #include <math.h>
 #include <string.h>
@@ -97,12 +99,18 @@ extern estMefNextion_enum nextion_getPage(estMefNextion_enum page_actual) {
 
 		switch (rev_buffer[0]) {
 		case PAGE_MAIN:
+			if (page_actual != rev_buffer[0])
+				taskRtosNextion_delay(500);
 			return EST_NEXTION_pMAIN;
 			break;
 		case PAGE_RADAR:
+			if (page_actual != rev_buffer[0])
+				taskRtosNextion_delay(500);
 			return EST_NEXTION_pRADAR;
 			break;
 		case PAGE_SERVO:
+			if (page_actual != rev_buffer[0])
+				taskRtosNextion_delay(500);
 			return EST_NEXTION_pSERVO;
 			break;
 		default:
@@ -164,10 +172,42 @@ static int16_t nextion_getAngleMuestraX(uint8_t muestra) {
 }
 
 extern uint16_t nextion_getColorAngle(uint8_t muestra, int16_t angle_actual) {
-	if (nextion_getAngleMuestraX(muestra) <= (-angle_actual + 15)
-			&& nextion_getAngleMuestraX(muestra) >= (-angle_actual - 15))
+	if (nextion_getAngleMuestraX(muestra) <= (angle_actual + 105 + 15)
+			&& nextion_getAngleMuestraX(muestra) >= (angle_actual + 105 - 15))
 		return COLOR_RED;
 	return COLOR_GREY;
+}
+
+extern void nextion_setDistanciaProm(void) {
+	float prom = 0;
+	for (uint8_t i = 0; i < MUESTRAS; i++) {
+		prom = prom + Objeto[paso_nrm][i].Posicion.Radio;
+	}
+	sprintf(Trama.trama, "t0.txt=\"%.2f cm\"\xFF\xFF\xFF", prom / MUESTRAS);
+	nextion_sendTrama(Trama.trama);
+
+	return;
+}
+
+extern void nextion_setAngle(int16_t angle) {
+	sprintf(Trama.trama, "t1.txt=\"%d\"\xFF\xFF\xFF", angle);
+	nextion_sendTrama(Trama.trama);
+
+	return;
+}
+
+extern void nextion_setMsPwm(float val) {
+	sprintf(Trama.trama, "t0.txt=\"%.2f ms\"\xFF\xFF\xFF", val);
+	nextion_sendTrama(Trama.trama);
+
+	return;
+}
+
+extern void nextion_refs(void) {
+	sprintf(Trama.trama, "ref 0\xFF\xFF\xFF");
+	nextion_sendTrama(Trama.trama);
+
+	return;
 }
 
 extern void nextion_AumentaCantPasos(void) {
@@ -221,6 +261,13 @@ extern void nextion_sendPwmValue(uint8_t IdWaveform, uint8_t channel,
 	sprintf(Trama.trama, "%s %d,%d,%d\xFF\xFF\xFF", waveform, IdWaveform,
 			channel, val);
 
+	nextion_sendTrama(Trama.trama);
+
+	return;
+}
+
+extern void nextion_sendFreqPwm(uint8_t idNumber, uint8_t val) {
+	sprintf(Trama.trama, "n%d.val=%d\xFF\xFF\xFF", idNumber, val);
 	nextion_sendTrama(Trama.trama);
 
 	return;

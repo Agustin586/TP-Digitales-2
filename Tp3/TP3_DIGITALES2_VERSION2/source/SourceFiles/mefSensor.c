@@ -38,7 +38,7 @@ extern void mefSensor(void) {
 	case EST_SENSOR_ENABLE:
 		/*Acciones de enable*/
 		if (dato_listo) {
-			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
+//			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
 			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
 				nextion_setDataObj(mefServo_getAngle() + 105,
 						mefSensor_getDistance());

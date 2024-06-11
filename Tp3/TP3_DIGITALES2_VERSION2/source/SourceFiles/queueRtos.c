@@ -5,7 +5,7 @@
 #include "queue.h"
 
 #define MAX_QUEUES 3
-#define MAX_DATA_SIZE 1 // Tamaño máximo de los datos a enviar
+#define MAX_DATA_SIZE 50 // Tamaño máximo de los datos a enviar
 
 typedef struct {
     QueueHandle_t handle;
