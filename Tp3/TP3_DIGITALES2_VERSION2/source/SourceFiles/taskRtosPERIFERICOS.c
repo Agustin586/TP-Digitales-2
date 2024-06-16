@@ -2,11 +2,12 @@
 #include "IncludesFiles/MACROS.h"
 #include "IncludesFiles/mefSensor.h"
 #include "IncludesFiles/mefServo.h"
+#include "IncludesFiles/HCSR04.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "fsl_debug_console.h"
 
-extern void taskRtosPERIFERICOS_Servo(void) {
+extern void taskRtosPERIFERICOS_Servo(void *pvParameters) {
 	PRINTF("Tarea: Manejo de Servo Motor\r\n");
 
 	mefServo_init();
@@ -22,7 +23,7 @@ extern void taskRtosPERIFERICOS_Servo(void) {
 	return;
 }
 
-extern void taskRtosPERIFERICOS_Sensor(void) {
+extern void taskRtosPERIFERICOS_Sensor(void *pvParameters) {
 	PRINTF("Tarea: Manejo de Sensor\r\n");
 
 	mefSensor_init();
@@ -30,7 +31,7 @@ extern void taskRtosPERIFERICOS_Sensor(void) {
 	for (;;) {
 		mefSensor();
 
-		vTaskDelay(DELAY_100ms);
+		vTaskDelay(DELAY_50ms);
 	}
 
 	vTaskDelete(NULL);
@@ -38,8 +39,21 @@ extern void taskRtosPERIFERICOS_Sensor(void) {
 	return;
 }
 
-extern void taskRtosPERIFERICOS_delay(uint16_t delay) {
-	vTaskDelay(delay);
+extern void taskRtosPERIFERICOS_Hcsr04(void *pvParameters) {
+	PRINTF("Tarea: Muestro del sensor");
 
+	TickType_t xLastWakeTime;
+
+	xLastWakeTime = xTaskGetTickCount();
+
+	for (;;) {
+		if (!HCSR04_distanceReady() && !mefSensor_getDatoListo())
+			TriggerPulse();
+		else
+			mefSensor_setDistancia(HCSR04_getDistance()), mefSensor_setDatoListo();
+
+		vTaskDelayUntil(&xLastWakeTime, DELAY_20ms);
+	}
+	vTaskDelete(NULL);
 	return;
 }

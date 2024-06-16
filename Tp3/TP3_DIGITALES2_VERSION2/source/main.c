@@ -52,6 +52,7 @@
 #include "task.h"
 #include "timers.h"
 #include "IncludesFiles/timersRtos.h"
+#include "IncludesFiles/queueRtos.h"
 
 /* TODO: insert other definitions and declarations here. */
 
@@ -68,10 +69,14 @@ int main(void) {
 	BOARD_InitDebugConsole();
 #endif
 
-	board_init();
+	PRINTF("------------------------\r\n");
+	PRINTF("Inicialización del programa\r\n");
+	PRINTF("------------------------\r\n");
 
+	board_init();
 	semaphore_create();
 	timersRtos_create();
+	queueRtos_create();
 	taskRtos_create();
 
 	vTaskStartScheduler();
@@ -80,4 +85,16 @@ int main(void) {
 		;
 
 	return 0;
+}
+
+void vApplicationTickHook(void) {
+
+	return;
+}
+
+extern void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+	while (1)
+		;
+
+	return;
 }

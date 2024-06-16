@@ -2,19 +2,21 @@
 #include "IncludesFiles/MACROS.h"
 #include "IncludesFiles/Uart1.h"
 #include "IncludesFiles/mefNextion.h"
+#include "IncludesFiles/mefUart1Rec.h"
 #include "task.h"
 #include "fsl_debug_console.h"
 
-extern void taskRtosNextion(void) {
+extern void taskRtosNextion(void *pvParameters) {
 	PRINTF("Tarea: Manejo de pantalla Nextion\r\n");
 
-	Uart1_init();
 	mefNextion_init();
+	mefUart1Rec_init();
 
-	vTaskDelay(DELAY_3s);
+	vTaskDelay(DELAY_2s);
 
 	for (;;) {
 		mefNextion();
+		mefUart1Rec();
 
 		vTaskDelay(DELAY_10ms);
 	}
@@ -29,10 +31,3 @@ extern void taskRtosNextion_error(void) {
 
 	return;
 }
-
-extern void taskRtosNextion_delay(uint16_t delay) {
-	vTaskDelay(pdMS_TO_TICKS(delay));
-
-	return;
-}
-

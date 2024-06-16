@@ -9,6 +9,8 @@
 #define TPM_SOURCE_CLOCK CLOCK_GetFreq(kCLOCK_McgFllClk)
 #define TPM_CHANNEL	kTPM_Chnl_4
 
+static uint8_t dutty_Pwm = 0;
+
 extern void pwm_init(void) {
 	tpm_config_t tpmInfo;
 	tpm_chnl_pwm_signal_param_t tpmParam;
@@ -41,6 +43,7 @@ extern void pwm_init(void) {
 
 extern void pwm_setDuty(uint8_t dutty) {
 	TPM_UpdatePwmDutycycle(TPM0, TPM_CHANNEL, kTPM_EdgeAlignedPwm, dutty);
+	dutty_Pwm = dutty;
 
 	return;
 }
@@ -57,4 +60,12 @@ extern void pwm_reStart(void) {
 	TPM_UpdatePwmDutycycle(TPM0, kTPM_Chnl_1, kTPM_EdgeAlignedPwm, 50);
 
 	return;
+}
+
+extern uint8_t pwm_getPwmDutty(void) {
+	return dutty_Pwm;
+}
+
+extern float pwm_Value(void) {
+	return TPM1->CONTROLS[1].CnV / ((float) TPM1->MOD);
 }

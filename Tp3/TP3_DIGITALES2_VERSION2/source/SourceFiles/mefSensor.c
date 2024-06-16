@@ -7,14 +7,17 @@
 #include "IncludesFiles/timersRtos.h"
 #include "IncludesFiles/SD2_board.h"
 #include "IncludesFiles/procTrama.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "IncludesFiles/MACROS.h"
 
 typedef enum {
 	EST_SENSOR_RESET = 0, EST_SENSOR_ENABLE, EST_SENSOR_DISABLE,
 } estMefSensor_enum;
 
 static estMefSensor_enum estMefSensor;
-
-static void TriggerPulse(void);
+static float ult_dist = 0;					/*<Ultima distancia medida>*/
+static bool dato_listo = false;				/*<Indica cuando se debe cargar otro dato nuevo>*/
 
 extern void mefSensor_init(void) {
 	estMefSensor = EST_SENSOR_RESET;
@@ -34,25 +37,23 @@ extern void mefSensor(void) {
 		break;
 	case EST_SENSOR_ENABLE:
 		/*Acciones de enable*/
-
-		if (!HCSR04_distanceReady()) {
-			TriggerPulse();
-		} else {
+		if (dato_listo) {
 //			PRINTF("Distancia medida:%.2f\r\n", mefSensor_getDistance());
+			/*Solo guarda objetos dentro de la distancia espefcificada*/
 			if (mefSensor_getDistance() <= MAXIMA_DISTANCIA)
 				nextion_setDataObj(mefServo_getAngle() + 105,
-						mefSensor_getDistance());
+						mefSensor_getDistance()); /*<Guarda el objeto dentro del arreglo>*/
+			dato_listo = false;
 		}
 
-		if(!procTrama_estadoRadar()){
+		/*Condición de salida por trama de Uart0*/
+		if (!procTrama_estadoRadar()) {
 			estMefSensor = EST_SENSOR_DISABLE;
 			timersRtos_start(TIMER1);
 		}
-
-//		estMefSensor = EST_SENSOR_DISABLE;
 		break;
 	case EST_SENSOR_DISABLE:
-		if(procTrama_estadoRadar()){
+		if (procTrama_estadoRadar()) {
 			timersRtos_stop(TIMER1);
 			board_setLed(BOARD_LED_ID_VERDE, BOARD_LED_MSG_ON);
 			estMefSensor = EST_SENSOR_ENABLE;
@@ -66,12 +67,34 @@ extern void mefSensor(void) {
 	return;
 }
 
-extern float mefSensor_getDistance(void) {
-	return HCSR04_getDistance();
+extern void mefSensor_setDatoListo(void) {
+	dato_listo = true;
+
+	return;
 }
 
-static void TriggerPulse(void) {
+extern void mefSensor_clrDatoListo(void) {
+	dato_listo = false;
+
+	return;
+}
+
+extern bool mefSensor_getDatoListo(void) {
+	return dato_listo;
+}
+
+extern void mefSensor_setDistancia(float distancia) {
+	ult_dist = distancia;
+
+	return;
+}
+
+extern float mefSensor_getDistance(void) {
+	return ult_dist;
+}
+
+extern void TriggerPulse(void) {
 	HCSR04_setTrigger();
-	taskRtosPERIFERICOS_delay(2);
+	vTaskDelay(DELAY_5ms);
 	HCSR04_clrTrigger();
 }
