@@ -7,6 +7,9 @@
 #include "IncludesFiles/HCSR04.h"
 #include "IncludesFiles/mefSensor.h"
 #include "IncludesFiles/pwm.h"
+#include "IncludesFiles/MACROS.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #include <stdint.h>
 
 #define PIC_ID	0
@@ -36,24 +39,32 @@ extern void mefNextion(void) {
 	case EST_NEXTION_RESET:
 		PRINTF("No se detecto la pagina de la pantalla\r\n");
 
-		estMefNextion = nextion_getPage(EST_NEXTION_RESET);
+		estMefNextion = nextion_getPage();
+		if (estMefNextion != EST_NEXTION_RESET)
+			vTaskDelay(DELAY_250ms);
+
 		break;
 	case EST_NEXTION_pMAIN:
+		vTaskDelay(DELAY_50ms);
 
-		taskRtosNextion_delay(50);
+		estMefNextion = nextion_getPage();
+		if (estMefNextion != EST_NEXTION_pMAIN)
+			vTaskDelay(DELAY_250ms);
 
-		estMefNextion = nextion_getPage(EST_NEXTION_pMAIN);
 		break;
 	case EST_NEXTION_pRADAR:
 
 		if (angle_old != mefServo_getAngle()) {
 			nextion_putPicture(PIC_ID, picMovRadar(mefServo_getAngle()));
+
 			angle_old = mefServo_getAngle();
-			taskRtosNextion_delay(5);
+
+			vTaskDelay(DELAY_5ms);
+
 			nextion_setAngle(angle_old);
 		}
 
-		taskRtosNextion_delay(5);
+		vTaskDelay(DELAY_5ms);
 
 		nextion_putObj(PASO, muestra,
 				nextion_getColorAngle(muestra, mefServo_getAngle()));
@@ -62,11 +73,16 @@ extern void mefNextion(void) {
 			muestra++;
 		else {
 			muestra = 0;
-			taskRtosNextion_delay(5);
+			vTaskDelay(DELAY_5ms);
 			nextion_setDistanciaProm();
 		}
 
-		estMefNextion = nextion_getPage(EST_NEXTION_pRADAR);
+		vTaskDelay(DELAY_10ms);
+
+		estMefNextion = nextion_getPage();
+		if (estMefNextion != EST_NEXTION_pRADAR)
+			vTaskDelay(DELAY_250ms);
+
 		break;
 	case EST_NEXTION_pSERVO:
 #define WAVEFORM_ID	2
@@ -75,27 +91,30 @@ extern void mefNextion(void) {
 #define FREQ_OBJ	1
 #define PWM_OBJ		0
 
-		taskRtosNextion_delay(10);
+		vTaskDelay(DELAY_10ms);
 
 		nextion_sendPwmValue(WAVEFORM_ID, WAVEFORM_CHANNEL,
 				pwm_Value() * (1 + MAX_VAL_DISPLAY));
 
-		taskRtosNextion_delay(10);
+		vTaskDelay(DELAY_10ms);
 
 		pwm_dutty = pwm_getPwmDutty();
 		nextion_sendFreqPwm(PWM_OBJ, pwm_dutty);
 
-		taskRtosNextion_delay(10);
+		vTaskDelay(DELAY_10ms);
 
-		nextion_sendFreqPwm(FREQ_OBJ,50);
+		nextion_sendFreqPwm(FREQ_OBJ, 50);
 
-		taskRtosNextion_delay(5);
+		vTaskDelay(DELAY_5ms);
 
-		nextion_setMsPwm(pwm_dutty*0.2);
+		nextion_setMsPwm(pwm_dutty * 0.2);
 
-		taskRtosNextion_delay(5);
+		vTaskDelay(DELAY_5ms);
 
-		estMefNextion = nextion_getPage(EST_NEXTION_pSERVO);
+		estMefNextion = nextion_getPage();
+		if (estMefNextion != EST_NEXTION_pSERVO)
+			vTaskDelay(DELAY_250ms);
+
 		break;
 	default:
 		break;

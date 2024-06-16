@@ -79,19 +79,14 @@ void mefRecTrama_task(void) {
 
 	flagRec = uart0_recDatos(&byteRec, 1);
 
-	// mostrar entrada en consola.
+	/*<Entrada en consolar>*/
 	if (flagRec) {
-
 		if (byteRec != CHAR_LF && byteRec != CHAR_CR) {
-
 			uart0_envDatos(&byteRec, 1);
-
 		}
 
 		else {
-
 			uart0_envDatos(enter, 2);
-
 		}
 	}
 
@@ -101,10 +96,10 @@ void mefRecTrama_task(void) {
 			indexRec = 0;
 			mefRecTrama_est = MEF_REC_RECIBIENDO;
 		}
+
 		break;
 
 	case MEF_REC_RECIBIENDO:
-
 		if (flagRec != 0 && byteRec != CHAR_CR) {
 			if (indexRec < BUFFER_SIZE)
 				bufferRec[indexRec] = byteRec;
@@ -125,17 +120,14 @@ void mefRecTrama_task(void) {
 		break;
 
 	case MEF_REC_ESPERANDO_0A:
-
 		if (flagRec != 0 && byteRec == ':') {
 			indexRec = 0;
 			mefRecTrama_est = MEF_REC_RECIBIENDO;
 		}
 
 		else {
-
 			procTrama(bufferRec, indexRec);
 			mefRecTrama_est = MEF_REC_ESPERANDO_INICIO;
-
 		}
 
 		break;

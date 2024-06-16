@@ -76,9 +76,7 @@ int main(void) {
 	board_init();
 	semaphore_create();
 	timersRtos_create();
-#define LONG_RINGBUFFER_RX_UART1	20
-#define MAX_READ_LENGH	1
-	queueRtos_create("Uart1_Rx", LONG_RINGBUFFER_RX_UART1);
+	queueRtos_create();
 	taskRtos_create();
 
 	vTaskStartScheduler();
@@ -87,4 +85,16 @@ int main(void) {
 		;
 
 	return 0;
+}
+
+void vApplicationTickHook(void) {
+
+	return;
+}
+
+extern void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+	while (1)
+		;
+
+	return;
 }

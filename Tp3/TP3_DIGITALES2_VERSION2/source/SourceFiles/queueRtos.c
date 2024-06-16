@@ -1,80 +1,57 @@
-#include <IncludesFiles/queueRtos.h>
-#include <stdio.h>
-#include <string.h>
-#include "FreeRTOS.h"
-#include "queue.h"
-
-#define MAX_QUEUES 3
-#define MAX_DATA_SIZE 50 // Tamaño máximo de los datos a enviar
+#include "IncludesFiles/queueRtos.h"
 
 typedef struct {
-    QueueHandle_t handle;
-    char name[QUEUE_NAME_SIZE];
-} QueueInfo;
+	QueueHandle_t xQueueHandle;
+	UBaseType_t uxQueueLength;
+	UBaseType_t uxItemSize;
+} DataQueue_t;
 
-static QueueInfo queueList[MAX_QUEUES];
+// Arreglo de colas
+static DataQueue_t xDataQueues[QUEUE_ID_MAX] = {
+#define LENGTH_QUEUE_ID_1	20
+#define LENGTH_QUEUE_ID_2	5
 
-const char *queueDatos_AngDist = "Queue1";
-const char *queueUART1 = "Uart1_Rx";
+		[QUEUE_ID_1] = {.uxQueueLength = LENGTH_QUEUE_ID_1, .uxItemSize = sizeof(char) }, 		/*< Ring buffer del UART1 >*/
+		[QUEUE_ID_2] = {.uxQueueLength = LENGTH_QUEUE_ID_2, .uxItemSize = sizeof(uint8_t) }, 	/*< Datos de distancia >*/
+};
 
-QueueHandle_t queueRtos_create(const char *name, UBaseType_t queueLength) {
-    for (int i = 0; i < MAX_QUEUES; i++) {
-        if (queueList[i].handle == NULL) {
-            queueList[i].handle = xQueueCreate(queueLength, sizeof(QueueData));
-            if (queueList[i].handle != NULL) {
-                strncpy(queueList[i].name, name, QUEUE_NAME_SIZE - 1);
-                queueList[i].name[QUEUE_NAME_SIZE - 1] = '\0';  // Ensure null-termination
-                return queueList[i].handle;
-            }
-        }
-    }
-    return NULL; // No space left to create a new queue
+extern void queueRtos_create(void) {
+	// Inicializar cada cola
+	for (QueueId_t i = 0; i < QUEUE_ID_MAX; i++) {
+		xDataQueues[i].xQueueHandle = xQueueCreate(xDataQueues[i].uxQueueLength,
+				xDataQueues[i].uxItemSize);
+
+		/*< Verificamos que la cola se creo correctamente >*/
+		if (xDataQueues[i].xQueueHandle == NULL) {
+			while(1);
+		}
+	}
+
+	return;
 }
 
-QueueHandle_t queueRtos_getQueueByName(const char *name) {
-    for (int i = 0; i < MAX_QUEUES; i++) {
-        if (queueList[i].handle != NULL && strncmp(queueList[i].name, name, QUEUE_NAME_SIZE) == 0) {
-            return queueList[i].handle;
-        }
-    }
-    return NULL;
+extern BaseType_t queueRtos_sendToQueue(QueueId_t xQueueId, const void *pvItemToQueue, TickType_t xTicksToWait) {
+	if (xQueueId < QUEUE_ID_MAX && xDataQueues[xQueueId].xQueueHandle != NULL) {
+		return xQueueSend(xDataQueues[xQueueId].xQueueHandle, pvItemToQueue,
+				xTicksToWait);
+	}
+
+	return pdFAIL;
 }
 
-BaseType_t queueRtos_sendToQueue(QueueHandle_t queue, void *data, size_t dataSize, TickType_t ticksToWait) {
-    if (dataSize > MAX_DATA_SIZE) {
-        return pdFAIL;  // Error si el tamaño de los datos es mayor que el tamaño máximo permitido
-    }
+extern BaseType_t queueRtos_receiveFromQueue(QueueId_t xQueueId, void *pvBuffer, TickType_t xTicksToWait) {
+	if (xQueueId < QUEUE_ID_MAX && xDataQueues[xQueueId].xQueueHandle != NULL) {
+		return xQueueReceive(xDataQueues[xQueueId].xQueueHandle, pvBuffer,
+				xTicksToWait);
+	}
 
-    QueueData queueData;
-    memcpy(queueData.data, data, dataSize);
-    queueData.size = dataSize;
-
-    return xQueueSend(queue, &queueData, ticksToWait);
+	return pdFAIL;
 }
 
-BaseType_t queueRtos_receiveFromQueue(QueueHandle_t queue, void *buffer, size_t bufferSize, TickType_t ticksToWait) {
-    QueueData queueData;
-    BaseType_t result = xQueueReceive(queue, &queueData, ticksToWait);
+extern UBaseType_t queueRtos_msgWaiting(QueueId_t xQueueId){
+	if (xQueueId < QUEUE_ID_MAX && xDataQueues[xQueueId].xQueueHandle != NULL){
+		return uxQueueMessagesWaiting(xDataQueues[xQueueId].QueueHandle_t);
+	}
 
-    if (result == pdPASS) {
-        if (bufferSize >= queueData.size) {
-            memcpy(buffer, queueData.data, queueData.size);
-        }
-    }
-    return result;
-}
-
-UBaseType_t queueRtos_msgWaiting(QueueHandle_t queue){
-	return uxQueueMessagesWaiting(queue);
-}
-
-void deleteQueueByName(const char *name) {
-    for (int i = 0; i < MAX_QUEUES; i++) {
-        if (queueList[i].handle != NULL && strncmp(queueList[i].name, name, QUEUE_NAME_SIZE) == 0) {
-            vQueueDelete(queueList[i].handle);
-            queueList[i].handle = NULL;
-            queueList[i].name[0] = '\0';
-            break;
-        }
-    }
+	return pdFALSE;
 }

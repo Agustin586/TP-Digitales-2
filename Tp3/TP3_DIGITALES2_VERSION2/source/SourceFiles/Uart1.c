@@ -53,7 +53,6 @@ extern void Uart1_init(void) {
     uart_config.base = UART;
 
     if (UART_RTOS_Init(&handle, &t_handle, &uart_config) != kStatus_Success) {
-        // Handle error
     	PRINTF("Error al configurar UART1");
     }
 
@@ -76,21 +75,16 @@ extern int Uart1_send(char *to_send) {
 	return UART_TransferSendDMA(UART1, &uart_dma_handle, &sendXfer);
 }
 
-extern int Uart1_read(uint8_t *receive, uint8_t length) {
-    size_t n;
+extern int Uart1_read(uint8_t *receive, uint8_t length, size_t *n) {
     int error;
 
-    error = UART_RTOS_Receive(&handle, receive, length, &n);
+    error = UART_RTOS_Receive(&handle, receive, length, n);
 
     if (error == kStatus_UART_RxHardwareOverrun) {
-//        if (kStatus_Success != UART_RTOS_Send(&handle, (uint8_t*) send_hardware_overrun, strlen(send_hardware_overrun))) {
-////            vTaskSuspend(NULL);
-//        }
+    	PRINTF("%s",send_hardware_overrun);
     }
     if (error == kStatus_UART_RxRingBufferOverrun) {
-//        if (kStatus_Success != UART_RTOS_Send(&handle, (uint8_t*) send_ring_overrun, strlen(send_ring_overrun))) {
-////            vTaskSuspend(NULL);
-//        }
+    	PRINTF("%s",send_ring_overrun);
     }
     return error;
 }

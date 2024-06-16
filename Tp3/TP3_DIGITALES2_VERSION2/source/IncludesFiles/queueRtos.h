@@ -1,22 +1,47 @@
-#ifndef COLADATOS_H_
-#define COLADATOS_H_
+#ifndef DATA_QUEUES_H
+#define DATA_QUEUES_H
 
 #include "FreeRTOS.h"
 #include "queue.h"
 
-#define QUEUE_NAME_SIZE 32
-#define MAX_DATA_SIZE 50  // Tamaño máximo de los datos a enviar
+// Enumeración para identificar las colas
+typedef enum {
+    QUEUE_ID_1,
+    QUEUE_ID_2,
+    QUEUE_ID_MAX,
+} QueueId_t;
 
-typedef struct {
-    uint8_t data[MAX_DATA_SIZE];
-    size_t size;
-} QueueData;
+/*
+ * @brief 	Incializa la cola de datos
+ * */
+extern void queueRtos_create(void);
 
-QueueHandle_t queueRtos_create(const char *name, UBaseType_t queueLength);
-QueueHandle_t queueRtos_getQueueByName(const char *name);
-BaseType_t queueRtos_sendToQueue(QueueHandle_t queue, void *data, size_t dataSize, TickType_t ticksToWait);
-BaseType_t queueRtos_receiveFromQueue(QueueHandle_t queue, void *buffer, size_t bufferSize, TickType_t ticksToWait);
-UBaseType_t queueRtos_msgWaiting(QueueHandle_t queue);
-void deleteQueueByName(const char *name);
+/*
+ * @brief 	Carga los datos en la cola
+ *
+ * @param 	QueueId_t xQueueId
+ * 			const void *pvItemToQueue
+ * 			TickType_t xTicksToWait
+ * @return BaseType_t
+ * */
+extern BaseType_t queueRtos_sendToQueue(QueueId_t xQueueId, const void *pvItemToQueue, TickType_t xTicksToWait);
 
-#endif /* COLADATOS_H_ */
+/*
+ * @brief 	Carga los datos en la cola
+ *
+ * @param 	QueueId_t xQueueId
+ * 			void *pvBuffer
+ * 			TickType_t xTicksToWait
+ * @return BaseType_t
+ * */
+extern BaseType_t queueRtos_receiveFromQueue(QueueId_t xQueueId, void *pvBuffer, TickType_t xTicksToWait);
+
+/*
+ * @brief 	Pregunta si hay algun dato cargado en la cola
+ *
+ * @param	QueueId_t xQueueId
+ * @return	UBaseType_t
+ * */
+extern UBaseType_t queueRtos_msgWaiting(QueueId_t xQueueId);
+
+#endif // DATA_QUEUES_H

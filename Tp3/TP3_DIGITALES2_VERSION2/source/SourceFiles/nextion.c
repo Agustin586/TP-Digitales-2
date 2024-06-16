@@ -63,6 +63,7 @@ typedef struct {
 static TipoObjeto_st Objeto[CANT_TOTAL_PASOS][MUESTRAS];
 static uint8_t muestra_nrm[CANT_TOTAL_PASOS], paso_nrm = 0;
 static TipoTramaNextion_st Trama;
+static uint8_t pageID;
 
 /*
  * @brief Envia la trama que se carga.
@@ -85,41 +86,29 @@ extern void nextion_reset(void) {
 	return;
 }
 
-extern estMefNextion_enum nextion_getPage(estMefNextion_enum page_actual) {
-#define CANT_MAX_BUFFER	5
-#define CANT_DE_BYTES_A_RECIBIR	1
+extern void nextion_setPageID(uint8_t pageID_) {
+	pageID = pageID_;
 
-	uint8_t rev_buffer[CANT_MAX_BUFFER];
-	QueueHandle_t queueRx = queueRtos_getQueueByName("Uart1_Rx");
+	return;
+}
 
-	/*Hay que pedirle que solo guarde si es 0x66*/
-	if (queueRtos_msgWaiting(queueRx) == pdTRUE) {
-		queueRtos_receiveFromQueue(queueRx, rev_buffer, CANT_DE_BYTES_A_RECIBIR,
-				pdMS_TO_TICKS(200));
-
-		switch (rev_buffer[0]) {
-		case PAGE_MAIN:
-			if (page_actual != rev_buffer[0])
-				taskRtosNextion_delay(500);
-			return EST_NEXTION_pMAIN;
-			break;
-		case PAGE_RADAR:
-			if (page_actual != rev_buffer[0])
-				taskRtosNextion_delay(500);
-			return EST_NEXTION_pRADAR;
-			break;
-		case PAGE_SERVO:
-			if (page_actual != rev_buffer[0])
-				taskRtosNextion_delay(500);
-			return EST_NEXTION_pSERVO;
-			break;
-		default:
-			return EST_NEXTION_RESET;
-			break;
-		}
+extern estMefNextion_enum nextion_getPage(void) {
+	switch (pageID) {
+	case PAGE_MAIN:
+		return EST_NEXTION_pMAIN;
+		break;
+	case PAGE_RADAR:
+		return EST_NEXTION_pRADAR;
+		break;
+	case PAGE_SERVO:
+		return EST_NEXTION_pSERVO;
+		break;
+	default:
+		return EST_NEXTION_RESET;
+		break;
 	}
 
-	return page_actual;
+	return EST_NEXTION_RESET;
 }
 
 extern void nextion_putObj(uint8_t paso, uint8_t muestra, uint16_t colorNew) {
