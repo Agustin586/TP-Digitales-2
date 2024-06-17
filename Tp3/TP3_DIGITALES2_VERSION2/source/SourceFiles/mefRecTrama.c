@@ -41,7 +41,7 @@
 
 /*==================[macros and definitions]=================================*/
 typedef enum {
-	MEF_REC_ESPERANDO_INICIO = 0, MEF_REC_RECIBIENDO, MEF_REC_ESPERANDO_0A,
+	MEF_REC_ESPERANDO_INICIO = 0, MEF_REC_RECIBIENDO, MEF_REC_PROCESANDO,
 } est_mefRecTrama_enum;
 
 #define BUFFER_SIZE		8
@@ -110,7 +110,7 @@ void mefRecTrama_task(void) {
 			indexRec = 0;
 
 		if (flagRec != 0 && byteRec == CHAR_LF) {
-			mefRecTrama_est = MEF_REC_ESPERANDO_0A;
+			mefRecTrama_est = MEF_REC_PROCESANDO;
 		}
 
 		if (indexRec > BUFFER_SIZE || (flagRec != 0 && byteRec == CHAR_CR)) {
@@ -119,7 +119,7 @@ void mefRecTrama_task(void) {
 
 		break;
 
-	case MEF_REC_ESPERANDO_0A:
+	case MEF_REC_PROCESANDO:
 		if (flagRec != 0 && byteRec == ':') {
 			indexRec = 0;
 			mefRecTrama_est = MEF_REC_RECIBIENDO;
