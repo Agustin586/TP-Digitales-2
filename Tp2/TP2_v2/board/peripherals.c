@@ -483,9 +483,17 @@ instance:
       - enableRx: 'false'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
+const lpsci_config_t BOARD_LPSCI_1_config = {
+  .baudRate_Bps = 115200UL,
+  .parityMode = kLPSCI_ParityDisabled,
+  .stopBitCount = kLPSCI_OneStopBit,
+  .idleLineType = kLPSCI_IdleLineStartBit,
+  .enableTx = false,
+  .enableRx = false
+};
 
 static void BOARD_LPSCI_1_init(void) {
-  /* Configuration of the component LPSCI_1 of functional group BOARD_InitDEBUG_UARTPeripheral is not valid. */
+  LPSCI_Init(BOARD_LPSCI_1_PERIPHERAL, &BOARD_LPSCI_1_config, BOARD_LPSCI_1_CLOCK_SOURCE);
 }
 
 /***********************************************************************************************************************

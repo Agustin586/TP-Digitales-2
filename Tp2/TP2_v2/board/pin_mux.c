@@ -180,13 +180,7 @@ void BOARD_InitPins(void)
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 BOARD_InitACCEL:
 - options: {prefix: BOARD_, coreID: core0, enableClock: 'true'}
-- pin_list:
-  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA, identifier: ACCEL_SDA, slew_rate: fast, pull_select: down, pull_enable: disable}
-  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL, identifier: ACCEL_SCL, slew_rate: fast, pull_select: down, pull_enable: disable}
-  - {pin_num: '81', peripheral: GPIOC, signal: 'GPIO, 5', pin_signal: LCD_P25/PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/CMP0_OUT/LCD_P25_Fault, identifier: ACCEL_INT1,
-    direction: INPUT, slew_rate: fast, pull_select: up, pull_enable: enable}
-  - {pin_num: '94', peripheral: GPIOD, signal: 'GPIO, 1', pin_signal: LCD_P41/ADC0_SE5b/PTD1/SPI0_SCK/TPM0_CH1/LCD_P41_Fault, identifier: ACCEL_INT2, direction: INPUT,
-    slew_rate: fast, pull_select: up, pull_enable: enable}
+- pin_list: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -199,78 +193,6 @@ BOARD_InitACCEL:
  * END ****************************************************************************************************************/
 void BOARD_InitACCEL(void)
 {
-    /* Port C Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortC);
-    /* Port D Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortD);
-    /* Port E Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortE);
-
-    gpio_pin_config_t ACCEL_INT1_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTC5 (pin 81)  */
-    GPIO_PinInit(BOARD_ACCEL_INT1_GPIO, BOARD_ACCEL_INT1_PIN, &ACCEL_INT1_config);
-
-    gpio_pin_config_t ACCEL_INT2_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTD1 (pin 94)  */
-    GPIO_PinInit(BOARD_ACCEL_INT2_GPIO, BOARD_ACCEL_INT2_PIN, &ACCEL_INT2_config);
-
-    const port_pin_config_t ACCEL_INT1 = {/* Internal pull-up resistor is enabled */
-                                          kPORT_PullUp,
-                                          /* Fast slew rate is configured */
-                                          kPORT_FastSlewRate,
-                                          /* Passive filter is disabled */
-                                          kPORT_PassiveFilterDisable,
-                                          /* Low drive strength is configured */
-                                          kPORT_LowDriveStrength,
-                                          /* Pin is configured as PTC5 */
-                                          kPORT_MuxAsGpio};
-    /* PORTC5 (pin 81) is configured as PTC5 */
-    PORT_SetPinConfig(BOARD_ACCEL_INT1_PORT, BOARD_ACCEL_INT1_PIN, &ACCEL_INT1);
-
-    const port_pin_config_t ACCEL_INT2 = {/* Internal pull-up resistor is enabled */
-                                          kPORT_PullUp,
-                                          /* Fast slew rate is configured */
-                                          kPORT_FastSlewRate,
-                                          /* Passive filter is disabled */
-                                          kPORT_PassiveFilterDisable,
-                                          /* Low drive strength is configured */
-                                          kPORT_LowDriveStrength,
-                                          /* Pin is configured as PTD1 */
-                                          kPORT_MuxAsGpio};
-    /* PORTD1 (pin 94) is configured as PTD1 */
-    PORT_SetPinConfig(BOARD_ACCEL_INT2_PORT, BOARD_ACCEL_INT2_PIN, &ACCEL_INT2);
-
-    const port_pin_config_t ACCEL_SCL = {/* Internal pull-up/down resistor is disabled */
-                                         kPORT_PullDisable,
-                                         /* Fast slew rate is configured */
-                                         kPORT_FastSlewRate,
-                                         /* Passive filter is disabled */
-                                         kPORT_PassiveFilterDisable,
-                                         /* Low drive strength is configured */
-                                         kPORT_LowDriveStrength,
-                                         /* Pin is configured as I2C0_SCL */
-                                         kPORT_MuxAlt5};
-    /* PORTE24 (pin 31) is configured as I2C0_SCL */
-    PORT_SetPinConfig(BOARD_ACCEL_SCL_PORT, BOARD_ACCEL_SCL_PIN, &ACCEL_SCL);
-
-    const port_pin_config_t ACCEL_SDA = {/* Internal pull-up/down resistor is disabled */
-                                         kPORT_PullDisable,
-                                         /* Fast slew rate is configured */
-                                         kPORT_FastSlewRate,
-                                         /* Passive filter is disabled */
-                                         kPORT_PassiveFilterDisable,
-                                         /* Low drive strength is configured */
-                                         kPORT_LowDriveStrength,
-                                         /* Pin is configured as I2C0_SDA */
-                                         kPORT_MuxAlt5};
-    /* PORTE25 (pin 32) is configured as I2C0_SDA */
-    PORT_SetPinConfig(BOARD_ACCEL_SDA_PORT, BOARD_ACCEL_SDA_PIN, &ACCEL_SDA);
 }
 
 /* clang-format off */
@@ -476,11 +398,7 @@ void BOARD_InitLEDs(void)
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 BOARD_InitTouch:
 - options: {prefix: BOARD_, coreID: core0, enableClock: 'true'}
-- pin_list:
-  - {pin_num: '62', peripheral: TSI0, signal: 'CH, 9', pin_signal: LCD_P12/TSI0_CH9/PTB16/SPI1_MOSI/UART0_RX/TPM_CLKIN0/SPI1_MISO/LCD_P12_Fault, slew_rate: fast,
-    pull_select: down, pull_enable: disable}
-  - {pin_num: '63', peripheral: TSI0, signal: 'CH, 10', pin_signal: LCD_P13/TSI0_CH10/PTB17/SPI1_MISO/UART0_TX/TPM_CLKIN1/SPI1_MOSI/LCD_P13_Fault, slew_rate: fast,
-    pull_select: down, pull_enable: disable}
+- pin_list: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -493,34 +411,6 @@ BOARD_InitTouch:
  * END ****************************************************************************************************************/
 void BOARD_InitTouch(void)
 {
-    /* Port B Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortB);
-
-    const port_pin_config_t TSI_ELECTRODE_1 = {/* Internal pull-up/down resistor is disabled */
-                                               kPORT_PullDisable,
-                                               /* Fast slew rate is configured */
-                                               kPORT_FastSlewRate,
-                                               /* Passive filter is disabled */
-                                               kPORT_PassiveFilterDisable,
-                                               /* Low drive strength is configured */
-                                               kPORT_LowDriveStrength,
-                                               /* Pin is configured as TSI0_CH9 */
-                                               kPORT_PinDisabledOrAnalog};
-    /* PORTB16 (pin 62) is configured as TSI0_CH9 */
-    PORT_SetPinConfig(BOARD_TSI_ELECTRODE_1_PORT, BOARD_TSI_ELECTRODE_1_PIN, &TSI_ELECTRODE_1);
-
-    const port_pin_config_t TSI_ELECTRODE_2 = {/* Internal pull-up/down resistor is disabled */
-                                               kPORT_PullDisable,
-                                               /* Fast slew rate is configured */
-                                               kPORT_FastSlewRate,
-                                               /* Passive filter is disabled */
-                                               kPORT_PassiveFilterDisable,
-                                               /* Low drive strength is configured */
-                                               kPORT_LowDriveStrength,
-                                               /* Pin is configured as TSI0_CH10 */
-                                               kPORT_PinDisabledOrAnalog};
-    /* PORTB17 (pin 63) is configured as TSI0_CH10 */
-    PORT_SetPinConfig(BOARD_TSI_ELECTRODE_2_PORT, BOARD_TSI_ELECTRODE_2_PIN, &TSI_ELECTRODE_2);
 }
 
 /* clang-format off */
@@ -602,11 +492,7 @@ void BOARD_InitOSC(void)
  * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 BOARD_InitMAG:
 - options: {prefix: BOARD_, coreID: core0, enableClock: 'true'}
-- pin_list:
-  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA, identifier: MAG_SDA, slew_rate: fast, pull_select: down, pull_enable: disable}
-  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL, identifier: MAG_SCL, slew_rate: fast, pull_select: down, pull_enable: disable}
-  - {pin_num: '94', peripheral: GPIOD, signal: 'GPIO, 1', pin_signal: LCD_P41/ADC0_SE5b/PTD1/SPI0_SCK/TPM0_CH1/LCD_P41_Fault, identifier: MAG_INT2, direction: INPUT,
-    slew_rate: fast, pull_select: up, pull_enable: enable}
+- pin_list: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -619,56 +505,6 @@ BOARD_InitMAG:
  * END ****************************************************************************************************************/
 void BOARD_InitMAG(void)
 {
-    /* Port D Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortD);
-    /* Port E Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortE);
-
-    gpio_pin_config_t MAG_INT2_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTD1 (pin 94)  */
-    GPIO_PinInit(BOARD_MAG_INT2_GPIO, BOARD_MAG_INT2_PIN, &MAG_INT2_config);
-
-    const port_pin_config_t MAG_INT2 = {/* Internal pull-up resistor is enabled */
-                                        kPORT_PullUp,
-                                        /* Fast slew rate is configured */
-                                        kPORT_FastSlewRate,
-                                        /* Passive filter is disabled */
-                                        kPORT_PassiveFilterDisable,
-                                        /* Low drive strength is configured */
-                                        kPORT_LowDriveStrength,
-                                        /* Pin is configured as PTD1 */
-                                        kPORT_MuxAsGpio};
-    /* PORTD1 (pin 94) is configured as PTD1 */
-    PORT_SetPinConfig(BOARD_MAG_INT2_PORT, BOARD_MAG_INT2_PIN, &MAG_INT2);
-
-    const port_pin_config_t MAG_SCL = {/* Internal pull-up/down resistor is disabled */
-                                       kPORT_PullDisable,
-                                       /* Fast slew rate is configured */
-                                       kPORT_FastSlewRate,
-                                       /* Passive filter is disabled */
-                                       kPORT_PassiveFilterDisable,
-                                       /* Low drive strength is configured */
-                                       kPORT_LowDriveStrength,
-                                       /* Pin is configured as I2C0_SCL */
-                                       kPORT_MuxAlt5};
-    /* PORTE24 (pin 31) is configured as I2C0_SCL */
-    PORT_SetPinConfig(BOARD_MAG_SCL_PORT, BOARD_MAG_SCL_PIN, &MAG_SCL);
-
-    const port_pin_config_t MAG_SDA = {/* Internal pull-up/down resistor is disabled */
-                                       kPORT_PullDisable,
-                                       /* Fast slew rate is configured */
-                                       kPORT_FastSlewRate,
-                                       /* Passive filter is disabled */
-                                       kPORT_PassiveFilterDisable,
-                                       /* Low drive strength is configured */
-                                       kPORT_LowDriveStrength,
-                                       /* Pin is configured as I2C0_SDA */
-                                       kPORT_MuxAlt5};
-    /* PORTE25 (pin 32) is configured as I2C0_SDA */
-    PORT_SetPinConfig(BOARD_MAG_SDA_PORT, BOARD_MAG_SDA_PIN, &MAG_SDA);
 }
 /***********************************************************************************************************************
  * EOF

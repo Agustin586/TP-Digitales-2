@@ -34,52 +34,6 @@ void BOARD_InitBootPins(void);
  */
 void BOARD_InitPins(void);
 
-/*! @name PORTE25 (number 32), U2[6]/U10[6]/I2C0_SDA
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_ACCEL_SDA_PORT PORTE                /*!<@brief PORT peripheral base pointer */
-#define BOARD_ACCEL_SDA_PIN 25U                   /*!<@brief PORT pin number */
-#define BOARD_ACCEL_SDA_PIN_MASK (1U << 25U)      /*!<@brief PORT pin mask */
-                                                  /* @} */
-
-/*! @name PORTE24 (number 31), U2[7]/U10[4]/I2C0_SDA
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_ACCEL_SCL_PORT PORTE                /*!<@brief PORT peripheral base pointer */
-#define BOARD_ACCEL_SCL_PIN 24U                   /*!<@brief PORT pin number */
-#define BOARD_ACCEL_SCL_PIN_MASK (1U << 24U)      /*!<@brief PORT pin mask */
-                                                  /* @} */
-
-/*! @name PORTC5 (number 81), U10[11]/INT1_ACCEL
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_ACCEL_INT1_FGPIO FGPIOC             /*!<@brief FGPIO peripheral base pointer */
-#define BOARD_ACCEL_INT1_GPIO GPIOC               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_ACCEL_INT1_GPIO_PIN_MASK (1U << 5U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_ACCEL_INT1_PORT PORTC               /*!<@brief PORT peripheral base pointer */
-#define BOARD_ACCEL_INT1_PIN 5U                   /*!<@brief PORT pin number */
-#define BOARD_ACCEL_INT1_PIN_MASK (1U << 5U)      /*!<@brief PORT pin mask */
-                                                  /* @} */
-
-/*! @name PORTD1 (number 94), U2[9]/U10[9]/INT2_ACCEL
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_ACCEL_INT2_FGPIO FGPIOD             /*!<@brief FGPIO peripheral base pointer */
-#define BOARD_ACCEL_INT2_GPIO GPIOD               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_ACCEL_INT2_GPIO_PIN_MASK (1U << 1U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_ACCEL_INT2_PORT PORTD               /*!<@brief PORT peripheral base pointer */
-#define BOARD_ACCEL_INT2_PIN 1U                   /*!<@brief PORT pin number */
-#define BOARD_ACCEL_INT2_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
-                                                  /* @} */
-
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
@@ -182,24 +136,6 @@ void BOARD_InitButtons(void);
  */
 void BOARD_InitLEDs(void);
 
-/*! @name PORTB16 (number 62), E1/TSI_ELECTRODE1
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_TSI_ELECTRODE_1_PORT PORTB                /*!<@brief PORT peripheral base pointer */
-#define BOARD_TSI_ELECTRODE_1_PIN 16U                   /*!<@brief PORT pin number */
-#define BOARD_TSI_ELECTRODE_1_PIN_MASK (1U << 16U)      /*!<@brief PORT pin mask */
-                                                        /* @} */
-
-/*! @name PORTB17 (number 63), E1/TSI_ELECTRODE2
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_TSI_ELECTRODE_2_PORT PORTB                /*!<@brief PORT peripheral base pointer */
-#define BOARD_TSI_ELECTRODE_2_PIN 17U                   /*!<@brief PORT pin number */
-#define BOARD_TSI_ELECTRODE_2_PIN_MASK (1U << 17U)      /*!<@brief PORT pin mask */
-                                                        /* @} */
-
 /*!
  * @brief Configures pin routing and optionally pin electrical features.
  *
@@ -257,38 +193,6 @@ void BOARD_InitSegment_LCD(void);
  *
  */
 void BOARD_InitOSC(void);
-
-/*! @name PORTE25 (number 32), U2[6]/U10[6]/I2C0_SDA
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_MAG_SDA_PORT PORTE                /*!<@brief PORT peripheral base pointer */
-#define BOARD_MAG_SDA_PIN 25U                   /*!<@brief PORT pin number */
-#define BOARD_MAG_SDA_PIN_MASK (1U << 25U)      /*!<@brief PORT pin mask */
-                                                /* @} */
-
-/*! @name PORTE24 (number 31), U2[7]/U10[4]/I2C0_SDA
-  @{ */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_MAG_SCL_PORT PORTE                /*!<@brief PORT peripheral base pointer */
-#define BOARD_MAG_SCL_PIN 24U                   /*!<@brief PORT pin number */
-#define BOARD_MAG_SCL_PIN_MASK (1U << 24U)      /*!<@brief PORT pin mask */
-                                                /* @} */
-
-/*! @name PORTD1 (number 94), U2[9]/U10[9]/INT2_ACCEL
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_MAG_INT2_FGPIO FGPIOD             /*!<@brief FGPIO peripheral base pointer */
-#define BOARD_MAG_INT2_GPIO GPIOD               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_MAG_INT2_GPIO_PIN_MASK (1U << 1U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_MAG_INT2_PORT PORTD               /*!<@brief PORT peripheral base pointer */
-#define BOARD_MAG_INT2_PIN 1U                   /*!<@brief PORT pin number */
-#define BOARD_MAG_INT2_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
-                                                /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

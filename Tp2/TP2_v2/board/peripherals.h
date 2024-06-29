@@ -13,6 +13,8 @@
 #include "fsl_gpio.h"
 #include "fsl_port.h"
 #include "fsl_i2c.h"
+#include "fsl_lpsci.h"
+#include "fsl_clock.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -55,11 +57,18 @@ extern "C" {
 /* Alias for GPIOD peripheral */
 #define INT2_GPIO GPIOD
 
+/* Definitions for BOARD_InitDEBUG_UARTPeripheral functional group */
+/* Definition of peripheral ID */
+#define BOARD_LPSCI_1_PERIPHERAL UART0
+/* Definition of the clock source frequency */
+#define BOARD_LPSCI_1_CLOCK_SOURCE 47972352UL
+
 /***********************************************************************************************************************
  * Global variables
  **********************************************************************************************************************/
 extern const i2c_master_config_t BOARD_ACCEL_I2C_config;
 extern const i2c_master_config_t MAG_I2C_config;
+extern const lpsci_config_t BOARD_LPSCI_1_config;
 
 /***********************************************************************************************************************
  * Initialization functions
