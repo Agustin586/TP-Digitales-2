@@ -74,6 +74,7 @@ void timerRtos_TimerBlink(void *pvParameters);
 
 extern void taskSecuencia(void *pvparameters) {
 	mefSecuencia_init();
+	timerRtos_init();
 
 	for (;;) {
 		mefSecuencia();
@@ -137,10 +138,9 @@ static void mefSecuencia(void) {
 		 * DESCRIPCION: Finaliza la muestra de resultados.
 		 * ================================================
 		 * */
-		if (F_timer10s || key_getPressEvRTOS(SW1)) {
-			ValNorma_Max |= 0;
-			mefInt2_clrIF_Freefall();
-
+		if (F_timer10s || board_getSw(SW1)) {
+			timerRtos_stop(TIMER_10s);
+			timerRtos_stop(TIMER_BLINK);
 			estMefSec = EST_SECUENCIA_REPOSO;
 		}
 
@@ -165,10 +165,10 @@ static void timerRtos_init(void) {
 static void timerRtos_start(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStart(Timer10s, delay_ms(100));
+		xTimerStart(Timer10s, pdMS_TO_TICKS(100));
 		break;
 	case TIMER_BLINK:
-		xTimerStart(TimerBlink, delay_ms(100));
+		xTimerStart(TimerBlink, pdMS_TO_TICKS(100));
 		break;
 	default:
 		PRINTF("Error al iniciar un timer\r\n");
@@ -181,10 +181,10 @@ static void timerRtos_start(TimerID_t timerID) {
 static void timerRtos_stop(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStop(Timer10s, delay_ms(100));
+		xTimerStop(Timer10s, pdMS_TO_TICKS(100));
 		break;
 	case TIMER_BLINK:
-		xTimerStop(TimerBlink, delay_ms(100));
+		xTimerStop(TimerBlink, pdMS_TO_TICKS(100));
 		break;
 	default:
 		PRINTF("Error al detener un timer\r\n");

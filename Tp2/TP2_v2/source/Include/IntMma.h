@@ -14,6 +14,6 @@
 extern void taskRtos_INTFF(void *pvParameters);
 extern void taskRtos_INTDRDY(void *pvParameters);
 extern bool intMma_getIFFreeFall(void);
-extern uint32_t queueRtos_receiveNorma(void);
+extern uint32_t queueRtos_receiveNormaMaxCuad(void);
 
 #endif /* INCLUDE_INTMMA_H_ */

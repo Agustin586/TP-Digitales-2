@@ -127,6 +127,7 @@ static void mefIntDRDY(void) {
 	case EST_ISR_INT2_IDLE:
 		mma8451_readDRDY();
 		ReadNorma = mma8451_cuadNorm();
+		IF_FinFreefall = false;
 
 		if (ReadNorma < THS_FF_CUAD)
 			estMefInt2 = EST_ISR_INT2_ADQ_DATOS;
@@ -147,6 +148,7 @@ static void mefIntDRDY(void) {
 		/*< Activamos el bajo consumo >*/
 		energia_SetClockVlpr();
 
+		estMefInt2 = EST_ISR_INT2_IDLE;
 		break;
 	case EST_ISR_INT2_ADQ_DATOS:
 		mma8451_readDRDY();

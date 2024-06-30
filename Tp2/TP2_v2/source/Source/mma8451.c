@@ -34,6 +34,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "Include/mma8451.h"
+#include "Include/i2cRtos.h"
 #include "math.h"
 #include "fsl_i2c_freertos.h"
 
@@ -171,6 +172,7 @@ typedef union {
 volatile static int16_t readX, readY, readZ;
 
 static uint8_t mma8451_read_reg(uint8_t addr) {
+ i2c_rtos_handle_t master_rtos_handle;
 	i2c_master_transfer_t masterXfer;
 	uint8_t ret;
 
@@ -183,12 +185,13 @@ static uint8_t mma8451_read_reg(uint8_t addr) {
 	masterXfer.dataSize = 1;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_MasterTransferBlocking(I2C0, &masterXfer);
+	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
 
 	return ret;
 }
 
 static void mma8451_write_reg(uint8_t addr, uint8_t data) {
+	i2c_rtos_handle_t master_rtos_handle;
 	i2c_master_transfer_t masterXfer;
 
 	memset(&masterXfer, 0, sizeof(masterXfer));
@@ -201,7 +204,7 @@ static void mma8451_write_reg(uint8_t addr, uint8_t data) {
 	masterXfer.dataSize = 1;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_MasterTransferBlocking(I2C0, &masterXfer);
+	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
 }
 
 static void config_port_int1(void) {
@@ -258,7 +261,7 @@ static void config_port_int2(void) {
 
 extern void mma8451_init(void) {
 	/* CONFIG I2C */
-	SD2_I2C_init();
+	i2cRtos_init();
 
 	/* CONFIG DRDY Y FREEFALL */
 	mma8451_DRDYinit();
@@ -296,6 +299,7 @@ extern void mma8451_desactivar(void) {
 }
 
 static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size) {
+	i2c_rtos_handle_t master_rtos_handle;
 	i2c_master_transfer_t masterXfer;
 
 	memset(&masterXfer, 0, sizeof(masterXfer));
@@ -307,7 +311,7 @@ static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size) {
 	masterXfer.dataSize = size;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_MasterTransferBlocking(I2C0, &masterXfer);
+	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
 }
 
 void mma8451_setDataRate(DR_enum rate) {
@@ -436,7 +440,7 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT THRESHOLD */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_ths.DBCNTM = 1;				// Resetea la cuenta si sale del freefall
+	ff_mt_ths.DBCNTM = 1;			// Resetea la cuenta si sale del freefall
 	ff_mt_ths.THRESHOLD = 3;	// 0x03 --> 3 cuentas (0.063*3 --> 0.2g)
 
 	mma8451_write_reg(FF_MT_THS_ADDRESS, ff_mt_ths.data);

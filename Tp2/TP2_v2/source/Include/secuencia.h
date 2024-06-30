@@ -13,6 +13,4 @@
  * */
 extern void taskSecuencia(void *pvparameters);
 
-
-
 #endif /* INCLUDE_SECUENCIA_H_ */
