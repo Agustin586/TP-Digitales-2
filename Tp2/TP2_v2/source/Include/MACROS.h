@@ -3,8 +3,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "SD2_board.h"
-#include "key.h"
+#include "Include/SD2_board.h"
+#include "Include/key.h"
 
 /* Macros para los leds */
 #define ON		BOARD_LED_MSG_ON

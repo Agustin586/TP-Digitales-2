@@ -8,9 +8,11 @@
 /*< Archivos varios >*/
 #include "Include/secuencia.h"
 #include "Include/MACROS.h"
+#include "Include/IntMma.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "fsl_debug_console.h"
+#include "math.h"
 
 /*< Archvios de freertos >*/
 #include "FreeRTOS.h"
@@ -90,7 +92,6 @@ static void mefSecuencia_init(void) {
 
 static void mefSecuencia(void) {
 	switch (estMefSec) {
-
 	/* ============================================================
 	 * DESCRIPCION: Secuencia de reposo. Se queda en este estado
 	 * cuando finaliza la muestra de resultados o apenas arranca
@@ -103,8 +104,10 @@ static void mefSecuencia(void) {
 		LED_ROJO(OFF);
 
 		/* CAMBIO DE ESTADO */
-		if (mefInt2_getIF_Freefall()) {
+		if (intMma_getIFFreeFall()) {
 			LED_AZUL(OFF);
+			timerRtos_start(TIMER_10s);
+			timerRtos_start(TIMER_BLINK);
 			estMefSec = EST_SECUENCIA_RESULTADO;		// Cambia de estado
 		}
 
@@ -117,21 +120,18 @@ static void mefSecuencia(void) {
 		 * ============================================================
 		 * */
 	case EST_SECUENCIA_RESULTADO:
-		if (!Delay2_ms) {
-			LED_ROJO(TOGGLE);
-			Delay2_ms = DELAY_SOFTTIMER_500ms;
-		}
-
 		/* ================================================
 		 * DESCRIPCION: Recive el valor máximo de la norma
 		 * al cuadrado.
 		 * ================================================
 		 * */
-		if (xQueueReceive(queue_NormaMaxima, &ValNorma_Max,
-				DELAY_100ms) != errQUEUE_EMPTY) {
-			PRINTF("DATO LEIDO\r\n");
-			PRINTF("Norma Maxima:%.2f\r\n", mefSEC_getNormaMaxima() / 100.0);
-		}
+		PRINTF("DATO LEIDO\r\n");
+		PRINTF("Norma Maxima:%.2f\r\n", sqrt((float)queueRtos_receiveNormaMaxCuad()) / 100.0);
+
+		/*
+		 * Deberia enviar todos los datos a la pantalla y a la
+		 * memoria sd.
+		 * */
 
 		/* ================================================
 		 * DESCRIPCION: Finaliza la muestra de resultados.
@@ -145,19 +145,10 @@ static void mefSecuencia(void) {
 		}
 
 		break;
-
-	case EST_SECUENCIA_ERROR:
-		vTaskDelay(DELAY_2s);
-		estMefSec = EST_SECUENCIA_REPOSO;
-
-		break;
 	default:
 		estMefSec = EST_SECUENCIA_REPOSO;
 		break;
 	}
-
-	vTaskDelay(DELAY_50ms);
-	vTaskDelete(NULL);
 }
 
 static void timerRtos_init(void) {

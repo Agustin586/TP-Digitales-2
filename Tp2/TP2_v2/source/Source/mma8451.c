@@ -33,9 +33,9 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "mma8451.h"
+#include "Include/mma8451.h"
 #include "math.h"
-#include "SD2_I2C.h"
+#include "fsl_i2c_freertos.h"
 
 /*==================[macros and definitions]=================================*/
 #define MMA8451_I2C_ADDRESS     (0x1d)

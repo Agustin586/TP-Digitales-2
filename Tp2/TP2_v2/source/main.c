@@ -41,6 +41,8 @@
 #include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
 #include "Include/taskRtos.h"
+#include "FreeRTOS.h"
+#include "task.h"
 /* TODO: insert other definitions and declarations here. */
 
 /*
@@ -57,6 +59,10 @@ int main(void) {
     BOARD_InitDebugConsole();
 #endif
 
+    taskRtos_create();
+
+    vTaskStartScheduler();
+
     while(1);
 
     return 0 ;
@@ -67,9 +73,12 @@ void vApplicationTickHook(void) {
 	return;
 }
 
-extern void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+	PRINTF("StackOverFlow!!!\r\n");
+
 	while (1)
 		;
+
 
 	return;
 }

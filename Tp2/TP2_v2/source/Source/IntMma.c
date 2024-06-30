@@ -10,13 +10,12 @@
 #include "Include/MACROS.h"
 #include "Include/mma8451.h"
 #include "Include/energia.h"
-#include "stdint.h"
-#include "stdbool.h"
 
 /*< Archivos de freertos >*/
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /*< DEFINICIONES >*/
 #define G_THS				0.3
@@ -40,10 +39,10 @@ typedef struct {
 
 static estMefInt2_enum estMefInt2;
 
-static uint32_t ReadNorma;
 static uint32_t Max_Norm;
 
 QueueHandle_t queueNormMax, queueDatosEjes;
+SemaphoreHandle_t DrdySemaphore, FFSemaphore;
 
 /*< Banderas >*/
 static bool IF_FinFreefall = false;
@@ -72,9 +71,18 @@ static bool Fin_Freefall(uint32_t buffer[], uint8_t max_indice);
 static void clrBuffer(uint32_t buffer[], uint8_t max_indice);
 
 extern void taskRtos_INTFF(void *pvParameters) {
+	FFSemaphore = xSemaphoreCreateBinary();
+	if (FFSemaphore == NULL)
+		vTaskDelete(NULL);
 
 	for (;;) {
+		if (xSemaphoreTake(FFSemaphore, portMAX_DELAY)) {
+			energia_SetClockRunFromVlpr();
 
+			mma8451_IntFF();
+			mma8451_enableDRDYInt();
+			xSemaphoreGive(DrdySemaphore);
+		}
 	}
 	vTaskDelete(NULL);
 
@@ -82,11 +90,16 @@ extern void taskRtos_INTFF(void *pvParameters) {
 }
 
 extern void taskRtos_INTDRDY(void *pvParameters) {
+	DrdySemaphore = xSemaphoreCreateBinary();
+	if (DrdySemaphore == NULL)
+		vTaskDelete(NULL);
+
 	energia_init();
 	mefIntDRDY_init();
 
 	for (;;) {
-		mefIntDRDY();
+		if (xSemaphoreTake(DrdySemaphore, portMAX_DELAY))
+			mefIntDRDY();
 	}
 	vTaskDelete(NULL);
 
@@ -94,19 +107,21 @@ extern void taskRtos_INTDRDY(void *pvParameters) {
 }
 
 static void mefIntDRDY_init(void) {
-#define CANT_ELEMENTOS_COLA		2
+#define CANT_ELEMENTOS_COLA		1
 	estMefInt2 = EST_ISR_INT2_IDLE;
 	IF_FinFreefall = false;
 
 	/* Creamos la cola de datos */
-	xQueueCreate(queueNormMax, CANT_ELEMENTOS_COLA);
-	xQueueCreate(queueDatosEjes, MAX_QUEUE_LONG);
+	queueNormMax = xQueueCreate(CANT_ELEMENTOS_COLA, sizeof(uint32_t));
+	queueDatosEjes = xQueueCreate(MAX_QUEUE_LONG, sizeof(DatosMMA8451_t));
 
 	return;
 }
 static void mefIntDRDY(void) {
 	static uint8_t indice = 0;
 	static uint32_t buffer[MAX_BUFFER];
+	static uint32_t ReadNorma;
+	DatosMMA8451_t ReadEjes;
 
 	switch (estMefInt2) {
 	case EST_ISR_INT2_IDLE:
@@ -120,19 +135,20 @@ static void mefIntDRDY(void) {
 		mma8451_disableDRDYInt();
 
 		/* Carga el dato en la cola */
-		xQueueSendToBack(queueNormMax, &Max_Norm, delay_ms(100));
+		xQueueSendToBack(queueNormMax, &Max_Norm, pdMS_TO_TICKS(100));
 
 		/* Limpia las variables */
 		Max_Norm = 0;
 		indice = 0;
 		ReadNorma = 0;
+		IF_FinFreefall = true;
 		clrBuffer(buffer, MAX_BUFFER);
+
+		/*< Activamos el bajo consumo >*/
 		energia_SetClockVlpr();
 
 		break;
 	case EST_ISR_INT2_ADQ_DATOS:
-		DatosMMA8451_t ReadEjes;
-
 		mma8451_readDRDY();
 		ReadNorma = mma8451_cuadNorm();
 
@@ -142,7 +158,7 @@ static void mefIntDRDY(void) {
 		ReadEjes.ReadZ = mma8451_getAcZ();
 		ReadEjes.NormaCuad = ReadNorma; /*< En la pantalla debemos hacer la raiz cuadrada >*/
 
-		xQueueSendToBack(queueDatosEjes, &ReadEjes, delay_ms(100));
+		xQueueSendToBack(queueDatosEjes, &ReadEjes, pdMS_TO_TICKS(100));
 
 		/*< Cargamos en el buffer para detectar el fin de la caida libre >*/
 		buffer[indice] = ReadNorma, indice++;
@@ -179,4 +195,54 @@ static void clrBuffer(uint32_t buffer[], uint8_t max_indice) {
 	}
 
 	return;
+}
+
+extern bool intMma_getIFFreeFall(void) {
+	return IF_FinFreefall;
+}
+
+extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
+	uint32_t read;
+
+	if (uxQueueMessagesWaiting(queueNormMax)) {
+		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100));	// No elimina el dato de la cola
+		return read;
+	}
+
+	return pdFALSE;
+}
+
+void PORTC_PORTD_IRQHandler(void){
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	/* INTERRUPCION POR DATOS LISTOS */
+    if (PORT_GetPinsInterruptFlags(INT1_PORT)){
+    	xSemaphoreGiveFromISR((QueueHandle_t) DrdySemaphore, &xHigherPriorityTaskWoken);
+    	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);
+    	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+    }
+
+    /* INTERRUPCION POR FREEFALL */
+    if (PORT_GetPinsInterruptFlags(INT2_PORT)){
+    	xSemaphoreGiveFromISR((QueueHandle_t) FFSemaphore, &xHigherPriorityTaskWoken);
+    	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptOrDMADisabled);
+    	PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
+    }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+    /* ====================================================================================================================
+     * NOTA: Detectamos la interrupcion por algunos de los casos, pero a la vez deshabilitamos las interrupciones por ese
+     * pin hasta que sea procesada la interrupcion en la mefAcelerometro.
+     * ====================================================================================================================
+     *  */
+
+    /* ====================================================================================================================
+	 * NOTA 2: Debido a problemas que se presentaron y que tuvieron solución desde las 7 de la mañana se tuvo que corregir
+	 * la lógica de la obtención de datos y ahora se toman directamente sobre este interrupción. Resultados: anda mucho
+	 * que la otra lógica. Posdata: le pegué tremenda pata a la pared. Posposdata: Quiero mis cariñosas. Saludos.
+	 * ====================================================================================================================
+	 *  */
+
+    return;
 }
