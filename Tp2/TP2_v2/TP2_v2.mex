@@ -576,7 +576,6 @@
                   <setting id="MCG_C2_RANGE0_FRDIV_CFG" value="High" locked="false"/>
                   <setting id="SIM.OSC32KSEL.sel" value="PMC.LPOCLK" locked="false"/>
                   <setting id="SIM.OUTDIV4.scale" value="5" locked="true"/>
-                  <setting id="SIM.UART0SRCSEL.sel" value="MCG.MCGIRCLK" locked="false"/>
                </clock_settings>
                <called_from_default_init>false</called_from_default_init>
             </clock_configuration>

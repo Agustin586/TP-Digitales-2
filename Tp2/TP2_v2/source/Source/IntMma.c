@@ -70,7 +70,7 @@ extern void taskRtos_INTFF(void *pvParameters) {
 
 	for (;;) {
 		if (xSemaphoreTake(FFSemaphore, portMAX_DELAY)) {
-//			energia_SetClockRunFromVlpr();
+			energia_SetClockRunFromVlpr();
 
 			mma8451_IntFF();
 			mma8451_enableDRDYInt();

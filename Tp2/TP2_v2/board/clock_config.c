@@ -235,7 +235,6 @@ settings:
 - {id: MCG_C2_RANGE0_FRDIV_CFG, value: High}
 - {id: SIM.OSC32KSEL.sel, value: PMC.LPOCLK}
 - {id: SIM.OUTDIV4.scale, value: '5', locked: true}
-- {id: SIM.UART0SRCSEL.sel, value: MCG.MCGIRCLK}
 sources:
 - {id: OSC.OSC.outFreq, value: 8 MHz}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
