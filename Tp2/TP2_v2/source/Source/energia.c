@@ -104,15 +104,15 @@ energia_modo_enum energia_GetPowerMode(void) {
 
 	switch (currentPowerState) {
 	case kSMC_PowerStateRun:
-//        	PRINTF("    Power mode: RUN\r\n");
+        	PRINTF("    Power mode: RUN\r\n");
 		return ENERGIA_MODO_RUN;
 		break;
 	case kSMC_PowerStateVlpr:
-//        	PRINTF("    Power mode: VLPR\r\n");
+       	PRINTF("    Power mode: VLPR\r\n");
 		return ENERGIA_MODO_VLPR;
 		break;
 	default:
-//        	PRINTF("    Power mode wrong\r\n");
+        	PRINTF("    Power mode wrong\r\n");
 		return ENERGIA_MODO_ERROR;
 		break;
 	}
