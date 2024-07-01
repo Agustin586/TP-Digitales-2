@@ -77,6 +77,7 @@ void timerRtos_Timer10s(void *pvParameters);
 void timerRtos_TimerBlink(void *pvParameters);
 
 extern void taskSecuencia(void *pvparameters) {
+	PRINTF("Tarea: Secuencia\r\n");
 	mefSecuencia_init();
 	timerRtos_init();
 
@@ -104,6 +105,7 @@ static void mefSecuencia(void) {
 	FIL file_ejes;
 	File_t file = { .file_ = file_ejes, .nameFile = "DatosEjes.txt", .buffer =
 			"", };
+	static bool Flag = false;
 
 	switch (estMefSec) {
 	/* ============================================================
@@ -139,32 +141,35 @@ static void mefSecuencia(void) {
 		 * al cuadrado.
 		 * ================================================
 		 * */
-		/*< IMPRIME LA NORMA MAXIMA >*/
-		NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
+		if (!Flag) {
+			Flag = true;
+			/*< IMPRIME LA NORMA MAXIMA >*/
+			NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
 
-		PRINTF("DATO LEIDO\r\n");
-		PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
+			PRINTF("DATO LEIDO\r\n");
+			PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
 
-		sprintf(buffer, "%.2f", NormaMaxima);
-		nextion_text(TEXT_ID(0), buffer);
+			sprintf(buffer, "%.2f", NormaMaxima);
+			nextion_text(TEXT_ID(0), buffer);
 
-		/*< ENVIA LA NORMA A LA PANTALLA >*/
-		queueRtos_receiveDatosEjes(DatosEjes, &longitud);
+			/*< ENVIA LA NORMA A LA PANTALLA >*/
+			queueRtos_receiveDatosEjes(DatosEjes, &longitud);
 
-		sprintf(file.buffer,"Eje X\t\tEje Y\t\tEje Z\r\n");
-		sd_write(file);
-
-		for (uint8_t dato = 0; dato < longitud; dato++) {
-			/*< Escritura en la pantalla >*/
-			nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
-					DatosEjes[dato].NormaCuad);
-			delay_ms(5);
-
-			/*< Escritura en la memoria sd >*/
-			sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
-					DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
-					DatosEjes[dato].ReadZ);
+			sprintf(file.buffer, "Eje X\t\tEje Y\t\tEje Z\r\n");
 			sd_write(file);
+
+			for (uint8_t dato = 0; dato < longitud; dato++) {
+				/*< Escritura en la pantalla >*/
+				nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
+						DatosEjes[dato].NormaCuad);
+				delay_ms(5);
+
+				/*< Escritura en la memoria sd >*/
+				sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
+						DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
+						DatosEjes[dato].ReadZ);
+				sd_write(file);
+			}
 		}
 
 		/* ================================================
@@ -172,6 +177,7 @@ static void mefSecuencia(void) {
 		 * ================================================
 		 * */
 		if (F_timer10s || board_getSw(SW1)) {
+			Flag = false;
 			timerRtos_stop(TIMER_10s);
 			timerRtos_stop(TIMER_BLINK);
 			estMefSec = EST_SECUENCIA_REPOSO;

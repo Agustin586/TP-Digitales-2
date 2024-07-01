@@ -9,8 +9,8 @@
 #define INCLUDE_TASKRTOS_H_
 
 typedef enum {
-	TASK_ISR_UART1 = 0,
-	TASK_INT_FF,
+//	TASK_ISR_UART1 = 0,
+	TASK_INT_FF=0,
 	TASK_INT_DRDY,
 	TASK_SEC,
 	NUM_TASK,

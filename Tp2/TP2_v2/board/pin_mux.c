@@ -141,10 +141,10 @@ void BOARD_InitBootPins(void)
 BOARD_InitPins:
 - options: {callFromInitBoot: 'true', prefix: BOARD_, coreID: core0, enableClock: 'true'}
 - pin_list:
-  - {pin_num: '2', peripheral: UART1, signal: RX, pin_signal: LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault}
-  - {pin_num: '1', peripheral: UART1, signal: TX, pin_signal: LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault}
-  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL}
-  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA}
+  - {pin_num: '2', peripheral: UART1, signal: RX, pin_signal: LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault, slew_rate: fast}
+  - {pin_num: '1', peripheral: UART1, signal: TX, pin_signal: LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault, slew_rate: fast}
+  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL, slew_rate: fast, pull_enable: disable}
+  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA, slew_rate: fast, pull_enable: disable}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -163,14 +163,54 @@ void BOARD_InitPins(void)
     /* PORTE0 (pin 1) is configured as UART1_TX */
     PORT_SetPinMux(PORTE, 0U, kPORT_MuxAlt3);
 
+    PORTE->PCR[0] = ((PORTE->PCR[0] &
+                      /* Mask bits to zero which are setting */
+                      (~(PORT_PCR_SRE_MASK | PORT_PCR_ISF_MASK)))
+
+                     /* Slew Rate Enable: Fast slew rate is configured on the corresponding pin, if the pin is
+                      * configured as a digital output. */
+                     | PORT_PCR_SRE(kPORT_FastSlewRate));
+
     /* PORTE1 (pin 2) is configured as UART1_RX */
     PORT_SetPinMux(PORTE, 1U, kPORT_MuxAlt3);
+
+    PORTE->PCR[1] = ((PORTE->PCR[1] &
+                      /* Mask bits to zero which are setting */
+                      (~(PORT_PCR_SRE_MASK | PORT_PCR_ISF_MASK)))
+
+                     /* Slew Rate Enable: Fast slew rate is configured on the corresponding pin, if the pin is
+                      * configured as a digital output. */
+                     | PORT_PCR_SRE(kPORT_FastSlewRate));
 
     /* PORTE24 (pin 31) is configured as I2C0_SCL */
     PORT_SetPinMux(PORTE, 24U, kPORT_MuxAlt5);
 
+    PORTE->PCR[24] = ((PORTE->PCR[24] &
+                       /* Mask bits to zero which are setting */
+                       (~(PORT_PCR_PE_MASK | PORT_PCR_SRE_MASK | PORT_PCR_ISF_MASK)))
+
+                      /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding
+                       * pin. */
+                      | PORT_PCR_PE(kPORT_PullDisable)
+
+                      /* Slew Rate Enable: Fast slew rate is configured on the corresponding pin, if the pin is
+                       * configured as a digital output. */
+                      | PORT_PCR_SRE(kPORT_FastSlewRate));
+
     /* PORTE25 (pin 32) is configured as I2C0_SDA */
     PORT_SetPinMux(PORTE, 25U, kPORT_MuxAlt5);
+
+    PORTE->PCR[25] = ((PORTE->PCR[25] &
+                       /* Mask bits to zero which are setting */
+                       (~(PORT_PCR_PE_MASK | PORT_PCR_SRE_MASK | PORT_PCR_ISF_MASK)))
+
+                      /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding
+                       * pin. */
+                      | PORT_PCR_PE(kPORT_PullDisable)
+
+                      /* Slew Rate Enable: Fast slew rate is configured on the corresponding pin, if the pin is
+                       * configured as a digital output. */
+                      | PORT_PCR_SRE(kPORT_FastSlewRate));
 
     SIM->SOPT5 = ((SIM->SOPT5 &
                    /* Mask bits to zero which are setting */

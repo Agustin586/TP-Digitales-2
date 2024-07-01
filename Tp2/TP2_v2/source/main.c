@@ -49,7 +49,6 @@
  * @brief   Application entry point.
  */
 int main(void) {
-
     /* Init board hardware. */
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -58,6 +57,8 @@ int main(void) {
     /* Init FSL debug console. */
     BOARD_InitDebugConsole();
 #endif
+
+    PRINTF("Acelerometro -- Zuliani, Agustin y Ballin, Tomas\r\n");
 
     taskRtos_create();
 
@@ -78,7 +79,6 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
 
 	while (1)
 		;
-
 
 	return;
 }

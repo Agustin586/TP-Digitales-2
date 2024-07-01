@@ -160,10 +160,28 @@
                   </dependency>
                </dependencies>
                <pins>
-                  <pin peripheral="UART1" signal="RX" pin_num="2" pin_signal="LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault"/>
-                  <pin peripheral="UART1" signal="TX" pin_num="1" pin_signal="LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault"/>
-                  <pin peripheral="I2C0" signal="SCL" pin_num="31" pin_signal="PTE24/TPM0_CH0/I2C0_SCL"/>
-                  <pin peripheral="I2C0" signal="SDA" pin_num="32" pin_signal="PTE25/TPM0_CH1/I2C0_SDA"/>
+                  <pin peripheral="UART1" signal="RX" pin_num="2" pin_signal="LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="UART1" signal="TX" pin_num="1" pin_signal="LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="I2C0" signal="SCL" pin_num="31" pin_signal="PTE24/TPM0_CH0/I2C0_SCL">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                        <pin_feature name="pull_enable" value="disable"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="I2C0" signal="SDA" pin_num="32" pin_signal="PTE25/TPM0_CH1/I2C0_SDA">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                        <pin_feature name="pull_enable" value="disable"/>
+                     </pin_features>
+                  </pin>
                </pins>
             </function>
             <function name="BOARD_InitACCEL">
@@ -454,6 +472,16 @@
                         <data>INPUT</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="PinSignal" resourceId="OSC0.XTAL0" description="&apos;XTAL0&apos; (Pins tool id: OSC0.XTAL0, Clocks tool id: OSC.XTAL0) needs to be routed" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="routed" evaluation="">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="OSC0.XTAL0" description="&apos;XTAL0&apos; (Pins tool id: OSC0.XTAL0, Clocks tool id: OSC.XTAL0) needs to have &apos;OUTPUT&apos; direction" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="direction" evaluation="">
+                        <data>OUTPUT</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Clocks initialization requires the COMMON Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
                      <feature name="enabled" evaluation="equal" configuration="core0">
                         <data>true</data>
@@ -465,28 +493,46 @@
                </clock_sources>
                <clock_outputs>
                   <clock_output id="Bus_clock.outFreq" value="24 MHz" locked="false" accuracy=""/>
+                  <clock_output id="CLKOUT.outFreq" value="24 MHz" locked="true" accuracy="0.001"/>
                   <clock_output id="Core_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
+                  <clock_output id="ERCLK32K.outFreq" value="1 kHz" locked="false" accuracy=""/>
                   <clock_output id="Flash_clock.outFreq" value="24 MHz" locked="false" accuracy=""/>
                   <clock_output id="LPO_clock.outFreq" value="1 kHz" locked="false" accuracy=""/>
                   <clock_output id="OSCERCLK.outFreq" value="8 MHz" locked="false" accuracy=""/>
                   <clock_output id="PLLFLLCLK.outFreq" value="48 MHz" locked="false" accuracy=""/>
                   <clock_output id="System_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
-                  <clock_output id="UART0CLK.outFreq" value="48 MHz" locked="true" accuracy="0.001"/>
+                  <clock_output id="TPMCLK.outFreq" value="48 MHz" locked="false" accuracy=""/>
+                  <clock_output id="UART0CLK.outFreq" value="8 MHz" locked="true" accuracy="0.001"/>
+                  <clock_output id="USB48MCLK.outFreq" value="48 MHz" locked="false" accuracy=""/>
                </clock_outputs>
                <clock_settings>
                   <setting id="MCGMode" value="PEE" locked="false"/>
-                  <setting id="MCG.FLL_mul.scale" value="1464" locked="false"/>
+                  <setting id="CLKOUTConfig" value="yes" locked="false"/>
+                  <setting id="MCG.FCRDIV.scale" value="1" locked="true"/>
+                  <setting id="MCG.FLL_mul.scale" value="640" locked="true"/>
+                  <setting id="MCG.FRDIV.scale" value="32" locked="false"/>
+                  <setting id="MCG.IRCS.sel" value="MCG.FCRDIV" locked="false"/>
                   <setting id="MCG.IREFS.sel" value="MCG.FRDIV" locked="false"/>
                   <setting id="MCG.PLLS.sel" value="MCG.PLL" locked="false"/>
-                  <setting id="MCG.PRDIV.scale" value="2" locked="false"/>
+                  <setting id="MCG.PRDIV.scale" value="2" locked="true"/>
+                  <setting id="MCG.VDIV.scale" value="24" locked="true"/>
+                  <setting id="MCG_C2_OSC_MODE_CFG" value="ModeOscLowPower" locked="false"/>
+                  <setting id="MCG_C2_RANGE0_CFG" value="Very_high" locked="false"/>
+                  <setting id="MCG_C2_RANGE0_FRDIV_CFG" value="Very_high" locked="false"/>
                   <setting id="MCG_C5_PLLCLKEN0_CFG" value="Enabled" locked="false"/>
                   <setting id="OSC0_CR_ERCLKEN_CFG" value="Enabled" locked="false"/>
                   <setting id="OSC_CR_ERCLKEN_CFG" value="Enabled" locked="false"/>
+                  <setting id="SIM.CLKOUTSEL.sel" value="SIM.OUTDIV4" locked="false"/>
+                  <setting id="SIM.OSC32KSEL.sel" value="PMC.LPOCLK" locked="false"/>
                   <setting id="SIM.OUTDIV1.scale" value="2" locked="true"/>
                   <setting id="SIM.OUTDIV4.scale" value="2" locked="true"/>
                   <setting id="SIM.PLLFLLSEL.sel" value="SIM.MCGPLLCLK_DIV2" locked="false"/>
-                  <setting id="SIM.UART0SRCSEL.sel" value="SIM.PLLFLLSEL" locked="false"/>
+                  <setting id="SIM.TPMSRCSEL.sel" value="SIM.PLLFLLSEL" locked="false"/>
+                  <setting id="SIM.UART0SRCSEL.sel" value="OSC.OSCERCLK" locked="false"/>
+                  <setting id="SIM.USBSRCSEL.sel" value="SIM.PLLFLLSEL" locked="false"/>
+                  <setting id="TPMClkConfig" value="yes" locked="false"/>
                   <setting id="UART0ClkConfig" value="yes" locked="false"/>
+                  <setting id="USBClkConfig" value="yes" locked="false"/>
                </clock_settings>
                <called_from_default_init>true</called_from_default_init>
             </clock_configuration>
@@ -529,7 +575,8 @@
                   <setting id="MCG_C2_RANGE0_CFG" value="High" locked="false"/>
                   <setting id="MCG_C2_RANGE0_FRDIV_CFG" value="High" locked="false"/>
                   <setting id="SIM.OSC32KSEL.sel" value="PMC.LPOCLK" locked="false"/>
-                  <setting id="SIM.OUTDIV4.scale" value="5" locked="false"/>
+                  <setting id="SIM.OUTDIV4.scale" value="5" locked="true"/>
+                  <setting id="SIM.UART0SRCSEL.sel" value="MCG.MCGIRCLK" locked="false"/>
                </clock_settings>
                <called_from_default_init>false</called_from_default_init>
             </clock_configuration>
