@@ -13,7 +13,9 @@
 
 sdspi_card_t g_card;
 
-void InitSDSPI(void) {
+static void MountFileSystem(void);
+
+extern void sd_init(void) {
 //	g_card.host->base = SPI0; // Cambia esto si usas otro módulo SPI
 //	g_card.host->sourceClock_Hz = CLOCK_GetFreq(kCLOCK_BusClk);
 
@@ -23,6 +25,8 @@ void InitSDSPI(void) {
 		return;
 	}
 
+	MountFileSystem();
+
 	PRINTF("Tarjeta SD inicializada correctamente a través de SPI.\r\n");
 }
 
@@ -30,13 +34,27 @@ FATFS fileSystem;
 
 //const TCHAR driverNumberBuffer[3U] = { '0', ':', '/' };
 
-void MountFileSystem(void) {
+static void MountFileSystem(void) {
 	if (f_mount(&fileSystem, "", 0)) {
 		PRINTF("Fallo en el montaje del sistema de archivos.\r\n");
 		return;
 	}
 
 	PRINTF("Sistema de archivos montado correctamente.\r\n");
+}
+
+extern void sd_write(File_t file) {
+	UINT bytesWritten;
+
+//	if (f_open(&file.file_, _T(file.nameFile), FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
+	if (f_open(&file, _T("test.txt"), FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
+
+		f_write(&file.file_, file.buffer, sizeof(file.buffer), &bytesWritten);
+		f_close(&file.file_);
+		PRINTF("Escritura completa\r\n");
+	}
+
+	return;
 }
 
 void WriteReadSDCard(void) {
@@ -53,10 +71,11 @@ void WriteReadSDCard(void) {
 		PRINTF("Escritura completa: %s\r\n", writeBuffer);
 	}
 
-	// Lectura desde la tarjeta SD
-	if (f_open(&file, _T("test.txt"), FA_READ) == FR_OK) {
-		f_read(&file, readBuffer, sizeof(readBuffer), &bytesRead);
-		f_close(&file);
-		PRINTF("Lectura completa: %s\r\n", readBuffer);
-	}
+//	// Lectura desde la tarjeta SD
+//	if (f_open(&file, _T("test.txt"), FA_READ) == FR_OK) {
+//		f_read(&file, readBuffer, sizeof(readBuffer), &bytesRead);
+//		f_close(&file);
+//		PRINTF("Lectura completa: %s\r\n", readBuffer);
+//	}
 }
+

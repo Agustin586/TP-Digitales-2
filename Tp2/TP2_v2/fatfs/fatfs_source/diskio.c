@@ -41,8 +41,8 @@
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
-#include "ffconf.h"     /* FatFs configuration options */
-#include "diskio.h"     /* FatFs lower layer API */
+#include "fatfs/fatfs_include/ffconf.h"     /* FatFs configuration options */
+#include "fatfs/fatfs_include/diskio.h"     /* FatFs lower layer API */
 #ifdef RAM_DISK_ENABLE
 #include "fsl_ram_disk.h"
 #endif

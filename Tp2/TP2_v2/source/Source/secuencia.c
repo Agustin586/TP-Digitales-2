@@ -10,6 +10,7 @@
 #include "Include/MACROS.h"
 #include "Include/IntMma.h"
 #include "Include/nextion.h"
+#include "Include/sdcard.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -77,6 +78,7 @@ void timerRtos_TimerBlink(void *pvParameters);
 extern void taskSecuencia(void *pvparameters) {
 	mefSecuencia_init();
 	timerRtos_init();
+	InitSDSPI();
 
 	for (;;) {
 		mefSecuencia();
@@ -99,6 +101,9 @@ static void mefSecuencia(void) {
 	uint8_t longitud;
 	float NormaMaxima;
 	char buffer[LONGITUD_MAX_STRING];
+	FIL file_ejes;
+	File_t file = { .file_ = file_ejes, .nameFile = "DatosEjes.txt", .buffer =
+			"", };
 
 	switch (estMefSec) {
 	/* ============================================================
@@ -140,16 +145,26 @@ static void mefSecuencia(void) {
 		PRINTF("DATO LEIDO\r\n");
 		PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
 
-		sprintf(buffer,"%.2f",NormaMaxima);
+		sprintf(buffer, "%.2f", NormaMaxima);
 		nextion_text(TEXT_ID(0), buffer);
 
 		/*< ENVIA LA NORMA A LA PANTALLA >*/
 		queueRtos_receiveDatosEjes(DatosEjes, &longitud);
 
+		sprintf(file.buffer,"Eje X\t\tEje Y\t\tEje Z\r\n");
+		sd_write(file);
+
 		for (uint8_t dato = 0; dato < longitud; dato++) {
+			/*< Escritura en la pantalla >*/
 			nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
 					DatosEjes[dato].NormaCuad);
 			delay_ms(5);
+
+			/*< Escritura en la memoria sd >*/
+			sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
+					DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
+					DatosEjes[dato].ReadZ);
+			sd_write(file);
 		}
 
 		/* ================================================
