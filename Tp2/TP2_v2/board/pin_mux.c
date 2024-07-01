@@ -143,6 +143,8 @@ BOARD_InitPins:
 - pin_list:
   - {pin_num: '2', peripheral: UART1, signal: RX, pin_signal: LCD_P49/PTE1/SPI1_MOSI/UART1_RX/SPI1_MISO/I2C1_SCL/LCD_P49_Fault}
   - {pin_num: '1', peripheral: UART1, signal: TX, pin_signal: LCD_P48/PTE0/SPI1_MISO/UART1_TX/RTC_CLKOUT/CMP0_OUT/I2C1_SDA/LCD_P48_Fault}
+  - {pin_num: '31', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL}
+  - {pin_num: '32', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -163,6 +165,12 @@ void BOARD_InitPins(void)
 
     /* PORTE1 (pin 2) is configured as UART1_RX */
     PORT_SetPinMux(PORTE, 1U, kPORT_MuxAlt3);
+
+    /* PORTE24 (pin 31) is configured as I2C0_SCL */
+    PORT_SetPinMux(PORTE, 24U, kPORT_MuxAlt5);
+
+    /* PORTE25 (pin 32) is configured as I2C0_SDA */
+    PORT_SetPinMux(PORTE, 25U, kPORT_MuxAlt5);
 
     SIM->SOPT5 = ((SIM->SOPT5 &
                    /* Mask bits to zero which are setting */
