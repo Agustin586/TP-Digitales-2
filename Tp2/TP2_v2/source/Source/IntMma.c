@@ -23,19 +23,11 @@
 #define THS_FF_CUAD			THS_FF*THS_FF
 #define MAX_RANGE_2G_CUAD	200*200
 #define MAX_BUFFER			20
-#define MAX_QUEUE_LONG		100
 
 /*< VARIBALES >*/
 typedef enum {
 	EST_ISR_INT2_IDLE = 0, EST_ISR_INT2_RESET, EST_ISR_INT2_ADQ_DATOS,
 } estMefInt2_enum;
-
-typedef struct {
-	int16_t ReadX;
-	int16_t ReadY;
-	int16_t ReadZ;
-	uint32_t NormaCuad;
-} DatosMMA8451_t;
 
 static estMefInt2_enum estMefInt2;
 
@@ -207,31 +199,49 @@ extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
 	uint32_t read;
 
 	if (uxQueueMessagesWaiting(queueNormMax)) {
-		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100));	// No elimina el dato de la cola
+		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100));// No elimina el dato de la cola
 		return read;
 	}
 
 	return pdFALSE;
 }
 
-void PORTC_PORTD_IRQHandler(void){
+extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes,
+		uint8_t *longitud) {
+	*longitud = uxQueueMessagesWaiting(queueDatosEjes, DatosEjes,
+			pdMS_TO_TICKS(100));
+
+	if (*longitud != 0) {
+		xQueueReceive(queueDatosEjes, DatosEjes, pdMS_TO_TICKS(100));
+	} else {
+		PRINTF("No hay datos en la cola\r\n");
+	}
+
+	return;
+}
+
+void PORTC_PORTD_IRQHandler(void) {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	/* INTERRUPCION POR DATOS LISTOS */
-    if (PORT_GetPinsInterruptFlags(INT1_PORT)){
-    	xSemaphoreGiveFromISR((QueueHandle_t) DrdySemaphore, &xHigherPriorityTaskWoken);
-    	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptOrDMADisabled);
-    	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
-    }
+	if (PORT_GetPinsInterruptFlags(INT1_PORT)) {
+		xSemaphoreGiveFromISR((QueueHandle_t ) DrdySemaphore,
+				&xHigherPriorityTaskWoken);
+		PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN,
+				kPORT_InterruptOrDMADisabled);
+		PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+	}
 
-    /* INTERRUPCION POR FREEFALL */
-    if (PORT_GetPinsInterruptFlags(INT2_PORT)){
-    	xSemaphoreGiveFromISR((QueueHandle_t) FFSemaphore, &xHigherPriorityTaskWoken);
-    	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptOrDMADisabled);
-    	PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
-    }
+	/* INTERRUPCION POR FREEFALL */
+	if (PORT_GetPinsInterruptFlags(INT2_PORT)) {
+		xSemaphoreGiveFromISR((QueueHandle_t ) FFSemaphore,
+				&xHigherPriorityTaskWoken);
+		PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN,
+				kPORT_InterruptOrDMADisabled);
+		PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
+	}
 
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-    return;
+	return;
 }

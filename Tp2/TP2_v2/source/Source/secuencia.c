@@ -9,6 +9,7 @@
 #include "Include/secuencia.h"
 #include "Include/MACROS.h"
 #include "Include/IntMma.h"
+#include "Include/nextion.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "fsl_debug_console.h"
@@ -133,6 +134,8 @@ static void mefSecuencia(void) {
 		 * Deberia enviar todos los datos a la pantalla y a la
 		 * memoria sd.
 		 * */
+
+		for(uint8_t dato=0;dato<)
 
 		/* ================================================
 		 * DESCRIPCION: Finaliza la muestra de resultados.
