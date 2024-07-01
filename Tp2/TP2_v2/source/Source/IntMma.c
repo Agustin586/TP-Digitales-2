@@ -199,7 +199,7 @@ extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
 	uint32_t read;
 
 	if (uxQueueMessagesWaiting(queueNormMax)) {
-		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100));// No elimina el dato de la cola
+		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100)); // No elimina el dato de la cola
 		return read;
 	}
 
@@ -208,8 +208,7 @@ extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
 
 extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes,
 		uint8_t *longitud) {
-	*longitud = uxQueueMessagesWaiting(queueDatosEjes, DatosEjes,
-			pdMS_TO_TICKS(100));
+	*longitud = uxQueueMessagesWaiting(queueDatosEjes);
 
 	if (*longitud != 0) {
 		xQueueReceive(queueDatosEjes, DatosEjes, pdMS_TO_TICKS(100));

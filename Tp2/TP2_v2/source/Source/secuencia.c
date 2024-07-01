@@ -10,8 +10,9 @@
 #include "Include/MACROS.h"
 #include "Include/IntMma.h"
 #include "Include/nextion.h"
-#include "stdint.h"
-#include "stdbool.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include "fsl_debug_console.h"
 #include "math.h"
 
@@ -93,6 +94,12 @@ static void mefSecuencia_init(void) {
 }
 
 static void mefSecuencia(void) {
+#define LONGITUD_MAX_STRING	50
+	DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
+	uint8_t longitud;
+	float NormaMaxima;
+	char buffer[LONGITUD_MAX_STRING];
+
 	switch (estMefSec) {
 	/* ============================================================
 	 * DESCRIPCION: Secuencia de reposo. Se queda en este estado
@@ -105,7 +112,7 @@ static void mefSecuencia(void) {
 		LED_AZUL(ON);
 		LED_ROJO(OFF);
 
-		/* CAMBIO DE ESTADO */
+		/*< CAMBIO DE ESTADO >*/
 		if (intMma_getIFFreeFall()) {
 			LED_AZUL(OFF);
 			timerRtos_start(TIMER_10s);
@@ -127,15 +134,23 @@ static void mefSecuencia(void) {
 		 * al cuadrado.
 		 * ================================================
 		 * */
+		/*< IMPRIME LA NORMA MAXIMA >*/
+		NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
+
 		PRINTF("DATO LEIDO\r\n");
-		PRINTF("Norma Maxima:%.2f\r\n", sqrt((float)queueRtos_receiveNormaMaxCuad()) / 100.0);
+		PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
 
-		/*
-		 * Deberia enviar todos los datos a la pantalla y a la
-		 * memoria sd.
-		 * */
+		sprintf(buffer,"%.2f",NormaMaxima);
+		nextion_text(TEXT_ID(0), buffer);
 
-		for(uint8_t dato=0;dato<)
+		/*< ENVIA LA NORMA A LA PANTALLA >*/
+		queueRtos_receiveDatosEjes(DatosEjes, &longitud);
+
+		for (uint8_t dato = 0; dato < longitud; dato++) {
+			nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
+					DatosEjes[dato].NormaCuad);
+			delay_ms(5);
+		}
 
 		/* ================================================
 		 * DESCRIPCION: Finaliza la muestra de resultados.
@@ -152,6 +167,8 @@ static void mefSecuencia(void) {
 		estMefSec = EST_SECUENCIA_REPOSO;
 		break;
 	}
+
+	return;
 }
 
 static void timerRtos_init(void) {
