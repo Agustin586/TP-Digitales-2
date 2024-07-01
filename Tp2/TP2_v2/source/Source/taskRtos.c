@@ -12,6 +12,7 @@
 
 /*<Archivos de tareas>*/
 #include "Include/secuencia.h"
+#include "Include/nextion.h"
 #include "Include/IntMma.h"
 
 #define task_SECUENCIA_PRIORITY		tskIDLE_PRIORITY + 1
@@ -30,18 +31,18 @@ typedef struct {
 } TaskConfig_t;
 
 static const TaskConfig_t taskConfigs[NUM_TASK] = {
-//	{taskRtosUART1, "task Uart1", STACK_SIZE_GENERAL, NULL, task_UART1_PRIORITY},
+	{taskRtos_UART1, "task Uart1", STACK_SIZE_GENERAL, NULL, task_UART1_PRIORITY},
     {taskRtos_INTFF, "task Freefall", STACK_SIZE_GENERAL, NULL, task_INTFF_PRIORITY},
 	{taskRtos_INTDRDY, "task Ready", STACK_SIZE_GENERAL, NULL, task_INTDRDY_PRIORITY},
     {taskSecuencia, "task Secuencia", STACK_SIZE_GENERAL, NULL, task_SECUENCIA_PRIORITY},
 };
 
 extern void taskRtos_create(void) {
-//	if (xTaskCreate(taskConfigs[TASK_ISR_UART1].taskFunction, taskConfigs[TASK_ISR_UART1].taskName,
-//					taskConfigs[TASK_ISR_UART1].stackDepth,
-//					taskConfigs[TASK_ISR_UART1].pvParameters, taskConfigs[TASK_ISR_UART1].priority,
-//					NULL) != pdPASS)
-//		while(1);
+	if (xTaskCreate(taskConfigs[TASK_ISR_UART1].taskFunction, taskConfigs[TASK_ISR_UART1].taskName,
+					taskConfigs[TASK_ISR_UART1].stackDepth,
+					taskConfigs[TASK_ISR_UART1].pvParameters, taskConfigs[TASK_ISR_UART1].priority,
+					NULL) != pdPASS)
+		while(1);
 	if (xTaskCreate(taskConfigs[TASK_INT_FF].taskFunction, taskConfigs[TASK_INT_FF].taskName,
 					taskConfigs[TASK_INT_FF].stackDepth,
 					taskConfigs[TASK_INT_FF].pvParameters, taskConfigs[TASK_INT_FF].priority,

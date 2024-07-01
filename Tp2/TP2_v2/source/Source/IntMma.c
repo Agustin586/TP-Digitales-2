@@ -233,18 +233,5 @@ void PORTC_PORTD_IRQHandler(void){
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-    /* ====================================================================================================================
-     * NOTA: Detectamos la interrupcion por algunos de los casos, pero a la vez deshabilitamos las interrupciones por ese
-     * pin hasta que sea procesada la interrupcion en la mefAcelerometro.
-     * ====================================================================================================================
-     *  */
-
-    /* ====================================================================================================================
-	 * NOTA 2: Debido a problemas que se presentaron y que tuvieron solución desde las 7 de la mañana se tuvo que corregir
-	 * la lógica de la obtención de datos y ahora se toman directamente sobre este interrupción. Resultados: anda mucho
-	 * que la otra lógica. Posdata: le pegué tremenda pata a la pared. Posposdata: Quiero mis cariñosas. Saludos.
-	 * ====================================================================================================================
-	 *  */
-
     return;
 }
