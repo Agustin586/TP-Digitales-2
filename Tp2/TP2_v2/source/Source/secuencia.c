@@ -11,6 +11,7 @@
 #include "Include/IntMma.h"
 #include "Include/nextion.h"
 #include "Include/sdcard.h"
+#include "fatfs/fatfs_include/ff.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -78,7 +79,6 @@ void timerRtos_TimerBlink(void *pvParameters);
 extern void taskSecuencia(void *pvparameters) {
 	mefSecuencia_init();
 	timerRtos_init();
-	InitSDSPI();
 
 	for (;;) {
 		mefSecuencia();
