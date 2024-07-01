@@ -39,6 +39,7 @@
 #include "clock_config.h"
 #include "MKL46Z4.h"
 #include "fsl_debug_console.h"
+#include "Include/energia.h"
 /* TODO: insert other include files here. */
 #include "Include/taskRtos.h"
 #include "FreeRTOS.h"
@@ -61,6 +62,8 @@ int main(void) {
     PRINTF("Acelerometro -- Zuliani, Agustin y Ballin, Tomas\r\n");
 
     taskRtos_create();
+
+    energia_SetClockVlpr();
 
     vTaskStartScheduler();
 

@@ -63,7 +63,7 @@ static bool Fin_Freefall(uint32_t buffer[], uint8_t max_indice);
 static void clrBuffer(uint32_t buffer[], uint8_t max_indice);
 
 extern void taskRtos_INTFF(void *pvParameters) {
-	PRINTF("Tarea: Interrupcion FreeFall\r\n");
+//	PRINTF("Tarea: Interrupcion FreeFall\r\n");
 	FFSemaphore = xSemaphoreCreateBinary();
 	if (FFSemaphore == NULL)
 		vTaskDelete(NULL);
@@ -83,7 +83,7 @@ extern void taskRtos_INTFF(void *pvParameters) {
 }
 
 extern void taskRtos_INTDRDY(void *pvParameters) {
-	PRINTF("Tarea: Interrucion Dato Listo\r\n");
+//	PRINTF("Tarea: Interrucion Dato Listo\r\n");
 	DrdySemaphore = xSemaphoreCreateBinary();
 	if (DrdySemaphore == NULL)
 		vTaskDelete(NULL);
