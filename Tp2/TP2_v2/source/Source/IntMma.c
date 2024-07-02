@@ -280,6 +280,12 @@ extern bool intMma_getIFFreeFall(void) {
 	return IF_FinFreefall;
 }
 
+extern void intMma_clrIFFreeFall(void) {
+	IF_FinFreefall = false;
+
+	return;
+}
+
 extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
 	uint32_t read;
 

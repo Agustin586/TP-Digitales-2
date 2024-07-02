@@ -27,6 +27,7 @@ typedef struct {
 extern void taskRtos_INTFF(void *pvParameters);
 extern void taskRtos_INTDRDY(void *pvParameters);
 extern bool intMma_getIFFreeFall(void);
+extern void intMma_clrIFFreeFall(void);
 extern uint32_t queueRtos_receiveNormaMaxCuad(void);
 extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes, uint8_t *longitud);
 

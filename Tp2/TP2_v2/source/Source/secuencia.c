@@ -37,6 +37,8 @@ static estMefSec_enum estMefSec;
 
 static FIL file_ejes;
 static File_t file;
+static DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
+static float NormaMaxima;
 
 /*< Timers Handlers >*/
 TimerHandle_t Timer10s, TimerBlink;
@@ -107,11 +109,9 @@ static void mefSecuencia_init(void) {
 
 static void mefSecuencia(void) {
 #define LONGITUD_MAX_STRING	20
-	static DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
 	static uint8_t longitud;
 	static char buffer[LONGITUD_MAX_STRING];
 	static bool Flag = false;
-	static float NormaMaxima;
 
 	/*
 	 * NOTA: El tipo de variables File_t ocupa mucha ram por lo tanto
@@ -167,8 +167,8 @@ static void mefSecuencia(void) {
 			/*< ENVIA LA NORMA A LA PANTALLA >*/
 			queueRtos_receiveDatosEjes(DatosEjes, &longitud);
 
-			sprintf(file.buffer, "Eje X\t\tEje Y\t\tEje Z\r\n");
-			sd_write(file);
+//			sprintf(file.buffer, "Eje X\t\tEje Y\t\tEje Z\r\n");
+//			sd_write(file);
 
 			for (uint8_t dato = 0; dato < longitud; dato++) {
 				/*< Escritura en la pantalla >*/
@@ -177,10 +177,10 @@ static void mefSecuencia(void) {
 				delay_ms(5);
 
 				/*< Escritura en la memoria sd >*/
-				sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
-						DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
-						DatosEjes[dato].ReadZ);
-				sd_write(file);
+//				sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
+//						DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
+//						DatosEjes[dato].ReadZ);
+//				sd_write(file);
 			}
 		}
 
@@ -192,6 +192,7 @@ static void mefSecuencia(void) {
 			Flag = false;
 			timerRtos_stop(TIMER_10s);
 			timerRtos_stop(TIMER_BLINK);
+			intMma_clrIFFreeFall();
 			estMefSec = EST_SECUENCIA_REPOSO;
 		}
 
