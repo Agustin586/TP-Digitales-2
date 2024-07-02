@@ -42,7 +42,7 @@ static File_t file;
 TimerHandle_t Timer10s, TimerBlink;
 
 /*< Banderas >*/
-bool F_timer10s = false;
+static bool F_timer10s = false;
 
 /*< FUNCIONES >*/
 

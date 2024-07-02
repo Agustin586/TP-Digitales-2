@@ -452,7 +452,7 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 70;		// Cuentas antes de la interrupción
+	ff_mt_count.D = 50;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////
