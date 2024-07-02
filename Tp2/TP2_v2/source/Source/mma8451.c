@@ -166,6 +166,21 @@ typedef union {
 
 #define FF_MT_SRC_ADDRESS 	0x16
 
+/////////////////////////////////////////
+typedef union {
+	struct {
+		unsigned FS0:1;
+		unsigned FS1:1;
+		unsigned :2;
+		unsigned HPF_OUT:1;
+		unsigned :3;
+	};
+	uint8_t data;
+} XYZ_DATA_CFG_t;
+
+#define XYZ_DATA_CFG_ADDRESS 0x0E
+/////////////////////////////////////////
+
 #define INT_SOURCE_ADDRESS	0X0C
 #define STATUS_ADDRESS      0X00
 
@@ -342,15 +357,15 @@ void mma8451_setDataRate(DR_enum rate) {
 }
 
 int16_t mma8451_getAcX(void) {
-	return (int16_t) (((int32_t) readX * 100) / (int32_t) 4096);
+	return (int16_t) (((int32_t) readX * 400) / (int32_t) 4096);
 }
 
 int16_t mma8451_getAcY(void) {
-	return (int16_t) (((int32_t) readY * 100) / (int32_t) 4096);
+	return (int16_t) (((int32_t) readY * 400) / (int32_t) 4096);
 }
 
 int16_t mma8451_getAcZ(void) {
-	return (int16_t) (((int32_t) readZ * 100) / (int32_t) 4096);
+	return (int16_t) (((int32_t) readZ * 400) / (int32_t) 4096);
 }
 
 uint32_t mma8451_cuadNorm(void) {
@@ -482,8 +497,19 @@ void mma8451_DRDYinit(void) {
 //	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
+	XYZ_DATA_CFG_t xyz_data_cfg;
 
 	mma8451_desactivar();
+
+	/* XYZ DATA CONFIG */
+	////////////////////////////////////////////////////////////////////////////////////
+	xyz_data_cfg.FS0 = 0; // 1;  // => 4g
+	xyz_data_cfg.FS1 = 1; // 0;  //
+	xyz_data_cfg.HPF_OUT = 0;
+
+	mma8451_write_reg(XYZ_DATA_CFG_ADDRESS, xyz_data_cfg.data);
+	xyz_data_cfg.data = mma8451_read_reg(XYZ_DATA_CFG_ADDRESS);
+	////////////////////////////////////////////////////////////////////////////////////
 
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
