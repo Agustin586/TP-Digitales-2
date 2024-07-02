@@ -146,7 +146,19 @@ typedef union {
 
 #define FF_MT_CFG_ADDRESS 0x15
 /////////////////////////////////////////
+typedef union {
+	struct {
+		unsigned FS0:1;
+		unsigned FS1:1;
+		unsigned :2;
+		unsigned HPF_OUT:1;
+		unsigned :3;
+	};
+	uint8_t data;
+} XYZ_DATA_CFG_t;
 
+#define XYZ_DATA_CFG_ADDRESS 0x0E
+/////////////////////////////////////////
 typedef union {
 	struct {
 		unsigned D :8;
@@ -368,6 +380,7 @@ void mma8451_FFinit(void) {
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
 
+
 	mma8451_desactivar();
 
 //	mma8451_write_reg(0x2A, 0X20);
@@ -478,8 +491,19 @@ void mma8451_DRDYinit(void) {
 //	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
+	XYZ_DATA_CFG_t xyz_data_cfg;
 
 	mma8451_desactivar();
+
+	/* XYZ DATA CONFIG */
+	////////////////////////////////////////////////////////////////////////////////////
+	xyz_data_cfg.FS0 = 1;  // => 4g
+	xyz_data_cfg.FS1 = 0;  //
+	xyz_data_cfg.HPF_OUT = 0;
+
+	mma8451_write_reg(XYZ_DATA_CFG_ADRESS, xyz_data_cfg.data);
+	xyz_data_cfg.data = mma8451_read_reg(XYZ_DATA_CFG_ADRESS);
+	////////////////////////////////////////////////////////////////////////////////////
 
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
@@ -533,6 +557,12 @@ void mma8451_enableDRDYInt(void) {
 
 	mma8451_activar();
 
+<<<<<<< Updated upstream
+=======
+	/* Habilita la interrupcion por int2 en el micro */
+	// PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
+
+>>>>>>> Stashed changes
 	return;
 }
 
