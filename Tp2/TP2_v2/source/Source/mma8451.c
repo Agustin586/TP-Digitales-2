@@ -389,16 +389,6 @@ void mma8451_FFinit(void) {
 
 	mma8451_desactivar();
 
-//	mma8451_write_reg(0x2A, 0X20);
-//	mma8451_write_reg(0x15, 0XB8);
-//	mma8451_write_reg(0x17, 0X03);
-//	mma8451_write_reg(0x18, 0X0A);
-//	mma8451_write_reg(0x2D, 0X04);
-//	mma8451_write_reg(0x2E, 0X00);
-//
-//	mma8451_read_reg(CTRL_REG4_ADDRESS);
-//	mma8451_write_reg(0x2A, 0X00);
-
 	/* REGISTRO 1 */
 	////////////////////////////////////////////////////////////////////////////////////
 	ctrl_reg1.ACTIVE = 0; // Aca se pasa al MMA a modo activo.
@@ -503,8 +493,8 @@ void mma8451_DRDYinit(void) {
 
 	/* XYZ DATA CONFIG */
 	////////////////////////////////////////////////////////////////////////////////////
-	xyz_data_cfg.FS0 = 0; // 1;  // => 4g
-	xyz_data_cfg.FS1 = 1; // 0;  //
+	xyz_data_cfg.FS0 = 0;  // => 8g
+	xyz_data_cfg.FS1 = 1;  //
 	xyz_data_cfg.HPF_OUT = 0;
 
 	mma8451_write_reg(XYZ_DATA_CFG_ADDRESS, xyz_data_cfg.data);
