@@ -80,6 +80,8 @@ extern void taskSecuencia(void *pvparameters) {
 
 	for (;;) {
 		mefSecuencia();
+
+		delay_ms(10);
 //		PRINTF("Tarea Secuencia!!!\r\n");
 //		delay_ms(500);
 	}
@@ -100,7 +102,6 @@ static void mefSecuencia_init(void) {
 	 * el scheduler.
 	 * */
 //	timerRtos_init();
-
 	return;
 }
 
@@ -157,7 +158,7 @@ static void mefSecuencia(void) {
 			/*< IMPRIME LA NORMA MAXIMA >*/
 			NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
 
-			PRINTF("DATO LEIDO\r\n");
+			PRINTF("> Dato leido\n");
 			PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
 
 			sprintf(buffer, "%.2f", NormaMaxima);
@@ -204,15 +205,20 @@ static void mefSecuencia(void) {
 }
 
 extern void timerRtos_init(void) {
-	if (xTimerCreate("timer 10s", pdMS_TO_TICKS(10000), pdFALSE, NULL,
-			timerRtos_Timer10s) == NULL){
+	Timer10s = xTimerCreate("timer 10s", pdMS_TO_TICKS(10000), pdFALSE, NULL,
+			timerRtos_Timer10s);
+	if (Timer10s == NULL) {
 		PRINTF("Error al crear un timer\r\n");
-		while(1);
+		while (1)
+			;
 	}
-	if (xTimerCreate("timer blink", pdMS_TO_TICKS(500), pdTRUE, NULL,
-			timerRtos_TimerBlink) == NULL){
+
+	TimerBlink = xTimerCreate("timer blink", pdMS_TO_TICKS(500), pdTRUE, NULL,
+				timerRtos_TimerBlink);
+	if (TimerBlink == NULL) {
 		PRINTF("Error al crear un timer\r\n");
-		while(1);
+		while (1)
+			;
 	}
 
 	return;
@@ -221,10 +227,12 @@ extern void timerRtos_init(void) {
 static void timerRtos_start(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStart(Timer10s, pdMS_TO_TICKS(10));
+		if (xTimerStart(Timer10s, pdMS_TO_TICKS(10)) != pdPASS)
+			PRINTF("Error al iniciar el timer\r\n");
 		break;
 	case TIMER_BLINK:
-		xTimerStart(TimerBlink, pdMS_TO_TICKS(10));
+		if (xTimerStart(TimerBlink, pdMS_TO_TICKS(10)) != pdPASS)
+			PRINTF("Error al iniciar el timer\r\n");
 		break;
 	default:
 		PRINTF("Error al iniciar un timer\r\n");

@@ -145,7 +145,7 @@ extern void taskRtos_INTDRDY(void *pvParameters) {
 
 	for (;;) {
 		if (xSemaphoreTake(DrdySemaphore, portMAX_DELAY)) {
-			PRINTF("Dato Listo!!!\r\n");
+//			PRINTF("Dato Listo!!!\r\n");
 			mefIntDRDY();
 			activar_intDRDY();
 		}
@@ -232,7 +232,7 @@ static void mefIntDRDY(void) {
 		ReadEjes.ReadZ = mma8451_getAcZ();
 		ReadEjes.NormaCuad = ReadNorma; /*< En la pantalla debemos hacer la raiz cuadrada >*/
 
-		PRINTF("Eje X: %d\r\n", ReadEjes.ReadX);
+		PRINTF("\r\nEje X: %d\r\n", ReadEjes.ReadX);
 		PRINTF("Eje Y: %d\r\n", ReadEjes.ReadY);
 		PRINTF("Eje Z: %d\r\n", ReadEjes.ReadZ);
 
