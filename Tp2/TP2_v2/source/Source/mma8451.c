@@ -146,19 +146,7 @@ typedef union {
 
 #define FF_MT_CFG_ADDRESS 0x15
 /////////////////////////////////////////
-typedef union {
-	struct {
-		unsigned FS0:1;
-		unsigned FS1:1;
-		unsigned :2;
-		unsigned HPF_OUT:1;
-		unsigned :3;
-	};
-	uint8_t data;
-} XYZ_DATA_CFG_t;
 
-#define XYZ_DATA_CFG_ADDRESS 0x0E
-/////////////////////////////////////////
 typedef union {
 	struct {
 		unsigned D :8;
@@ -176,35 +164,39 @@ typedef union {
 	uint8_t data;
 } FF_MT_SRC_t; //solo lectura
 
-#define FF_MT_SRC_ADDRESS 0x16
+#define FF_MT_SRC_ADDRESS 	0x16
 
-#define INT_SOURCE_ADDRESS   0X0C
-#define STATUS_ADDRESS       0X00
+#define INT_SOURCE_ADDRESS	0X0C
+#define STATUS_ADDRESS      0X00
+
+#define I2C_DATA_LENGTH		20
 
 volatile static int16_t readX, readY, readZ;
 
-static uint8_t mma8451_read_reg(uint8_t addr) {
- i2c_rtos_handle_t master_rtos_handle;
-	i2c_master_transfer_t masterXfer;
-	uint8_t ret;
+static uint8_t rx_buffer;
+static uint8_t tx_buffer;
+static i2c_master_transfer_t masterXfer;
 
+static uint8_t mma8451_read_reg(uint8_t addr) {
 	memset(&masterXfer, 0, sizeof(masterXfer));
+
 	masterXfer.slaveAddress = MMA8451_I2C_ADDRESS;
 	masterXfer.direction = kI2C_Read;
 	masterXfer.subaddress = addr;
 	masterXfer.subaddressSize = 1;
-	masterXfer.data = &ret;
+	masterXfer.data = &rx_buffer;
 	masterXfer.dataSize = 1;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
+	i2cRtos_xtransfer(masterXfer);
 
-	return ret;
+	return rx_buffer;
 }
 
 static void mma8451_write_reg(uint8_t addr, uint8_t data) {
-	i2c_rtos_handle_t master_rtos_handle;
-	i2c_master_transfer_t masterXfer;
+	/*< Definimos una buffer statico para no perder el puntero
+	 * del dato por el no blocking >*/
+	tx_buffer = data;
 
 	memset(&masterXfer, 0, sizeof(masterXfer));
 
@@ -212,11 +204,13 @@ static void mma8451_write_reg(uint8_t addr, uint8_t data) {
 	masterXfer.direction = kI2C_Write;
 	masterXfer.subaddress = addr;
 	masterXfer.subaddressSize = 1;
-	masterXfer.data = &data;
+	masterXfer.data = &tx_buffer;
 	masterXfer.dataSize = 1;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
+	i2cRtos_xtransfer(masterXfer);
+
+	return;
 }
 
 static void config_port_int1(void) {
@@ -239,7 +233,7 @@ static void config_port_int1(void) {
 
 	/* Interrupt polarity active high, or active low. Default value: 0.
 	 0: Active low; 1: Active high. VER REGISTRO CTRL_REG3 */
-	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
+//	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
 	NVIC_EnableIRQ(PORTC_PORTD_IRQn);
 	NVIC_SetPriority(PORTC_PORTD_IRQn, 0);
@@ -272,19 +266,17 @@ static void config_port_int2(void) {
 }
 
 extern void mma8451_init(void) {
-	/* CONFIG I2C */
+	/*< Configuraciones del i2c >*/
 	i2cRtos_init();
 
-	/* CONFIG DRDY Y FREEFALL */
+	/*< Configuraciones del mma8451 >*/
 	mma8451_DRDYinit();
 	mma8451_FFinit();
-
-	/* HABILITACIÓN DEL ACELEROMETRO */
-	mma8451_setDataRate(DR_800hz);
+	mma8451_setDataRate(DR_400hz);
 	mma8451_activar();
 
-	/* CONFIG GPIOS */
-//	config_port_int1();
+	/*< Configuraciones de los pines >*/
+	config_port_int1();
 	config_port_int2();
 
 	return;
@@ -311,10 +303,8 @@ extern void mma8451_desactivar(void) {
 }
 
 static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size) {
-	i2c_rtos_handle_t master_rtos_handle;
-	i2c_master_transfer_t masterXfer;
-
 	memset(&masterXfer, 0, sizeof(masterXfer));
+
 	masterXfer.slaveAddress = MMA8451_I2C_ADDRESS;
 	masterXfer.direction = kI2C_Read;
 	masterXfer.subaddress = addr;
@@ -323,7 +313,9 @@ static void mma8451_read_mult_reg(uint8_t addr, uint8_t *pBuf, size_t size) {
 	masterXfer.dataSize = size;
 	masterXfer.flags = kI2C_TransferDefaultFlag;
 
-	I2C_RTOS_Transfer(&master_rtos_handle, &masterXfer);
+	i2cRtos_xtransfer(masterXfer);
+
+	return;
 }
 
 void mma8451_setDataRate(DR_enum rate) {
@@ -379,7 +371,6 @@ void mma8451_FFinit(void) {
 	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
-
 
 	mma8451_desactivar();
 
@@ -461,7 +452,7 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 70;		// Cuentas antes de la interrupción
+	ff_mt_count.D = 50;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////
@@ -491,19 +482,8 @@ void mma8451_DRDYinit(void) {
 //	CTRL_REG1_t ctrl_reg1;
 	CTRL_REG4_t ctrl_reg4;
 	CTRL_REG5_t ctrl_reg5;
-	XYZ_DATA_CFG_t xyz_data_cfg;
 
 	mma8451_desactivar();
-
-	/* XYZ DATA CONFIG */
-	////////////////////////////////////////////////////////////////////////////////////
-	xyz_data_cfg.FS0 = 1;  // => 4g
-	xyz_data_cfg.FS1 = 0;  //
-	xyz_data_cfg.HPF_OUT = 0;
-
-	mma8451_write_reg(XYZ_DATA_CFG_ADDRESS, xyz_data_cfg.data);
-	xyz_data_cfg.data = mma8451_read_reg(XYZ_DATA_CFG_ADDRESS);
-	////////////////////////////////////////////////////////////////////////////////////
 
 	/* REGISTRO 4 */
 	////////////////////////////////////////////////////////////////////////////////////
@@ -558,7 +538,7 @@ void mma8451_enableDRDYInt(void) {
 	mma8451_activar();
 
 	/* Habilita la interrupcion por int2 en el micro */
-	// PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
+//	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
 	return;
 }

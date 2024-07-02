@@ -10,6 +10,8 @@
 #include "Include/MACROS.h"
 #include "Include/IntMma.h"
 #include "Include/nextion.h"
+#include "Include/sdcard.h"
+#include "fatfs/fatfs_include/ff.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -33,11 +35,14 @@ typedef enum {
 static uint32_t ValNorma_Max = 0;
 static estMefSec_enum estMefSec;
 
+static FIL file_ejes;
+static File_t file;
+
 /*< Timers Handlers >*/
 TimerHandle_t Timer10s, TimerBlink;
 
 /*< Banderas >*/
-bool F_timer10s = false;
+static bool F_timer10s = false;
 
 /*< FUNCIONES >*/
 
@@ -50,11 +55,6 @@ static void mefSecuencia(void);
  * @brief	Inicializacion de la mef secuencia
  * */
 static void mefSecuencia_init(void);
-
-/*
- * @brief	Inicializa todos los timer de rtos
- * */
-static void timerRtos_init(void);
 
 /*
  * @brief	Inicia el timer por argumento
@@ -71,15 +71,17 @@ static void timerRtos_start(TimerID_t timerID);
 static void timerRtos_stop(TimerID_t timerID);
 
 /*< CALLBACKs >*/
-void timerRtos_Timer10s(void *pvParameters);
-void timerRtos_TimerBlink(void *pvParameters);
+static void timerRtos_Timer10s(TimerHandle_t xTimer);
+static void timerRtos_TimerBlink(TimerHandle_t xTimer);
 
 extern void taskSecuencia(void *pvparameters) {
+	PRINTF("> Tarea: Secuencia\r\n");
 	mefSecuencia_init();
-	timerRtos_init();
 
 	for (;;) {
 		mefSecuencia();
+//		PRINTF("Tarea Secuencia!!!\r\n");
+//		delay_ms(500);
 	}
 
 	vTaskDelete(NULL);
@@ -90,15 +92,31 @@ static void mefSecuencia_init(void) {
 	estMefSec = EST_SECUENCIA_REPOSO;
 	ValNorma_Max = 0;
 
+	file.file_ = file_ejes;
+	file.nameFile = "DatosEjes.txt";
+
+	/*
+	 * NOTA: Los timers se crean antes de iniciar
+	 * el scheduler.
+	 * */
+//	timerRtos_init();
+
 	return;
 }
 
 static void mefSecuencia(void) {
-#define LONGITUD_MAX_STRING	50
-	DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
-	uint8_t longitud;
-	float NormaMaxima;
-	char buffer[LONGITUD_MAX_STRING];
+#define LONGITUD_MAX_STRING	20
+	static DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
+	static uint8_t longitud;
+	static char buffer[LONGITUD_MAX_STRING];
+	static bool Flag = false;
+	static float NormaMaxima;
+
+	/*
+	 * NOTA: El tipo de variables File_t ocupa mucha ram por lo tanto
+	 * debemos tenerlo en cuenta a la hora de crear la tarea secuencia.
+	 *
+	 * */
 
 	switch (estMefSec) {
 	/* ============================================================
@@ -115,8 +133,8 @@ static void mefSecuencia(void) {
 		/*< CAMBIO DE ESTADO >*/
 		if (intMma_getIFFreeFall()) {
 			LED_AZUL(OFF);
-			timerRtos_start(TIMER_10s);
 			timerRtos_start(TIMER_BLINK);
+			timerRtos_start(TIMER_10s);
 			estMefSec = EST_SECUENCIA_RESULTADO;		// Cambia de estado
 		}
 
@@ -134,22 +152,35 @@ static void mefSecuencia(void) {
 		 * al cuadrado.
 		 * ================================================
 		 * */
-		/*< IMPRIME LA NORMA MAXIMA >*/
-		NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
+		if (!Flag) {
+			Flag = true;
+			/*< IMPRIME LA NORMA MAXIMA >*/
+			NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
 
-		PRINTF("DATO LEIDO\r\n");
-		PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
+			PRINTF("DATO LEIDO\r\n");
+			PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
 
-		sprintf(buffer,"%.2f",NormaMaxima);
-		nextion_text(TEXT_ID(0), buffer);
+			sprintf(buffer, "%.2f", NormaMaxima);
+			nextion_text(TEXT_ID(0), buffer);
 
-		/*< ENVIA LA NORMA A LA PANTALLA >*/
-		queueRtos_receiveDatosEjes(DatosEjes, &longitud);
+			/*< ENVIA LA NORMA A LA PANTALLA >*/
+			queueRtos_receiveDatosEjes(DatosEjes, &longitud);
 
-		for (uint8_t dato = 0; dato < longitud; dato++) {
-			nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
-					DatosEjes[dato].NormaCuad);
-			delay_ms(5);
+			sprintf(file.buffer, "Eje X\t\tEje Y\t\tEje Z\r\n");
+			sd_write(file);
+
+			for (uint8_t dato = 0; dato < longitud; dato++) {
+				/*< Escritura en la pantalla >*/
+				nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
+						DatosEjes[dato].NormaCuad);
+				delay_ms(5);
+
+				/*< Escritura en la memoria sd >*/
+				sprintf(file.buffer, "%.2f\t\t%.2f\t\t%.2f\r\n",
+						DatosEjes[dato].ReadX, DatosEjes[dato].ReadY,
+						DatosEjes[dato].ReadZ);
+				sd_write(file);
+			}
 		}
 
 		/* ================================================
@@ -157,6 +188,7 @@ static void mefSecuencia(void) {
 		 * ================================================
 		 * */
 		if (F_timer10s || board_getSw(SW1)) {
+			Flag = false;
 			timerRtos_stop(TIMER_10s);
 			timerRtos_stop(TIMER_BLINK);
 			estMefSec = EST_SECUENCIA_REPOSO;
@@ -171,13 +203,17 @@ static void mefSecuencia(void) {
 	return;
 }
 
-static void timerRtos_init(void) {
+extern void timerRtos_init(void) {
 	if (xTimerCreate("timer 10s", pdMS_TO_TICKS(10000), pdFALSE, NULL,
-			timerRtos_Timer10s) == NULL)
+			timerRtos_Timer10s) == NULL){
 		PRINTF("Error al crear un timer\r\n");
+		while(1);
+	}
 	if (xTimerCreate("timer blink", pdMS_TO_TICKS(500), pdTRUE, NULL,
-			timerRtos_TimerBlink) == NULL)
+			timerRtos_TimerBlink) == NULL){
 		PRINTF("Error al crear un timer\r\n");
+		while(1);
+	}
 
 	return;
 }
@@ -185,10 +221,10 @@ static void timerRtos_init(void) {
 static void timerRtos_start(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStart(Timer10s, pdMS_TO_TICKS(100));
+		xTimerStart(Timer10s, pdMS_TO_TICKS(10));
 		break;
 	case TIMER_BLINK:
-		xTimerStart(TimerBlink, pdMS_TO_TICKS(100));
+		xTimerStart(TimerBlink, pdMS_TO_TICKS(10));
 		break;
 	default:
 		PRINTF("Error al iniciar un timer\r\n");
@@ -212,13 +248,13 @@ static void timerRtos_stop(TimerID_t timerID) {
 	}
 }
 
-void timerRtos_Timer10s(void *pvParameters) {
+static void timerRtos_Timer10s(TimerHandle_t xTimer) {
 	F_timer10s = true;
 
 	return;
 }
 
-void timerRtos_TimerBlink(void *pvParameters) {
+static void timerRtos_TimerBlink(TimerHandle_t xTimer) {
 	LED_ROJO(TOGGLE);
 
 	return;

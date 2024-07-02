@@ -124,7 +124,7 @@ uint32_t energia_GetClock(void) {
 
 void energia_init(void) {
 	/* Init board hardware. */
-	BOARD_InitBootClocks();
+//	BOARD_InitBootClocks();
 
 	// Se habilita el poder usar todos los modos de consumo.
 	SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
