@@ -35,6 +35,9 @@ typedef enum {
 static uint32_t ValNorma_Max = 0;
 static estMefSec_enum estMefSec;
 
+static FIL file_ejes;
+static File_t file;
+
 /*< Timers Handlers >*/
 TimerHandle_t Timer10s, TimerBlink;
 
@@ -95,25 +98,25 @@ static void mefSecuencia_init(void) {
 	estMefSec = EST_SECUENCIA_REPOSO;
 	ValNorma_Max = 0;
 
+	file.file_ = file_ejes;
+	file.nameFile = "DatosEjes.txt";
+
 	return;
 }
 
 static void mefSecuencia(void) {
-#define LONGITUD_MAX_STRING	50
-	DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
-	uint8_t longitud;
-	float NormaMaxima;
-	char buffer[LONGITUD_MAX_STRING];
-	FIL file_ejes;
+#define LONGITUD_MAX_STRING	20
+	static DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
+	static uint8_t longitud;
+	static char buffer[LONGITUD_MAX_STRING];
+	static bool Flag = false;
+	static float NormaMaxima;
 
 	/*
 	 * NOTA: El tipo de variables File_t ocupa mucha ram por lo tanto
 	 * debemos tenerlo en cuenta a la hora de crear la tarea secuencia.
 	 *
 	 * */
-	File_t file = { .file_ = file_ejes, .nameFile = "DatosEjes.txt", .buffer =
-			"", };
-	static bool Flag = false;
 
 	switch (estMefSec) {
 	/* ============================================================

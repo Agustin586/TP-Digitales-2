@@ -32,9 +32,9 @@ typedef struct {
 
 static const TaskConfig_t taskConfigs[NUM_TASK] = {
 	{taskRtos_UART1, "task Uart1", STACK_SIZE_GENERAL, NULL, task_UART1_PRIORITY},
-    {taskRtos_INTFF, "task Freefall", STACK_SIZE_GENERAL, NULL, task_INTFF_PRIORITY},
-	{taskRtos_INTDRDY, "task Ready", STACK_SIZE_GENERAL+100, NULL, task_INTDRDY_PRIORITY},
-    {taskSecuencia, "task Secuencia", STACK_SIZE_GENERAL+100, NULL, task_SECUENCIA_PRIORITY},
+    {taskRtos_INTFF, "task Freefall", STACK_SIZE_GENERAL+50, NULL, task_INTFF_PRIORITY},
+	{taskRtos_INTDRDY, "task Ready", STACK_SIZE_GENERAL+20, NULL, task_INTDRDY_PRIORITY},
+    {taskSecuencia, "task Secuencia", STACK_SIZE_GENERAL+30, NULL, task_SECUENCIA_PRIORITY},
 };
 
 extern void taskRtos_create(void) {

@@ -68,15 +68,22 @@ extern void taskRtos_INTFF(void *pvParameters) {
 	if (FFSemaphore == NULL)
 		vTaskDelete(NULL);
 
+	mma8451_init();
+
 	for (;;) {
 		if (xSemaphoreTake(FFSemaphore, portMAX_DELAY)) {
-			energia_SetClockRunFromVlpr();
+			PRINTF("FreeFall!!!\r\n");
 
-			mma8451_IntFF();
-			mma8451_enableDRDYInt();
-			xSemaphoreGive(DrdySemaphore);
+//			energia_SetClockRunFromVlpr();	/*< Modo run >*/
+
+			mma8451_IntFF();			/*< Lee la bandera de interrupcion por freefall del mma8451 >*/
+
+			mma8451_enableDRDYInt();	/*< Habilita la interrupcion por data ready >*/
+
+//			xSemaphoreGive(DrdySemaphore);	/*< Genera una interrupcion por dato listo >*/
 		}
 	}
+
 	vTaskDelete(NULL);
 
 	return;
@@ -127,9 +134,11 @@ static void mefIntDRDY(void) {
 	static uint32_t ReadNorma;
 	DatosMMA8451_t ReadEjes;
 
+	mma8451_readDRDY();
+
 	switch (estMefInt2) {
 	case EST_ISR_INT2_IDLE:
-		mma8451_readDRDY();
+
 		ReadNorma = mma8451_cuadNorm();
 		IF_FinFreefall = false;
 
@@ -150,12 +159,12 @@ static void mefIntDRDY(void) {
 		clrBuffer(buffer, MAX_BUFFER);
 
 		/*< Activamos el bajo consumo >*/
-		energia_SetClockVlpr();
+//		energia_SetClockVlpr();
 
 		estMefInt2 = EST_ISR_INT2_IDLE;
 		break;
 	case EST_ISR_INT2_ADQ_DATOS:
-		mma8451_readDRDY();
+//		mma8451_readDRDY();
 		ReadNorma = mma8451_cuadNorm();
 
 		/*< Lectura de los ejes >*/

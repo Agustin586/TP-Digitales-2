@@ -26,9 +26,9 @@
 #define SPI_NVIC_PRIO 2
 
 /*< Variables >*/
-static uint8_t srcBuff[BUFFER_SIZE];
+//static uint8_t srcBuff[BUFFER_SIZE];
 static uint8_t destBuff[BUFFER_SIZE];
-spi_rtos_handle_t master_rtos_handle;
+static spi_rtos_handle_t master_rtos_handle;
 
 /*< Funciones>*/
 extern void spiRtos_init(void) {
