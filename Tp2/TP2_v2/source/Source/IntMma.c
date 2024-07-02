@@ -24,6 +24,9 @@
 #define MAX_RANGE_2G_CUAD	200*200
 #define MAX_BUFFER			20
 
+#define MAXCOUNT_COUNTING_SEMAPHORE	10	/*< Cantidad de eventos que puede detectar >*/
+#define	INITIALCOUNT				0	/*< Cantidad inicial de eventos >*/
+
 /*< VARIBALES >*/
 typedef enum {
 	EST_ISR_INT2_IDLE = 0, EST_ISR_INT2_RESET, EST_ISR_INT2_ADQ_DATOS,
@@ -62,8 +65,46 @@ static bool Fin_Freefall(uint32_t buffer[], uint8_t max_indice);
  * */
 static void clrBuffer(uint32_t buffer[], uint8_t max_indice);
 
+/*
+ * @brief	Activa las interrupciones desde el micro
+ * */
+static void activar_intFreeFall(void);
+static void desactivar_intFreeFall(void);
+static void activar_intDRDY(void);
+static void desactivar_intDRDY(void);
+
+static void activar_intFreeFall(void) {
+	PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);
+	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN, kPORT_InterruptLogicZero);
+
+	return;
+}
+
+static void desactivar_intFreeFall(void) {
+	PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN,
+			kPORT_InterruptOrDMADisabled);
+	PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
+
+	return;
+}
+
+static void activar_intDRDY(void) {
+	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
+
+	return;
+}
+
+static void desactivar_intDRDY(void) {
+	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN,
+			kPORT_InterruptOrDMADisabled);
+	PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+
+	return;
+}
+
 extern void taskRtos_INTFF(void *pvParameters) {
-	PRINTF("Tarea: Interrupcion FreeFall\r\n");
+	PRINTF("> Tarea: Interrupcion FreeFall\r\n");
 	FFSemaphore = xSemaphoreCreateBinary();
 	if (FFSemaphore == NULL)
 		vTaskDelete(NULL);
@@ -76,9 +117,10 @@ extern void taskRtos_INTFF(void *pvParameters) {
 
 //			energia_SetClockRunFromVlpr();	/*< Modo run >*/
 
-			mma8451_IntFF();			/*< Lee la bandera de interrupcion por freefall del mma8451 >*/
+			mma8451_IntFF(); /*< Lee la bandera de interrupcion por freefall del mma8451 >*/
 
-			mma8451_enableDRDYInt();	/*< Habilita la interrupcion por data ready >*/
+			mma8451_enableDRDYInt(); /*< Habilita la interrupcion por data ready >*/
+			activar_intDRDY();
 
 //			xSemaphoreGive(DrdySemaphore);	/*< Genera una interrupcion por dato listo >*/
 		}
@@ -90,8 +132,11 @@ extern void taskRtos_INTFF(void *pvParameters) {
 }
 
 extern void taskRtos_INTDRDY(void *pvParameters) {
-	PRINTF("Tarea: Interrucion Dato Listo\r\n");
-	DrdySemaphore = xSemaphoreCreateBinary();
+	PRINTF("> Tarea: Interrucion Dato Listo\r\n");
+
+	DrdySemaphore = xSemaphoreCreateCounting(MAXCOUNT_COUNTING_SEMAPHORE,
+			INITIALCOUNT);
+
 	if (DrdySemaphore == NULL)
 		vTaskDelete(NULL);
 
@@ -99,8 +144,11 @@ extern void taskRtos_INTDRDY(void *pvParameters) {
 	mefIntDRDY_init();
 
 	for (;;) {
-		if (xSemaphoreTake(DrdySemaphore, portMAX_DELAY))
+		if (xSemaphoreTake(DrdySemaphore, portMAX_DELAY)) {
+			PRINTF("Dato Listo!!!\r\n");
 			mefIntDRDY();
+			activar_intDRDY();
+		}
 	}
 
 	vTaskDelete(NULL);
@@ -115,35 +163,45 @@ static void mefIntDRDY_init(void) {
 
 	/* Creamos la cola de datos */
 	queueNormMax = xQueueCreate(CANT_ELEMENTOS_COLA, sizeof(uint32_t));
-	if (queueNormMax == NULL){
+	if (queueNormMax == NULL) {
 		PRINTF("No se puedo crear la cola de datos\r\n");
-		while(1);
+		while (1)
+			;
 	}
 
 	queueDatosEjes = xQueueCreate(MAX_QUEUE_LONG, sizeof(DatosMMA8451_t));
-	if (queueDatosEjes == NULL){
+	if (queueDatosEjes == NULL) {
 		PRINTF("No se puedo crear la cola de datos\r\n");
-		while(1);
+		while (1)
+			;
 	}
 
 	return;
 }
+
 static void mefIntDRDY(void) {
 	static uint8_t indice = 0;
 	static uint32_t buffer[MAX_BUFFER];
 	static uint32_t ReadNorma;
-	DatosMMA8451_t ReadEjes;
+	static DatosMMA8451_t ReadEjes;
 
 	mma8451_readDRDY();
 
 	switch (estMefInt2) {
 	case EST_ISR_INT2_IDLE:
-
 		ReadNorma = mma8451_cuadNorm();
 		IF_FinFreefall = false;
 
 		if (ReadNorma < THS_FF_CUAD)
 			estMefInt2 = EST_ISR_INT2_ADQ_DATOS;
+		else {
+			/*
+			 * Si no se detecto freefall correctamente vuelve a habilitar
+			 * las interrupciones por freefall.
+			 * */
+			activar_intFreeFall(); /*< Habilita int freefall del micro >*/
+			mma8451_disableDRDYInt(); /*< Deshabilita int dato listo del mma8451 >*/
+		}
 		break;
 	case EST_ISR_INT2_RESET:
 		mma8451_disableDRDYInt();
@@ -158,9 +216,10 @@ static void mefIntDRDY(void) {
 		IF_FinFreefall = true;
 		clrBuffer(buffer, MAX_BUFFER);
 
+		activar_intFreeFall();
+
 		/*< Activamos el bajo consumo >*/
 //		energia_SetClockVlpr();
-
 		estMefInt2 = EST_ISR_INT2_IDLE;
 		break;
 	case EST_ISR_INT2_ADQ_DATOS:
@@ -173,6 +232,10 @@ static void mefIntDRDY(void) {
 		ReadEjes.ReadZ = mma8451_getAcZ();
 		ReadEjes.NormaCuad = ReadNorma; /*< En la pantalla debemos hacer la raiz cuadrada >*/
 
+		PRINTF("Eje X: %d\r\n", ReadEjes.ReadX);
+		PRINTF("Eje Y: %d\r\n", ReadEjes.ReadY);
+		PRINTF("Eje Z: %d\r\n", ReadEjes.ReadZ);
+
 		xQueueSendToBack(queueDatosEjes, &ReadEjes, pdMS_TO_TICKS(100));
 
 		/*< Cargamos en el buffer para detectar el fin de la caida libre >*/
@@ -183,8 +246,9 @@ static void mefIntDRDY(void) {
 		if (indice == MAX_BUFFER)
 			indice = 0;
 
-		if (Fin_Freefall(buffer, MAX_BUFFER))
+		if (Fin_Freefall(buffer, MAX_BUFFER)) {
 			estMefInt2 = EST_ISR_INT2_RESET;
+		}
 
 		break;
 	default:
@@ -247,18 +311,14 @@ void PORTC_PORTD_IRQHandler(void) {
 	if (PORT_GetPinsInterruptFlags(INT1_PORT)) {
 		xSemaphoreGiveFromISR((QueueHandle_t ) DrdySemaphore,
 				&xHigherPriorityTaskWoken);
-		PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN,
-				kPORT_InterruptOrDMADisabled);
-		PORT_ClearPinsInterruptFlags(INT1_PORT, 1 << INT1_PIN);
+		desactivar_intDRDY();
 	}
 
 	/* INTERRUPCION POR FREEFALL */
 	if (PORT_GetPinsInterruptFlags(INT2_PORT)) {
 		xSemaphoreGiveFromISR((QueueHandle_t ) FFSemaphore,
 				&xHigherPriorityTaskWoken);
-		PORT_SetPinInterruptConfig(INT2_PORT, INT2_PIN,
-				kPORT_InterruptOrDMADisabled);
-		PORT_ClearPinsInterruptFlags(INT2_PORT, 1 << INT2_PIN);	// Limpia bandera de interrupcion 2
+		desactivar_intFreeFall();
 	}
 
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

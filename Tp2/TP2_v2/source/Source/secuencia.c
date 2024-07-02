@@ -80,7 +80,7 @@ void timerRtos_Timer10s(void *pvParameters);
 void timerRtos_TimerBlink(void *pvParameters);
 
 extern void taskSecuencia(void *pvparameters) {
-	PRINTF("Tarea: Secuencia\r\n");
+	PRINTF("> Tarea: Secuencia\r\n");
 	mefSecuencia_init();
 	timerRtos_init();
 

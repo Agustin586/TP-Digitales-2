@@ -61,7 +61,9 @@ int main(void) {
     BOARD_InitDebugConsole();
 #endif
 
+    PRINTF("\n==================================================\r\n");
     PRINTF("Acelerometro -- Zuliani, Agustin y Ballin, Tomas\r\n");
+    PRINTF("==================================================\r\n");
 
     board_init();
 

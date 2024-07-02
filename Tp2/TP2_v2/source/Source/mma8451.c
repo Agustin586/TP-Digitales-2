@@ -538,7 +538,7 @@ void mma8451_enableDRDYInt(void) {
 	mma8451_activar();
 
 	/* Habilita la interrupcion por int2 en el micro */
-	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
+//	PORT_SetPinInterruptConfig(INT1_PORT, INT1_PIN, kPORT_InterruptLogicZero);
 
 	return;
 }
