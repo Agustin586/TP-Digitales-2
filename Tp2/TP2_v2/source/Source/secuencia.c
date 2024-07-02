@@ -57,11 +57,6 @@ static void mefSecuencia(void);
 static void mefSecuencia_init(void);
 
 /*
- * @brief	Inicializa todos los timer de rtos
- * */
-static void timerRtos_init(void);
-
-/*
  * @brief	Inicia el timer por argumento
  *
  * @param	TimerID_t	Id del timer
@@ -76,13 +71,12 @@ static void timerRtos_start(TimerID_t timerID);
 static void timerRtos_stop(TimerID_t timerID);
 
 /*< CALLBACKs >*/
-void timerRtos_Timer10s(void *pvParameters);
-void timerRtos_TimerBlink(void *pvParameters);
+static void timerRtos_Timer10s(TimerHandle_t xTimer);
+static void timerRtos_TimerBlink(TimerHandle_t xTimer);
 
 extern void taskSecuencia(void *pvparameters) {
 	PRINTF("> Tarea: Secuencia\r\n");
 	mefSecuencia_init();
-	timerRtos_init();
 
 	for (;;) {
 		mefSecuencia();
@@ -100,6 +94,12 @@ static void mefSecuencia_init(void) {
 
 	file.file_ = file_ejes;
 	file.nameFile = "DatosEjes.txt";
+
+	/*
+	 * NOTA: Los timers se crean antes de iniciar
+	 * el scheduler.
+	 * */
+//	timerRtos_init();
 
 	return;
 }
@@ -133,8 +133,8 @@ static void mefSecuencia(void) {
 		/*< CAMBIO DE ESTADO >*/
 		if (intMma_getIFFreeFall()) {
 			LED_AZUL(OFF);
-			timerRtos_start(TIMER_10s);
 			timerRtos_start(TIMER_BLINK);
+			timerRtos_start(TIMER_10s);
 			estMefSec = EST_SECUENCIA_RESULTADO;		// Cambia de estado
 		}
 
@@ -203,13 +203,17 @@ static void mefSecuencia(void) {
 	return;
 }
 
-static void timerRtos_init(void) {
+extern void timerRtos_init(void) {
 	if (xTimerCreate("timer 10s", pdMS_TO_TICKS(10000), pdFALSE, NULL,
-			timerRtos_Timer10s) == NULL)
+			timerRtos_Timer10s) == NULL){
 		PRINTF("Error al crear un timer\r\n");
+		while(1);
+	}
 	if (xTimerCreate("timer blink", pdMS_TO_TICKS(500), pdTRUE, NULL,
-			timerRtos_TimerBlink) == NULL)
+			timerRtos_TimerBlink) == NULL){
 		PRINTF("Error al crear un timer\r\n");
+		while(1);
+	}
 
 	return;
 }
@@ -217,10 +221,10 @@ static void timerRtos_init(void) {
 static void timerRtos_start(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStart(Timer10s, pdMS_TO_TICKS(100));
+		xTimerStart(Timer10s, pdMS_TO_TICKS(10));
 		break;
 	case TIMER_BLINK:
-		xTimerStart(TimerBlink, pdMS_TO_TICKS(100));
+		xTimerStart(TimerBlink, pdMS_TO_TICKS(10));
 		break;
 	default:
 		PRINTF("Error al iniciar un timer\r\n");
@@ -244,13 +248,13 @@ static void timerRtos_stop(TimerID_t timerID) {
 	}
 }
 
-void timerRtos_Timer10s(void *pvParameters) {
+static void timerRtos_Timer10s(TimerHandle_t xTimer) {
 	F_timer10s = true;
 
 	return;
 }
 
-void timerRtos_TimerBlink(void *pvParameters) {
+static void timerRtos_TimerBlink(TimerHandle_t xTimer) {
 	LED_ROJO(TOGGLE);
 
 	return;

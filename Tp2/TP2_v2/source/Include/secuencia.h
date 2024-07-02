@@ -12,5 +12,9 @@
  * @brief	Tarea de secuencia
  * */
 extern void taskSecuencia(void *pvparameters);
+/*
+ * @brief	Inicializa todos los timer de rtos
+ * */
+extern void timerRtos_init(void);
 
 #endif /* INCLUDE_SECUENCIA_H_ */
