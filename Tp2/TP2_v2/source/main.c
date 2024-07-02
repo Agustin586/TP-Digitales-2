@@ -40,6 +40,7 @@
 #include "MKL46Z4.h"
 #include "fsl_debug_console.h"
 #include "Include/energia.h"
+#include "Include/SD2_board.h"
 /* TODO: insert other include files here. */
 #include "Include/taskRtos.h"
 #include "FreeRTOS.h"
@@ -61,6 +62,7 @@ int main(void) {
 
     PRINTF("Acelerometro -- Zuliani, Agustin y Ballin, Tomas\r\n");
 
+    board_init();
     taskRtos_create();
 
 //    energia_SetClockVlpr();

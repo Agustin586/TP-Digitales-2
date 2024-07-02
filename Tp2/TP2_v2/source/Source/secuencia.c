@@ -83,8 +83,8 @@ extern void taskSecuencia(void *pvparameters) {
 
 	for (;;) {
 		mefSecuencia();
-		PRINTF("Tarea Secuencia!!!\r\n");
-		delay_ms(500);
+//		PRINTF("Tarea Secuencia!!!\r\n");
+//		delay_ms(500);
 	}
 
 	vTaskDelete(NULL);
