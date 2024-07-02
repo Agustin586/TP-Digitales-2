@@ -95,6 +95,7 @@ extern void taskRtos_INTDRDY(void *pvParameters) {
 		if (xSemaphoreTake(DrdySemaphore, portMAX_DELAY))
 			mefIntDRDY();
 	}
+
 	vTaskDelete(NULL);
 
 	return;
@@ -107,7 +108,16 @@ static void mefIntDRDY_init(void) {
 
 	/* Creamos la cola de datos */
 	queueNormMax = xQueueCreate(CANT_ELEMENTOS_COLA, sizeof(uint32_t));
+	if (queueNormMax == NULL){
+		PRINTF("No se puedo crear la cola de datos\r\n");
+		while(1);
+	}
+
 	queueDatosEjes = xQueueCreate(MAX_QUEUE_LONG, sizeof(DatosMMA8451_t));
+	if (queueDatosEjes == NULL){
+		PRINTF("No se puedo crear la cola de datos\r\n");
+		while(1);
+	}
 
 	return;
 }

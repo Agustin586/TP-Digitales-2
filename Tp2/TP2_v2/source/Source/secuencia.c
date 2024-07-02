@@ -83,6 +83,8 @@ extern void taskSecuencia(void *pvparameters) {
 
 	for (;;) {
 		mefSecuencia();
+		PRINTF("Tarea Secuencia!!!\r\n");
+		delay_ms(500);
 	}
 
 	vTaskDelete(NULL);
@@ -103,6 +105,12 @@ static void mefSecuencia(void) {
 	float NormaMaxima;
 	char buffer[LONGITUD_MAX_STRING];
 	FIL file_ejes;
+
+	/*
+	 * NOTA: El tipo de variables File_t ocupa mucha ram por lo tanto
+	 * debemos tenerlo en cuenta a la hora de crear la tarea secuencia.
+	 *
+	 * */
 	File_t file = { .file_ = file_ejes, .nameFile = "DatosEjes.txt", .buffer =
 			"", };
 	static bool Flag = false;

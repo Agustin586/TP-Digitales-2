@@ -70,9 +70,9 @@ extern void spiRtos_xfer(uint8_t *tx_Data, uint8_t *rx_Data) {
 	spi_transfer_t masterXfer = { 0 };
 	status_t status;
 
-	memcpy(srcBuff, tx_Data, sizeof(tx_Data));
+//	memcpy(srcBuff, tx_Data, sizeof(tx_Data));
 
-	masterXfer.txData = srcBuff;
+	masterXfer.txData = tx_Data;
 	masterXfer.rxData = destBuff;
 	masterXfer.dataSize = BUFFER_SIZE;
 
