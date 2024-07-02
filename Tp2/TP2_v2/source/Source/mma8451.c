@@ -501,8 +501,8 @@ void mma8451_DRDYinit(void) {
 	xyz_data_cfg.FS1 = 0;  //
 	xyz_data_cfg.HPF_OUT = 0;
 
-	mma8451_write_reg(XYZ_DATA_CFG_ADRESS, xyz_data_cfg.data);
-	xyz_data_cfg.data = mma8451_read_reg(XYZ_DATA_CFG_ADRESS);
+	mma8451_write_reg(XYZ_DATA_CFG_ADDRESS, xyz_data_cfg.data);
+	xyz_data_cfg.data = mma8451_read_reg(XYZ_DATA_CFG_ADDRESS);
 	////////////////////////////////////////////////////////////////////////////////////
 
 	/* REGISTRO 4 */
