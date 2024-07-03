@@ -272,7 +272,7 @@ extern void mma8451_init(void) {
 	/*< Configuraciones del mma8451 >*/
 	mma8451_DRDYinit();
 	mma8451_FFinit();
-	mma8451_setDataRate(DR_400hz);
+	mma8451_setDataRate(DR_800hz);
 	mma8451_activar();
 
 	/*< Configuraciones de los pines >*/
@@ -452,7 +452,7 @@ void mma8451_FFinit(void) {
 
 	/* FF/MT DEBOUNCE COUNTER */
 	////////////////////////////////////////////////////////////////////////////////////
-	ff_mt_count.D = 50;		// Cuentas antes de la interrupción
+	ff_mt_count.D = 20;		// Cuentas antes de la interrupción
 
 	mma8451_write_reg(FF_MT_COUNT_ADDRESS, ff_mt_count.data);
 	////////////////////////////////////////////////////////////////////////////////////

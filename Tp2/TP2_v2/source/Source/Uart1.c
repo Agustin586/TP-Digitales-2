@@ -23,7 +23,7 @@ uint8_t recv_buffer[4];
 uart_rtos_handle_t handle;
 struct _uart_handle t_handle;
 //uart_dma_handle_t uart_dma_handle;
-dma_handle_t uart_tx_dma_handle;
+//dma_handle_t uart_tx_dma_handle;
 
 uart_rtos_config_t uart_config = {
 		.base = UART1,

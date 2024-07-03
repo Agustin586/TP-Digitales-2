@@ -71,8 +71,6 @@ int main(void) {
 	timerRtos_init();
 	taskRtos_create();
 
-//    energia_SetClockVlpr();
-
 	vTaskStartScheduler();
 
 	while (1)

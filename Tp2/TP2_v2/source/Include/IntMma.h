@@ -13,7 +13,7 @@
 #include "stdbool.h"
 
 /*< Definiciones >*/
-#define MAX_QUEUE_LONG		70
+#define MAX_QUEUE_LONG		100
 
 /*< Variables >*/
 typedef struct {

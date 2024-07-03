@@ -124,8 +124,6 @@ extern void taskRtos_INTFF(void *pvParameters) {
 
 			mma8451_enableDRDYInt(); 	/*< Habilita la interrupcion por data ready >*/
 			activar_intDRDY();
-
-//			xSemaphoreGive(DrdySemaphore);	/*< Genera una interrupcion por dato listo >*/
 		}
 	}
 
@@ -182,10 +180,11 @@ static void mefIntDRDY_init(void) {
 	return;
 }
 
+static DatosMMA8451_t ReadEjes;
+
 static void mefIntDRDY(void) {
 	static uint8_t indice = 0;
 	static uint32_t buffer[MAX_BUFFER];
-	static DatosMMA8451_t ReadEjes;
 
 	if (mma8451_readDRDY() == false) {
 		PRINTF("\r\nError: no se leyo el mma8451\r\n");
@@ -313,7 +312,7 @@ extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes,
 	*longitud = uxQueueMessagesWaiting(queueDatosEjes);
 
 	if (*longitud != 0) {
-		xQueueReceive(queueDatosEjes, DatosEjes, pdMS_TO_TICKS(10));
+		xQueueReceive(queueDatosEjes, (DatosMMA8451_t *)DatosEjes, pdMS_TO_TICKS(10));
 	} else {
 		PRINTF("No hay datos en la cola\r\n");
 	}

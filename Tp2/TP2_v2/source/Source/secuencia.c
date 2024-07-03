@@ -23,6 +23,10 @@
 #include "timers.h"
 #include "queue.h"
 
+#define RANGO_2G	120000.0
+#define MAX_VAL_WAVEFORM	200.0
+#define CONV_VAL	MAX_VAL_WAVEFORM / RANGO_2G
+
 /*< VARIABLES >*/
 typedef enum {
 	EST_SECUENCIA_REPOSO = 0, EST_SECUENCIA_RESULTADO,
@@ -37,7 +41,7 @@ static estMefSec_enum estMefSec;
 
 static FIL file_ejes;
 static File_t file;
-static DatosMMA8451_t DatosEjes[MAX_QUEUE_LONG];
+static DatosMMA8451_t DatosEjes;
 static float NormaMaxima;
 
 /*< Timers Handlers >*/
@@ -153,21 +157,26 @@ static void mefSecuencia(void) {
 			NormaMaxima = sqrt((float) queueRtos_receiveNormaMaxCuad()) / 100.0;
 
 			PRINTF("> Dato leido\n");
-			PRINTF("Norma Maxima:%.2f\r\n", NormaMaxima);
+			PRINTF("Norma Maxima:%.2f g\r\n", NormaMaxima);
 
-			sprintf(buffer, "%.2f", NormaMaxima);
+			sprintf(buffer, "%.2f g", NormaMaxima);
 			nextion_text(TEXT_ID(0), buffer);
 
 			/*< ENVIA LA NORMA A LA PANTALLA >*/
-			queueRtos_receiveDatosEjes(DatosEjes, &longitud);
+
 
 //			sprintf(file.buffer, "Eje X\t\tEje Y\t\tEje Z\r\n");
 //			sd_write(file);
 
-			for (uint8_t dato = 0; dato < longitud; dato++) {
+			for (uint8_t dato = 0; dato < MAX_QUEUE_LONG; dato++) {
+				queueRtos_receiveDatosEjes(&DatosEjes, &longitud);
+
+				if (longitud == 0)
+					break;
+
 				/*< Escritura en la pantalla >*/
 				nextion_waveform(WAVEFORM_ID0(2), WAVEFORM_CHANNEL(0),
-						DatosEjes[dato].NormaCuad);
+						(uint8_t)( DatosEjes.NormaCuad * CONV_VAL));
 				delay_ms(5);
 
 				/*< Escritura en la memoria sd >*/
