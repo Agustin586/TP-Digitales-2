@@ -78,17 +78,16 @@ static void timerRtos_TimerBlink(TimerHandle_t xTimer);
 
 extern void taskSecuencia(void *pvparameters) {
 	PRINTF("> Tarea: Secuencia\r\n");
+
 	mefSecuencia_init();
 
 	for (;;) {
 		mefSecuencia();
-
 		delay_ms(10);
-//		PRINTF("Tarea Secuencia!!!\r\n");
-//		delay_ms(500);
 	}
 
 	vTaskDelete(NULL);
+
 	return;
 }
 
@@ -99,11 +98,6 @@ static void mefSecuencia_init(void) {
 	file.file_ = file_ejes;
 	file.nameFile = "DatosEjes.txt";
 
-	/*
-	 * NOTA: Los timers se crean antes de iniciar
-	 * el scheduler.
-	 * */
-//	timerRtos_init();
 	return;
 }
 
@@ -190,6 +184,7 @@ static void mefSecuencia(void) {
 		 * */
 		if (F_timer10s || board_getSw(SW1)) {
 			Flag = false;
+			F_timer10s = false;
 			timerRtos_stop(TIMER_10s);
 			timerRtos_stop(TIMER_BLINK);
 			intMma_clrIFFreeFall();
@@ -246,10 +241,10 @@ static void timerRtos_start(TimerID_t timerID) {
 static void timerRtos_stop(TimerID_t timerID) {
 	switch (timerID) {
 	case TIMER_10s:
-		xTimerStop(Timer10s, pdMS_TO_TICKS(100));
+		xTimerStop(Timer10s, pdMS_TO_TICKS(10));
 		break;
 	case TIMER_BLINK:
-		xTimerStop(TimerBlink, pdMS_TO_TICKS(100));
+		xTimerStop(TimerBlink, pdMS_TO_TICKS(10));
 		break;
 	default:
 		PRINTF("Error al detener un timer\r\n");

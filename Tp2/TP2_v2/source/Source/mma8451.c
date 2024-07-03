@@ -569,7 +569,7 @@ void mma8451_disableDRDYInt(void) {
 
 extern bool mma8451_readDRDY(void) {
 	int16_t readG;
-	INT_SOURCE_t intSource;
+	volatile static INT_SOURCE_t intSource;
 
 #define BUF_LENGTH 7
 	static uint8_t bufTemp[BUF_LENGTH];

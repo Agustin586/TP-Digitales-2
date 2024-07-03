@@ -35,6 +35,7 @@ typedef enum {
 static estMefInt2_enum estMefInt2;
 
 static uint32_t Max_Norm;
+static uint32_t ReadNorma;
 
 QueueHandle_t queueNormMax, queueDatosEjes;
 SemaphoreHandle_t DrdySemaphore, FFSemaphore;
@@ -105,7 +106,9 @@ static void desactivar_intDRDY(void) {
 
 extern void taskRtos_INTFF(void *pvParameters) {
 	PRINTF("> Tarea: Interrupcion FreeFall\r\n");
+
 	FFSemaphore = xSemaphoreCreateBinary();
+
 	if (FFSemaphore == NULL)
 		vTaskDelete(NULL);
 
@@ -117,9 +120,9 @@ extern void taskRtos_INTFF(void *pvParameters) {
 
 //			energia_SetClockRunFromVlpr();	/*< Modo run >*/
 
-			mma8451_IntFF(); /*< Lee la bandera de interrupcion por freefall del mma8451 >*/
+			mma8451_IntFF(); 			/*< Lee la bandera de interrupcion por freefall del mma8451 >*/
 
-			mma8451_enableDRDYInt(); /*< Habilita la interrupcion por data ready >*/
+			mma8451_enableDRDYInt(); 	/*< Habilita la interrupcion por data ready >*/
 			activar_intDRDY();
 
 //			xSemaphoreGive(DrdySemaphore);	/*< Genera una interrupcion por dato listo >*/
@@ -182,10 +185,12 @@ static void mefIntDRDY_init(void) {
 static void mefIntDRDY(void) {
 	static uint8_t indice = 0;
 	static uint32_t buffer[MAX_BUFFER];
-	static uint32_t ReadNorma;
 	static DatosMMA8451_t ReadEjes;
 
-	mma8451_readDRDY();
+	if (mma8451_readDRDY() == false) {
+		PRINTF("\r\nError: no se leyo el mma8451\r\n");
+		return;
+	}
 
 	switch (estMefInt2) {
 	case EST_ISR_INT2_IDLE:
@@ -199,15 +204,21 @@ static void mefIntDRDY(void) {
 			 * Si no se detecto freefall correctamente vuelve a habilitar
 			 * las interrupciones por freefall.
 			 * */
-			activar_intFreeFall(); /*< Habilita int freefall del micro >*/
-			mma8451_disableDRDYInt(); /*< Deshabilita int dato listo del mma8451 >*/
+			activar_intFreeFall(); 		/*< Habilita int freefall del micro >*/
+			mma8451_disableDRDYInt(); 	/*< Deshabilita int dato listo del mma8451 >*/
 		}
 		break;
 	case EST_ISR_INT2_RESET:
 		mma8451_disableDRDYInt();
+		mma8451_readDRDY();			/*< IMPORTANTE: Borra un ultimo dato listo >*/
 
 		/* Carga el dato en la cola */
-		xQueueSendToBack(queueNormMax, &Max_Norm, pdMS_TO_TICKS(100));
+		if (uxQueueMessagesWaiting(queueNormMax) != 0) {
+			/* Limpia el dato anterior */
+			PRINTF("\r\nError: esta cola no deberia estar llenar\r\n");
+			while(1);
+		}
+		xQueueSendToBack(queueNormMax, &Max_Norm, pdMS_TO_TICKS(10));
 
 		/* Limpia las variables */
 		Max_Norm = 0;
@@ -236,7 +247,7 @@ static void mefIntDRDY(void) {
 		PRINTF("Eje Y: %d\r\n", ReadEjes.ReadY);
 		PRINTF("Eje Z: %d\r\n", ReadEjes.ReadZ);
 
-		xQueueSendToBack(queueDatosEjes, &ReadEjes, pdMS_TO_TICKS(100));
+		xQueueSendToBack(queueDatosEjes, &ReadEjes, pdMS_TO_TICKS(10));
 
 		/*< Cargamos en el buffer para detectar el fin de la caida libre >*/
 		buffer[indice] = ReadNorma, indice++;
@@ -287,14 +298,14 @@ extern void intMma_clrIFFreeFall(void) {
 }
 
 extern uint32_t queueRtos_receiveNormaMaxCuad(void) {
-	uint32_t read;
+	static uint32_t read;
 
 	if (uxQueueMessagesWaiting(queueNormMax)) {
-		xQueuePeek(queueNormMax, &read, pdMS_TO_TICKS(100)); // No elimina el dato de la cola
+		xQueueReceive(queueNormMax, &read, pdMS_TO_TICKS(10)); // No elimina el dato de la cola
 		return read;
 	}
 
-	return pdFALSE;
+	return read;
 }
 
 extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes,
@@ -302,7 +313,7 @@ extern void queueRtos_receiveDatosEjes(DatosMMA8451_t *DatosEjes,
 	*longitud = uxQueueMessagesWaiting(queueDatosEjes);
 
 	if (*longitud != 0) {
-		xQueueReceive(queueDatosEjes, DatosEjes, pdMS_TO_TICKS(100));
+		xQueueReceive(queueDatosEjes, DatosEjes, pdMS_TO_TICKS(10));
 	} else {
 		PRINTF("No hay datos en la cola\r\n");
 	}
