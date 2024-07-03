@@ -215,7 +215,8 @@ static void mefIntDRDY(void) {
 		if (uxQueueMessagesWaiting(queueNormMax) != 0) {
 			/* Limpia el dato anterior */
 			PRINTF("\r\nError: esta cola no deberia estar llenar\r\n");
-			while(1);
+//			while(1);
+			queueRtos_receiveNormaMaxCuad();
 		}
 		xQueueSendToBack(queueNormMax, &Max_Norm, pdMS_TO_TICKS(10));
 
