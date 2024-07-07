@@ -9,6 +9,8 @@
 #include "Include/nextion.h"
 #include "Include/Uart1.h"
 #include "Include/MACROS.h"
+#include "fsl_common.h"
+#include "fsl_debug_console.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include <string.h>
@@ -63,7 +65,7 @@ extern void nextion_waveform(uint8_t waveformId, uint8_t channel, uint8_t val) {
  * @param	char *buffer:	String a cargar
  * */
 extern void nextion_text(uint8_t textId, char *buffer) {
-	sprintf(Trama.trama, "t%d.txt=\"%s%s\"", textId, buffer, fin_trama);
+	sprintf(Trama.trama, "t%d.txt=\"%s\"%s", textId, buffer, fin_trama);
 	nextion_sendTrama(Trama.trama);
 
 	return;
@@ -73,13 +75,18 @@ extern void nextion_text(uint8_t textId, char *buffer) {
  * @brief	Envia la trama por uart a la pantalla
  * */
 static void nextion_sendTrama(char *str) {
-	Uart1_send(str);
+	if (Uart1_send(str) != kStatus_Success)
+		PRINTF("Error: no se pudo enviar\r\n");
 
 	return;
 }
 
 extern void taskRtos_UART1(void *pvParameters) {
+	PRINTF("Tarea: Uart 1\r\n");
+
 	Uart1_init();
+
+	Uart1_send("Mensaje de prueba\r\n");
 
 	for (;;) {
 		/* Utilizado para recepcion */
@@ -90,4 +97,3 @@ extern void taskRtos_UART1(void *pvParameters) {
 
 	return;
 }
-

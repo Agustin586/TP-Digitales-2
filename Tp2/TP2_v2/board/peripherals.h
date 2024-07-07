@@ -61,7 +61,7 @@ extern "C" {
 /* Definition of peripheral ID */
 #define BOARD_LPSCI_1_PERIPHERAL UART0
 /* Definition of the clock source frequency */
-#define BOARD_LPSCI_1_CLOCK_SOURCE 47972352UL
+#define BOARD_LPSCI_1_CLOCK_SOURCE 8000000UL
 
 /***********************************************************************************************************************
  * Global variables

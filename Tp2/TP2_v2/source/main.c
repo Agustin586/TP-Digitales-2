@@ -39,6 +39,10 @@
 #include "clock_config.h"
 #include "MKL46Z4.h"
 #include "fsl_debug_console.h"
+#include "Include/energia.h"
+#include "Include/SD2_board.h"
+#include "Include/mma8451.h"
+#include "Include/secuencia.h"
 /* TODO: insert other include files here. */
 #include "Include/taskRtos.h"
 #include "FreeRTOS.h"
@@ -49,23 +53,30 @@
  * @brief   Application entry point.
  */
 int main(void) {
-
-    /* Init board hardware. */
-    BOARD_InitBootPins();
-    BOARD_InitBootClocks();
-    BOARD_InitBootPeripherals();
+	/* Init board hardware. */
+	BOARD_InitBootPins();
+	BOARD_InitBootClocks();
+	BOARD_InitBootPeripherals();
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
-    /* Init FSL debug console. */
-    BOARD_InitDebugConsole();
+	/* Init FSL debug console. */
+	BOARD_InitDebugConsole();
 #endif
 
-    taskRtos_create();
+	PRINTF("\n==================================================\r\n");
+	PRINTF("Acelerometro -- Zuliani, Agustin y Ballin, Tomas\r\n");
+	PRINTF("==================================================\r\n");
 
-    vTaskStartScheduler();
+	board_init();
 
-    while(1);
+	timerRtos_init();
+	taskRtos_create();
 
-    return 0 ;
+	vTaskStartScheduler();
+
+	while (1)
+		;
+
+	return 0;
 }
 
 void vApplicationTickHook(void) {
@@ -78,7 +89,6 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
 
 	while (1)
 		;
-
 
 	return;
 }

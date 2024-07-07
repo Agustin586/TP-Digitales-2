@@ -26,9 +26,9 @@
 #define SPI_NVIC_PRIO 2
 
 /*< Variables >*/
-static uint8_t srcBuff[BUFFER_SIZE];
+//static uint8_t srcBuff[BUFFER_SIZE];
 static uint8_t destBuff[BUFFER_SIZE];
-spi_rtos_handle_t master_rtos_handle;
+static spi_rtos_handle_t master_rtos_handle;
 
 /*< Funciones>*/
 extern void spiRtos_init(void) {
@@ -70,9 +70,9 @@ extern void spiRtos_xfer(uint8_t *tx_Data, uint8_t *rx_Data) {
 	spi_transfer_t masterXfer = { 0 };
 	status_t status;
 
-	memcpy(srcBuff, tx_Data, sizeof(tx_Data));
+//	memcpy(srcBuff, tx_Data, sizeof(tx_Data));
 
-	masterXfer.txData = srcBuff;
+	masterXfer.txData = tx_Data;
 	masterXfer.rxData = destBuff;
 	masterXfer.dataSize = BUFFER_SIZE;
 
